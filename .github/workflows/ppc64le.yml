@@ -1,0 +1,77 @@
+name: ppc64le-build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - ciflow/ppc64le/*
+  workflow_dispatch:
+
+jobs:
+  linux-ppc64le-build:
+    name: Build and Test on ppc64le
+    runs-on: [self-hosted, linux, ppc64le] # Ensure you have a self-hosted runner for ppc64le
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9  # Adjust if a different Python version is needed
+
+      - name: Install dependencies
+        run: |
+          # Install EPEL release
+          sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+          
+          # Install development tools and libraries
+          sudo dnf install -y git cmake ninja-build g++ rust cargo \
+              python3.9-devel python3.9-wheel python3.9-pip python3.9-setuptools
+              
+          # Ensure Python and pip are accessible by symlinking
+          if ! command -v python; then
+              sudo ln -s $(command -v python3.9) /usr/bin/python
+          fi
+          if ! command -v pip; then
+              sudo ln -s $(command -v pip3.9) /usr/bin/pip
+          fi
+
+      - name: Clone and Checkout
+        run: |
+          # Clone the repository and check out the specified version
+          git clone https://github.com/pytorch/pytorch.git
+          cd pytorch
+          git checkout tags/v2.4.0
+
+      - name: Apply POWER Patch
+        run: |
+          cd pytorch
+          PPC64LE_PATCH="69cbf05"
+          if ! git log --pretty=format:"%H" | grep -q "$PPC64LE_PATCH"; then
+              echo "Applying POWER patch."
+              git config user.email "Md.Shafi.Hussain@ibm.com"
+              git config user.name "Md. Shafi Hussain"
+              git cherry-pick "$PPC64LE_PATCH"
+          else
+              echo "POWER patch not needed."
+          fi
+
+      - name: Update submodules
+        run: |
+          cd pytorch
+          git submodule sync
+          git submodule update --init --recursive
+
+      - name: Install Python dependencies
+        run: |
+          cd pytorch
+          pip install -r requirements.txt
+
+      - name: Build PyTorch wheel
+        run: |
+          cd pytorch
+          MAX_JOBS=$(nproc) python setup.py bdist_wheel
+          pip install dist/*.whl
