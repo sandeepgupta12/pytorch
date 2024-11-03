@@ -1,47 +1,21 @@
-# Dockerfile.ppc64le
+# Use UBI 9.3 as base image
 FROM registry.access.redhat.com/ubi9/ubi:9.3
-
-LABEL maintainer="Md. Shafi Hussain <Md.Shafi.Hussain@ibm.com>"
 
 # Install necessary dependencies
 RUN dnf install -y \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
     dnf install -y git cmake ninja-build gcc-c++ rust cargo \
-    python39 python39-devel python39-wheel python39-pip python39-setuptools && \
+    python3 python3-devel && \
     dnf clean all
 
-# Link Python and pip to expected paths if not available
-RUN if ! command -v python; then ln -s $(command -v python3.9) /usr/bin/python; fi && \
-    if ! command -v pip; then ln -s $(command -v pip3.9) /usr/bin/pip; fi
+# Set Python and pip aliases to use Python 3.9
+RUN ln -sf /usr/bin/python3 /usr/bin/python && \
+    ln -sf /usr/bin/pip3 /usr/bin/pip
 
-# Environment variables
-ENV PACKAGE_NAME=pytorch \
-    PACKAGE_VERSION=v2.4.0 \
-    PACKAGE_URL=https://github.com/pytorch/pytorch.git \
-    _GLIBCXX_USE_CXX11_ABI=1
+# Install Python packages via pip
+RUN pip install wheel setuptools
 
-# Clone PyTorch repository and apply patch if necessary
-RUN git clone $PACKAGE_URL /workspace/$PACKAGE_NAME && \
-    cd /workspace/$PACKAGE_NAME && \
-    git checkout tags/$PACKAGE_VERSION && \
-    PPC64LE_PATCH="69cbf05" && \
-    if ! git log --pretty=format:"%H" | grep -q "$PPC64LE_PATCH"; then \
-        git config user.email "Md.Shafi.Hussain@ibm.com" && \
-        git config user.name "Md. Shafi Hussain" && \
-        git cherry-pick "$PPC64LE_PATCH"; \
-    else \
-        echo "POWER patch not needed."; \
-    fi
-
-# Set up submodules and install dependencies
-RUN cd /workspace/$PACKAGE_NAME && \
-    git submodule sync && \
-    git submodule update --init --recursive && \
-    pip install -r requirements.txt
-
-# Copy the build script to the container
-COPY .github/scripts/ppc64le-build.sh /workspace/.github/scripts/ppc64le-build.sh
-RUN chmod +x /workspace/.github/scripts/ppc64le-build.sh
-
-# Default command
-CMD ["/workspace/.github/scripts/ppc64le-build.sh"]
+# Copy and run the build script from your repository
+COPY .github/scripts/ppc64le-build.sh /ppc64le-build.sh
+RUN chmod +x /ppc64le-build.sh
+ENTRYPOINT ["/ppc64le-build.sh"]
