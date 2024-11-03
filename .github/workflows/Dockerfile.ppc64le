@@ -19,8 +19,8 @@ RUN pip install wheel setuptools
 COPY .github/scripts/ppc64le-build.sh /ppc64le-build.sh
 RUN chmod +x /ppc64le-build.sh
 
-# Verify script formatting and permissions
-RUN sed -i 's/\r$//' /ppc64le-build.sh && ls -l /ppc64le-build.sh && file /ppc64le-build.sh
+# Verify permissions and ensure Unix line endings
+RUN sed -i 's/\r$//' /ppc64le-build.sh && ls -l /ppc64le-build.sh
 
 # Use CMD to run the script
 CMD ["/ppc64le-build.sh"]
