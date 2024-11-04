@@ -16,7 +16,7 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python && \
 RUN pip install wheel setuptools
 
 # Copy the PyTorch source code into the container
-COPY <local-pytorch-path> /workspace/pytorch
+COPY . /workspace/pytorch
 
 # Copy the build script and make it executable
 COPY .github/scripts/ppc64le-build.sh /ppc64le-build.sh
