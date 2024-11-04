@@ -13,8 +13,10 @@ if ! (MAX_JOBS=$(nproc) python setup.py bdist_wheel && pip install dist/*.whl); 
 fi
 
 # Basic test to ensure installation success
+cd ..
+
 pip install pytest
-if ! pytest test/test_utils.py; then
+if ! pytest "$PACKAGE_NAME/test/test_utils.py"; then
     echo "------------------$PACKAGE_NAME:install_success_but_test_fails---------------------"
     exit 2
 else
