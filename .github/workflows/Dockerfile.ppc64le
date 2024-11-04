@@ -12,6 +12,7 @@ RUN dnf install -y \
 RUN ln -sf /usr/bin/python3 /usr/bin/python && \
     ln -sf /usr/bin/pip3 /usr/bin/pip
 
+COPY requirements.txt .
 # Install Python packages via pip
 RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 
