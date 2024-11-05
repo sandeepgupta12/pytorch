@@ -20,5 +20,5 @@ jobs:
     
     with:
       build-environment: linux-ppc64le-binary-manywheel
-      docker-image-name: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
+      docker-image-name: quay.io/pypa/manylinux_2_28_ppc64le
       runner: ppc64le
