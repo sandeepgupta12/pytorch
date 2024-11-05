@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   linux-manylinux-2_28-py3-cpu-ppc64le-build:
-    if: github.repository_owner == 'pytorch'
+
     name: linux-manylinux-2_28-py3-cpu-ppc64le
     uses: ./.github/workflows/_linux-build.yml
     with:
