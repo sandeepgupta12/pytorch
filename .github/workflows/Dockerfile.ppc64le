@@ -4,13 +4,17 @@ FROM registry.access.redhat.com/ubi9/ubi:9.3
 # Install necessary dependencies
 RUN dnf install -y \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
-    dnf install -y git cmake ninja-build gcc-c++ rust cargo zip dos2unix  \
+    dnf install -y git cmake ninja-build gcc-c++ rust cargo  \
     python3 python3-devel && \
     dnf clean all
+RUN dnf install -y zip && \
+    which zip || echo "zip command not found"
 
 # Set Python and pip aliases to use Python 3.9
 RUN ln -sf /usr/bin/python3 /usr/bin/python && \
     ln -sf /usr/bin/pip3 /usr/bin/pip
+
+ENV PATH="/usr/local/bin:/usr/bin:/bin:${PATH}"
 
 COPY requirements.txt .
 # Install Python packages via pip
@@ -31,3 +35,6 @@ RUN chmod +x /ppc64le-build.sh
 
 # Use CMD to run the script
 CMD ["/ppc64le-build.sh"]
+
+
+RUN which zip || echo "zip command not found"
