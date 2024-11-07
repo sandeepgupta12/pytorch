@@ -28,6 +28,10 @@ jobs:
         run: |
           docker run --rm pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
       
+      - name: Archive artifacts into zip
+        run: |
+          zip -1 -r artifacts.zip dist/ build/custom_test_artifacts build/lib build/bin .additional_ci_files
+  
       - name: Store PyTorch Build Artifacts for s390x
         uses: actions/upload-artifact@v3
         with:
