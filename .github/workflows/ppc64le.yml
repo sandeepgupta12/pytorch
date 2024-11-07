@@ -27,4 +27,12 @@ jobs:
       - name: Run Docker container and execute build script
         run: |
           docker run --rm pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+      
+      - name: Store PyTorch Build Artifacts for s390x
+        uses: actions/upload-artifact@v3
+        with:
+          name: ppc64le-artifact
+          retention-days: 14
+          if-no-files-found: error
+          path: artifacts.zip
   
