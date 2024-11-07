@@ -10,6 +10,8 @@ RUN dnf install -y \
 RUN dnf install -y zip && \
     which zip || echo "zip command not found"
 
+RUN export PATH=$PATH:/usr/bin
+
 # Set Python and pip aliases to use Python 3.9
 RUN ln -sf /usr/bin/python3 /usr/bin/python && \
     ln -sf /usr/bin/pip3 /usr/bin/pip
@@ -33,8 +35,6 @@ RUN chmod +x /ppc64le-build.sh
 RUN dos2unix /ppc64le-build.sh || sed -i 's/\r$//' /ppc64le-build.sh
 RUN chmod +x /ppc64le-build.sh
 
+RUN export PATH=$PATH:/usr/bin
 # Use CMD to run the script
 CMD ["/ppc64le-build.sh"]
-
-
-RUN which zip || echo "zip command not found"

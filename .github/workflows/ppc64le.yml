@@ -23,6 +23,7 @@ jobs:
       - name: Build Docker image for ppc64le
         run: |
           docker build --no-cache -f .github/workflows/Dockerfile.ppc64le -t pytorch-ppc64le:ubi9.3 .
+          export PATH=$PATH:/usr/bin
           zip --version
 
       - name: Run Docker container and execute build script
@@ -31,6 +32,7 @@ jobs:
       
       - name: Archive artifacts into zip
         run: |
+          export PATH=$PATH:/usr/bin
           zip -1 -r artifacts.zip dist/ build/custom_test_artifacts build/lib build/bin .additional_ci_files
   
       - name: Store PyTorch Build Artifacts for s390x
