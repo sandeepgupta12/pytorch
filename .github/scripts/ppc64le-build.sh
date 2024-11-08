@@ -13,7 +13,7 @@ if ! (MAX_JOBS=$(nproc) python setup.py bdist_wheel && pip install dist/*.whl); 
 fi
 
 # Basic test to ensure installation success
-
+ls -R
 
 
 # register PrivateUse1HooksInterface
