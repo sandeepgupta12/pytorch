@@ -28,16 +28,15 @@ jobs:
 
       - name: Run Docker container and execute build script
         run: |
-          docker run --rm pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+          docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
       
       - name: List directory contents
         run: ls -R
       
       - name: Archive artifacts into zip
         run: |
-          export PATH=$PATH:/usr/bin
-          cd /workspace/pytorch
-          zip -1 artifacts.zip dist/*.whl
+          cd dist
+          zip -1 ../artifacts.zip *.whl
   
       - name: Store PyTorch Build Artifacts for s390x
         uses: actions/upload-artifact@v3
