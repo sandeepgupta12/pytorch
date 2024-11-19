@@ -13,12 +13,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  linux-ppc64le-docker-image-build:
+    name: Build docker image for ppc64le
+    runs-on: [self-hosted, linux, ppc64le]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image for ppc64le
+        run: |
+          docker build -f .github/workflows/Dockerfile.ppc64le -t pytorch-ppc64le:ubi9.3 .
+          export PATH=$PATH:/usr/bin
+          zip --version
+
+
+
   linux-manylinux-2_28-py3-cpu-ppc64le-build:
 
     name: linux-manylinux-2_28-py3-cpu-ppc64le
     uses: ./.github/workflows/_linux-build.yml
-    
+    needs: linux-ppc64le-docker-image-build
     with:
       build-environment: linux-ppc64le-binary-manywheel
-      docker-image-name: quay.io/pypa/manylinux_2_28_ppc64le
+      docker-image-name: pytorch-ppc64le:ubi9.3
       runner: ppc64le
