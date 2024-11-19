@@ -38,7 +38,7 @@ jobs:
           cd dist
           zip -1 ../artifacts.zip *.whl
   
-      - name: Store PyTorch Build Artifacts for s390x
+      - name: Store PyTorch Build Artifacts for ppc64le
         uses: actions/upload-artifact@v3
         with:
           name: ppc64le-artifact
