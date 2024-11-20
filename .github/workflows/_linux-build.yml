@@ -182,14 +182,19 @@ jobs:
       - name: Download pytest cache
         uses: ./.github/actions/pytest-cache-download
         continue-on-error: true
-        if: inputs.build-environment != 'linux-s390x-binary-manywheel'
+        if: inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         with:
           cache_dir: .pytest_cache
           job_identifier: ${{ github.workflow }}_${{ inputs.build-environment }}
           s3_bucket: ${{ inputs.s3-bucket }}
 
+      - name: Run Docker container and execute build script
+        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+        run: |
+            docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+            
       - name: Build
-        if: steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == ''
+        if: steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '' || inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
