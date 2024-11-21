@@ -191,7 +191,7 @@ jobs:
       - name: Run Docker container and execute build script
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-            docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist --memory=8g --cpus=4 pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+            docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist --memory=16g --memory-swap=32g --cpus=4 -e MAX_JOBS=2 pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
 
       - name: Build
         if: steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '' || inputs.build-environment != 'linux-ppc64le-binary-manywheel'
