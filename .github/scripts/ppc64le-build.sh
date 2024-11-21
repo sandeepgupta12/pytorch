@@ -7,7 +7,7 @@ PACKAGE_VERSION=${PACKAGE_VERSION:-v2.4.0}
 cd /workspace/$PACKAGE_NAME
 
 # Build and install PyTorch wheel
-if ! (MAX_JOBS=$(nproc) python setup.py bdist_wheel && pip install dist/*.whl); then
+if ! (MAX_JOBS=4 python setup.py bdist_wheel && pip install dist/*.whl); then
     echo "------------------$PACKAGE_NAME:install_fails-------------------------------------"
     exit 1
 fi
