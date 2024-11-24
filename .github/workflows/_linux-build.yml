@@ -194,7 +194,7 @@ jobs:
             docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist --cpus=4 --memory=16g --memory-swap=32g pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
 
       - name: Build
-        if: steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '' || inputs.build-environment != 'linux-ppc64le-binary-manywheel'
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '' ) && (inputs.build-environment != 'linux-ppc64le-binary-manywheel')
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
