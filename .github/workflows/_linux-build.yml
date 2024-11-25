@@ -102,7 +102,7 @@ jobs:
     # Don't run on forked repos
     
     #runs-on: ["self-hosted", "Linux", "ppc64le"]
-    runs-on: ${{ fromJson(inputs.runner) }}
+    runs-on: ${{ inputs.runner_prefix}}${{ inputs.runner }}
     
     timeout-minutes: 240
     outputs:
