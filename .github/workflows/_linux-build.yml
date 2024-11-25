@@ -45,6 +45,12 @@ on:
         default: "linux.2xlarge"
         description: |
           Label of the runner this job should run on.
+      runner-ppc64le:
+        required: false
+        type: string
+        default: ""
+        description: |
+          Label of the ppc64le runner this job should run on.
       test-matrix:
         required: false
         type: string
@@ -101,8 +107,7 @@ jobs:
     environment: ${{ github.ref == 'refs/heads/main' && 'scribe-protected' || startsWith(github.ref, 'refs/heads/release/') && 'scribe-protected' || contains(github.event.pull_request.labels.*.name, 'ci-scribe') && 'scribe-pr' || '' }}
     # Don't run on forked repos
     
-    #runs-on: ["self-hosted", "Linux", "ppc64le"]
-    runs-on: ${{ inputs.runner_prefix}}${{ inputs.runner }}
+    runs-on: ${{ inputs.runner_prefix}}${{ inputs.runner }}${{ fromJson(inputs.runner-ppc64le) }}
     
     timeout-minutes: 240
     outputs:
