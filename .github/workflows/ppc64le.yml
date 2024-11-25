@@ -39,5 +39,5 @@ jobs:
     with:
       build-environment: linux-ppc64le-binary-manywheel
       docker-image-name: pytorch-ppc64le:ubi9.3
-      runner-prefix: 'self-hosted,'
+      runner_prefix: 'self-hosted,'
       runner: 'Linux,ppc64le'
