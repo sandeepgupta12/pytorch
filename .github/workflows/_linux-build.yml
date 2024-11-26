@@ -106,7 +106,8 @@ jobs:
   build:
     environment: ${{ github.ref == 'refs/heads/main' && 'scribe-protected' || startsWith(github.ref, 'refs/heads/release/') && 'scribe-protected' || contains(github.event.pull_request.labels.*.name, 'ci-scribe') && 'scribe-pr' || '' }}
     # Don't run on forked repos
-    runs-on: ${{ matrix.labels }}
+    
+    runs-on: ${{ matrix.runner.labels }}
     
     timeout-minutes: 240
     outputs:
@@ -115,17 +116,10 @@ jobs:
 
     strategy:
       matrix:
-        labels:
-          - ["self-hosted", "linux", "ppc64le"]
-          - ["${{ inputs.runner_prefix }}", "${{ inputs.runner }}"]
-        include:
-          - labels: ["self-hosted", "linux", "ppc64le"]
-            type: ppc64le
-          - labels: ["${{ inputs.runner_prefix }}", "${{ inputs.runner }}"]
-            type: default
-        exclude:
-          - type: ppc64le
-            if: ${{ inputs.runner != 'ppc64le' }}
+        runner:
+          - { type: ppc64le, labels: 'self-hosted, linux, ppc64le' }
+          - { type: default, labels: '${{ inputs.runner_prefix }} ${{ inputs.runner }}' }
+
     steps:
 
       - name: Setup SSH (Click me for login details)
