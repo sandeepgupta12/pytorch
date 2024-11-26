@@ -115,14 +115,17 @@ jobs:
 
     strategy:
       matrix:
-        runner:
-          - type: ppc64le
-            labels: ["self-hosted", "linux", "ppc64le"]
-          - type: default
-            labels: ["${{ inputs.runner_prefix }}", "${{ inputs.runner }}"]
+        labels:
+          - ["self-hosted", "linux", "ppc64le"]
+          - ["${{ inputs.runner_prefix }}", "${{ inputs.runner }}"]
+        include:
+          - labels: ["self-hosted", "linux", "ppc64le"]
+            type: ppc64le
+          - labels: ["${{ inputs.runner_prefix }}", "${{ inputs.runner }}"]
+            type: default
         exclude:
           - type: ppc64le
-            when: ${{ inputs.runner != 'ppc64le' }}
+            if: ${{ inputs.runner != 'ppc64le' }}
     steps:
 
       - name: Setup SSH (Click me for login details)
