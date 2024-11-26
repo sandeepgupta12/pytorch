@@ -106,14 +106,25 @@ jobs:
   build:
     environment: ${{ github.ref == 'refs/heads/main' && 'scribe-protected' || startsWith(github.ref, 'refs/heads/release/') && 'scribe-protected' || contains(github.event.pull_request.labels.*.name, 'ci-scribe') && 'scribe-pr' || '' }}
     # Don't run on forked repos
-    
-    runs-on: ${{ inputs.runner_prefix}}${{ inputs.runner }}${{ inputs.runner-ppc64le }}
+    runs-on: ${{ matrix.runner.labels }}
     
     timeout-minutes: 240
     outputs:
       docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
       test-matrix: ${{ steps.filter.outputs.test-matrix }}
+
+    strategy:
+      matrix:
+        runner:
+          - type: ppc64le
+            labels: ["self-hosted", "linux", "ppc64le"]
+          - type: default
+            labels: ["${{ inputs.runner_prefix }}", "${{ inputs.runner }}"]
+        exclude:
+          - type: ppc64le
+            when: ${{ inputs.runner != 'ppc64le' }}
     steps:
+
       - name: Setup SSH (Click me for login details)
         uses: pytorch/test-infra/.github/actions/setup-ssh@main
         if: inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
