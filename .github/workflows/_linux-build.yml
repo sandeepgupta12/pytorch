@@ -107,13 +107,13 @@ jobs:
     environment: ${{ github.ref == 'refs/heads/main' && 'scribe-protected' || startsWith(github.ref, 'refs/heads/release/') && 'scribe-protected' || contains(github.event.pull_request.labels.*.name, 'ci-scribe') && 'scribe-pr' || '' }}
     # Don't run on forked repos
     
-    runs-on: ${{ matrix.runner.labels }}
+    runs-on: ${{ inputs.runner_prefix}}${{ inputs.runner }}
     
     timeout-minutes: 240
     outputs:
       docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
       test-matrix: ${{ steps.filter.outputs.test-matrix }}
-      
+
     steps:
 
       - name: Setup SSH (Click me for login details)
