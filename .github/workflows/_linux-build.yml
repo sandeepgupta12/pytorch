@@ -282,7 +282,7 @@ jobs:
 
       - name: Store PyTorch Build Artifacts on S3
         uses: seemethere/upload-artifact-s3@v5
-        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build && inputs.build-environment != 'linux-s390x-binary-manywheel'
+        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}
           retention-days: 14
@@ -302,7 +302,7 @@ jobs:
 
       - name: Store PyTorch Build Artifacts for s390x
         uses: actions/upload-artifact@v3
-        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build && inputs.build-environment == 'linux-s390x-binary-manywheel'
+        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}
           retention-days: 14
@@ -311,15 +311,28 @@ jobs:
 
       - name: Store PyTorch Build Artifacts for s390x for split build
         uses: actions/upload-artifact@v3
-        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && inputs.use_split_build && inputs.build-environment == 'linux-s390x-binary-manywheel'
+        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && inputs.use_split_build && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}-experimental-split-build
           retention-days: 14
           if-no-files-found: error
           path: artifacts.zip
 
+      - name: Archive ppc64le artifacts into zip
+        run: |
+          cd dist
+          zip -1 ../artifacts.zip *.whl
+  
+      - name: Store PyTorch Build Artifacts for ppc64le
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.build-environment }}
+          retention-days: 14
+          if-no-files-found: error
+          path: artifacts.zip
+
       - name: Upload sccache stats
-        if: steps.build.outcome != 'skipped' && inputs.build-environment != 'linux-s390x-binary-manywheel'
+        if: steps.build.outcome != 'skipped' && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         uses: seemethere/upload-artifact-s3@v5
         with:
           s3-prefix: |
@@ -331,10 +344,10 @@ jobs:
 
       - name: Teardown Linux
         uses: pytorch/test-infra/.github/actions/teardown-linux@main
-        if: always() && inputs.build-environment != 'linux-s390x-binary-manywheel'
+        if: always() && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
 
       - name: Cleanup docker
-        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel'
+        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         shell: bash
         run: |
           # on s390x stop the container for clean worker stop
