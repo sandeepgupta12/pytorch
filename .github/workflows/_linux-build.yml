@@ -113,13 +113,7 @@ jobs:
     outputs:
       docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
       test-matrix: ${{ steps.filter.outputs.test-matrix }}
-
-    strategy:
-      matrix:
-        runner:
-          - { type: ppc64le, labels: '[self-hosted, linux, ppc64le]' }
-          - { type: default, labels: '[${{ inputs.runner_prefix }} ${{ inputs.runner }}]' }
-
+      
     steps:
 
       - name: Setup SSH (Click me for login details)
