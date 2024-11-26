@@ -117,8 +117,8 @@ jobs:
     strategy:
       matrix:
         runner:
-          - { type: ppc64le, labels: 'self-hosted, linux, ppc64le' }
-          - { type: default, labels: '${{ inputs.runner_prefix }} ${{ inputs.runner }}' }
+          - { type: ppc64le, labels: '[self-hosted, linux, ppc64le]' }
+          - { type: default, labels: '[${{ inputs.runner_prefix }} ${{ inputs.runner }}]' }
 
     steps:
 

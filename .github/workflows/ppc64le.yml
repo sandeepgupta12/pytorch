@@ -15,7 +15,7 @@ concurrency:
 jobs:
   linux-ppc64le-docker-image-build:
     name: Build docker image for ppc64le
-    runs-on: [self-hosted, linux, ppc64le]
+    runs-on: pytorch-runner
 
     steps:
       - name: Checkout repository
