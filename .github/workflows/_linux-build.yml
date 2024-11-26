@@ -325,6 +325,7 @@ jobs:
   
       - name: Store PyTorch Build Artifacts for ppc64le
         uses: actions/upload-artifact@v3
+        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}
           retention-days: 14
