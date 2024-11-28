@@ -318,10 +318,10 @@ jobs:
           if-no-files-found: error
           path: artifacts.zip
 
-      - name: Archive ppc64le artifacts into zip
-        run: |
-          cd dist
-          zip -1 ../artifacts.zip *.whl
+      #- name: Archive ppc64le artifacts into zip
+        #run: |
+          #cd dist
+         # zip -1 ../artifacts.zip *.whl
   
       - name: Store PyTorch Build Artifacts for ppc64le
         uses: actions/upload-artifact@v3
