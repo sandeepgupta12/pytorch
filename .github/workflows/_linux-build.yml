@@ -199,7 +199,7 @@ jobs:
       - name: Run Docker container and execute build script
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-            docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist --cpus=4 --memory=16g --memory-swap=32g pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+            docker run --rm -v $(pwd)/dist:/workspace/pytorch/dist pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
 
       - name: Build
         if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '' ) && (inputs.build-environment != 'linux-ppc64le-binary-manywheel')
@@ -276,7 +276,7 @@ jobs:
           docker exec -t "${container_name}" sh -c '.ci/pytorch/build.sh'
 
       - name: Archive artifacts into zip
-        #f: inputs.build-generates-artifacts && steps.build.outcome != 'skipped'
+        if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped'
         run: |
           zip -1 -r artifacts.zip dist/ build/custom_test_artifacts build/lib build/bin .additional_ci_files
 
@@ -318,10 +318,11 @@ jobs:
           if-no-files-found: error
           path: artifacts.zip
 
-      #- name: Archive ppc64le artifacts into zip
-        #run: |
-          #cd dist
-         # zip -1 ../artifacts.zip *.whl
+      - name: Archive ppc64le artifacts into zip
+        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+        run: |
+          cd dist
+          zip -1 ../artifacts.zip *.whl
   
       - name: Store PyTorch Build Artifacts for ppc64le
         uses: actions/upload-artifact@v3
