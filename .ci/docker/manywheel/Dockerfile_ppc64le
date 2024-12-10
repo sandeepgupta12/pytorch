@@ -38,6 +38,8 @@ RUN apt install -y \
   liblapack-dev \
   libatlas-base-dev
 
+RUN apt install -y linux-headers-$(uname -r) || apt install -y linux-headers-generic
+
 # git236+ would refuse to run git commands in repos owned by other users
 # Which causes version check to fail, as pytorch repo is bind-mounted into the image
 # Override this behaviour by treating every folder as safe
