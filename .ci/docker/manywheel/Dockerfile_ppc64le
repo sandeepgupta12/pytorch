@@ -1,4 +1,4 @@
-FROM --platform=linux/s390x docker.io/ubuntu:24.04 as base
+FROM --platform=linux/ppc64le docker.io/ubuntu:24.04 as base
 
 # Language variables
 ENV LC_ALL=C.UTF-8
