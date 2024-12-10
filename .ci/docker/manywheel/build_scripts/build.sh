@@ -92,7 +92,7 @@ ln -s $PY39_BIN/auditwheel /usr/local/bin/auditwheel
 
 # Clean up development headers and other unnecessary stuff for
 # final image
-if [ "$(uname -m)" != "s390x" ] ; then
+if [ "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le"] ; then
     yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
         avahi freetype bitstream-vera-fonts \
         ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
