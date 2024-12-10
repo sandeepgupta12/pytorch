@@ -20,7 +20,7 @@ AUTOCONF_HASH=954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
 MY_DIR=$(dirname "${BASH_SOURCE[0]}")
 source $MY_DIR/build_utils.sh
 
-if [ "$(uname -m)" != "s390x" ] ; then
+if [ "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le" ] ; then
     # Dependencies for compiling Python that we want to remove from
     # the final image after compiling Python
     PYTHON_COMPILE_DEPS="zlib-devel bzip2-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel libffi-devel"
