@@ -36,7 +36,7 @@ if [ "$(uname -m)" != "s390x" ] && [ "$(uname -m)" != "ppc64le" ] ; then
 else
     # Dependencies for compiling Python that we want to remove from
     # the final image after compiling Python
-    PYTHON_COMPILE_DEPS="zlib1g-dev libbz2-dev libncurses-dev libsqlite3-dev libdb-dev libpcap-dev liblzma-dev libffi-dev"
+    PYTHON_COMPILE_DEPS="zlib1g-dev libncurses-dev libsqlite3-dev libdb-dev libpcap-dev liblzma-dev libffi-dev"
 
     # Libraries that are allowed as part of the manylinux1 profile
     MANYLINUX1_DEPS="libglib2.0-dev libX11-dev libncurses-dev"
@@ -44,7 +44,6 @@ else
     # Development tools and libraries
     apt install -y bzip2 make git patch unzip diffutils \
         automake which file cmake \
-        linux-headers-virtual \
         ${PYTHON_COMPILE_DEPS}
 fi
 
