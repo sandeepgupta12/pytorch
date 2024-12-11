@@ -59,7 +59,7 @@ export BUILD_TYPE=ppc64le-linux
 build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 tar -zxf autoconf-2.69.tar.gz
 cd autoconf-2.69
-./configure --build=$BUILD_TYPE
+./configure --build=ppc64le-linux --host=ppc64le-linux
 make
 make install
 autoconf --version
