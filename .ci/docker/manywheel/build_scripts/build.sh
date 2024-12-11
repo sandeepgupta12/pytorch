@@ -56,12 +56,12 @@ curl -sL https://git.savannah.gnu.org/cgit/config.git/plain/config.sub -o build-
 export BUILD_TYPE=ppc64le-linux
 
 # Install newest autoconf
-build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
-tar -zxf autoconf-2.69.tar.gz
-cd autoconf-2.69
-./configure --build=ppc64le-linux --host=ppc64le-linux
-make
-make install
+#build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+#tar -zxf autoconf-2.69.tar.gz
+#cd autoconf-2.69
+#./configure --build=ppc64le-linux --host=ppc64le-linux
+#make
+#make install
 autoconf --version
 
 # Compile the latest Python releases.
