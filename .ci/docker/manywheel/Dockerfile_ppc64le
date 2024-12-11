@@ -36,7 +36,16 @@ RUN apt install -y \
   libblas-dev \
   libopenblas-dev \
   liblapack-dev \
-  libatlas-base-dev
+  libatlas-base-dev \
+  linux-headers-generic \
+  zlib1g-dev \
+  libbz2-1.0 \
+  libncurses5-dev \
+  libsqlite3-dev \
+  libdb-dev \
+  libpcap-dev \
+  liblzma-dev \
+  libffi-dev || echo "Some packages could not be installed but are non-critical."
 
 # Handle linux-headers installation gracefully
 RUN apt-get update && \
