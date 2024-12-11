@@ -48,6 +48,7 @@ else
 fi
 
 # Manually update config.guess and config.sub
+mkdir -p build-aux
 curl -sL https://git.savannah.gnu.org/cgit/config.git/plain/config.guess -o build-aux/config.guess
 curl -sL https://git.savannah.gnu.org/cgit/config.git/plain/config.sub -o build-aux/config.sub
 
