@@ -10,6 +10,7 @@ ENV LANGUAGE=C.UTF-8
 RUN apt update && apt upgrade -y && \
   apt install -y \
     build-essential \
+    sudo \
     autoconf \
     automake \
     bzip2 \
