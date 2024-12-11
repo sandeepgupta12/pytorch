@@ -47,8 +47,20 @@ else
         ${PYTHON_COMPILE_DEPS}
 fi
 
+# Manually update config.guess and config.sub
+curl -sL https://git.savannah.gnu.org/cgit/config.git/plain/config.guess -o build-aux/config.guess
+curl -sL https://git.savannah.gnu.org/cgit/config.git/plain/config.sub -o build-aux/config.sub
+
+# Set the architecture manually to avoid config.guess issues
+export BUILD_TYPE=ppc64le-linux
+
 # Install newest autoconf
 build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+tar -zxf autoconf-2.69.tar.gz
+cd autoconf-2.69
+./configure --build=$BUILD_TYPE
+make
+make install
 autoconf --version
 
 # Compile the latest Python releases.
