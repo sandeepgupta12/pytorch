@@ -45,7 +45,17 @@ COPY fs/ /
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
 # install podman
-RUN apt -y install podman podman-docker
+# Add Podman repository and install Podman
+RUN apt-get update && \
+    apt-get -y install software-properties-common && \
+    . /etc/os-release && \
+    echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$ID_$VERSION_ID/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list && \
+    curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/$ID_$VERSION_ID/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers.gpg && \
+    apt-get update && \
+    apt-get -y install podman podman-docker && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # amd64 Github Actions Runner.
 RUN useradd -m actions-runner
