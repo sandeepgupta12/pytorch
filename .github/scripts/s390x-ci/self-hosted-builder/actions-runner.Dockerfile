@@ -63,7 +63,7 @@ RUN virtualenv --system-site-packages venv
 # and save command is:
 # docker image save -o manywheel-s390x.tar pytorch/manylinuxs390x-builder:cpu-s390x
 #
-COPY --chown=actions-runner:actions-runner manywheel-s390x.tar /home/actions-runner/manywheel-s390x.tar
+COPY --chown=actions-runner:actions-runner manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
 
 RUN curl -L https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz | tar -xz
 
