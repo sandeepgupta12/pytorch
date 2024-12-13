@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y install ca-certificates libicu72 libssl3
 
 # Main image.
-FROM docker.io/ppc64le/ubuntu:22.04
+FROM --platform=linux/ppc64le ubuntu:22.04
 
 # Packages for pytorch building and testing.
 ENV DEBIAN_FRONTEND=noninteractive
