@@ -53,12 +53,17 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
 
 # Install Podman (v4.6.0) for container management
-RUN apt-get update && apt-get install -y \
-    make \
-    gcc \
-    libseccomp-dev \
-    libapparmor-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN echo "deb [arch=ppc64el] http://ports.ubuntu.com/ jammy main restricted universe multiverse" > /etc/apt/sources.list && \
+    echo "deb [arch=ppc64el] http://ports.ubuntu.com/ jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+    echo "deb [arch=ppc64el] http://ports.ubuntu.com/ jammy-security main restricted universe multiverse" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y \
+        make \
+        gcc \
+        libseccomp-dev \
+        libapparmor-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
 RUN git clone https://github.com/containers/podman.git && \
     cd podman && \
     git checkout v4.6.0 && \
