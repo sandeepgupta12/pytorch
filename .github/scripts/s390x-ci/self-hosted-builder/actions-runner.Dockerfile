@@ -50,6 +50,13 @@ ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
 COPY fs/ /
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
+# Install Go
+RUN curl -fsSL https://go.dev/dl/go1.21.1.linux-ppc64le.tar.gz -o go.tar.gz && \
+    echo "eddf018206f8a5589bda75252b72716d26611efebabdca5d0083ec15e9e41ab7  go.tar.gz" | sha256sum -c - && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz && \
+    export PATH=$PATH:/usr/local/go/bin && \
+    go version
 
 
 RUN git clone https://github.com/containers/podman.git && \
