@@ -54,7 +54,7 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 RUN curl -LO https://golang.org/dl/go1.21.1.linux-ppc64le.tar.gz && \
     tar -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
     rm go1.21.1.linux-ppc64le.tar.gz
-ENV PATH=$PATH:/usr/local/go/bin
+ENV PATH="/usr/local/go/bin:${PATH}"
 RUN go version
 
 # Install Podman (v4.6.0) for container management
