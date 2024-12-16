@@ -54,6 +54,8 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 RUN curl -LO https://golang.org/dl/go1.21.1.linux-ppc64le.tar.gz && \
     tar -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
     rm go1.21.1.linux-ppc64le.tar.gz && \
+    ls -l /usr/local && \
+    ls -l /usr/local/go && \
     ls -l /usr/local/go/bin && \
     /usr/local/go/bin/go version && \
     ln -s /usr/local/go/bin/go /usr/bin/go
