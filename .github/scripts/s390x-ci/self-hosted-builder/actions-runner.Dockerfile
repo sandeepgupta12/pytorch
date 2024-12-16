@@ -52,6 +52,7 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
 # Install Go (v1.21.1) for ppc64le
 RUN curl -LO https://golang.org/dl/go1.21.1.linux-ppc64le.tar.gz && \
+    echo "checksum_value  go1.21.1.linux-ppc64le.tar.gz" | sha256sum -c - && \
     tar -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
     rm go1.21.1.linux-ppc64le.tar.gz && \
     ls -l /usr/local && \
