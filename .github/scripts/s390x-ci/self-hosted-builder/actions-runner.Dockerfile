@@ -50,21 +50,7 @@ ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
 COPY fs/ /
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
-# Install Go (v1.21.1) for ppc64le
 
-RUN curl -LO https://golang.org/dl/go1.21.1.linux-ppc64le.tar.gz
-RUN echo "eddf018206f8a5589bda75252b72716d26611efebabdca5d0083ec15e9e41ab7  go1.21.1.linux-ppc64le.tar.gz" | sha256sum -c -
-RUN tar -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
-ls -l /usr/local
-RUN chmod -R 755 /usr/local/go
-RUN export PATH=$PATH:/usr/local/go/bin
-RUN ls -l /usr/local/go/bin
-RUN /usr/local/go/bin/go version
-RUN ln -s /usr/local/go/bin/go /usr/bin/go
-
-
-ENV PATH="/usr/local/go/bin:${PATH}"
-RUN go version
 
 # Install Podman (v4.6.0) for container management
 RUN apt-get update && apt-get install -y \
