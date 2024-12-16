@@ -54,7 +54,7 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
 RUN curl -LO https://golang.org/dl/go1.21.1.linux-ppc64le.tar.gz
 RUN echo "eddf018206f8a5589bda75252b72716d26611efebabdca5d0083ec15e9e41ab7  go1.21.1.linux-ppc64le.tar.gz" | sha256sum -c -
-RUN tar --strip-components=1 -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
+RUN tar -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
 ls -l /usr/local
 RUN chmod -R 755 /usr/local/go
 RUN export PATH=$PATH:/usr/local/go/bin
