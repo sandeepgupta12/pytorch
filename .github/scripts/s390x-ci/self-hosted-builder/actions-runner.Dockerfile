@@ -48,15 +48,16 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 # Add Podman repository and install Podman
 
 
-RUN apt-get update && \
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y software-properties-common && \
-    sed -i 's|http://archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
     echo "deb [signed-by=/usr/share/keyrings/libcontainers.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Ubuntu_22.04/ /" > /etc/apt/sources.list.d/libcontainers.list && \
     curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/Ubuntu_22.04/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers.gpg && \
     apt-get update && \
     apt-get install -y podman podman-docker && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
 
 
 
