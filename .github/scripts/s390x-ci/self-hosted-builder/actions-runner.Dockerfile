@@ -47,7 +47,12 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 # install podman
 # Add Podman repository and install Podman
 
-RUN apt-get install -y podman podman-docker
+# Clone and build Podman
+RUN git clone https://github.com/containers/podman.git && \
+    cd podman && \
+    git checkout v4.6.0 && \ 
+    make BUILDTAGS="seccomp apparmor" && \
+    make install
 
 
 
