@@ -44,6 +44,12 @@ COPY fs/ /
 
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
+
+# Install Golang
+RUN apt-get update && apt-get install -y \
+    golang-go \
+    && apt-get clean
+    
 # install podman
 # Add Podman repository and install Podman
 
