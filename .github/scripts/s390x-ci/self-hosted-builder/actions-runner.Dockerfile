@@ -45,11 +45,11 @@ COPY fs/ /
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
 
-# Install Golang
-RUN apt-get update && apt-get install -y \
-    golang-go \
-    && apt-get clean
-    
+RUN curl -LO https://golang.org/dl/go1.21.1.linux-ppc64le.tar.gz && \  
+tar -C /usr/local -xzf go1.21.1.linux-ppc64le.tar.gz && \
+export PATH=$PATH:/usr/local/go/bin &&\
+go version
+
 # install podman
 # Add Podman repository and install Podman
 
