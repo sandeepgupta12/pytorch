@@ -7,7 +7,7 @@ RUN apt-get update && apt-get -y install \
     libssl3
 
 # Main image: ppc64le Ubuntu
-FROM ppc64le/ubuntu:22.04
+FROM --platform=linux/ppc64le ubuntu:22.04
 
 # Set non-interactive mode for apt
 ENV DEBIAN_FRONTEND=noninteractive
