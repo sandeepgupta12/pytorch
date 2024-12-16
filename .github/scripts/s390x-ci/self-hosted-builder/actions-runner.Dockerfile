@@ -46,15 +46,18 @@ RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
 # install podman
 # Add Podman repository and install Podman
+
+
 RUN apt-get update && \
-    apt-get -y install software-properties-common && \
-    . /etc/os-release && \
-    echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$ID_$VERSION_ID/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list && \
-    curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/$ID_$VERSION_ID/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers.gpg && \
+    apt-get install -y software-properties-common && \
+    sed -i 's|http://archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
+    echo "deb [signed-by=/usr/share/keyrings/libcontainers.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/Ubuntu_22.04/ /" > /etc/apt/sources.list.d/libcontainers.list && \
+    curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/Ubuntu_22.04/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers.gpg && \
     apt-get update && \
-    apt-get -y install podman podman-docker && \
+    apt-get install -y podman podman-docker && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
 
 
 # amd64 Github Actions Runner.
