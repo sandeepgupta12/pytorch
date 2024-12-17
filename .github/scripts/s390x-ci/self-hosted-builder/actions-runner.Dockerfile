@@ -1,12 +1,14 @@
 # Stage 1: Temporary image for amd64 dependencies
 FROM docker.io/amd64/ubuntu:22.04 as ld-prefix
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Install amd64-specific dependencies
 RUN apt-get update && apt-get -y install \
     ca-certificates \
     libicu70 \
     libssl3
 
-# Main image: ppc64le Ubuntu
+# Stage 2: Main image for ppc64le Ubuntu
 FROM --platform=linux/ppc64le ubuntu:22.04
 
 # Set non-interactive mode for apt
@@ -50,7 +52,16 @@ ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
 COPY fs/ /
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
+# Install Docker Engine for ppc64le
 RUN apt-get update && apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
+    && echo "deb [arch=ppc64el] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list \
+    && apt-get update && apt-get install -y \
     docker-ce \
     docker-ce-cli \
     containerd.io \
