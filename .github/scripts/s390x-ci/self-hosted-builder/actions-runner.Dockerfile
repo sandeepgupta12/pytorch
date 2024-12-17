@@ -50,20 +50,11 @@ ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
 COPY fs/ /
 RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
 
-# Install Go
-RUN curl -fsSL https://go.dev/dl/go1.21.1.linux-ppc64le.tar.gz -o go.tar.gz && \
-    echo "eddf018206f8a5589bda75252b72716d26611efebabdca5d0083ec15e9e41ab7  go.tar.gz" | sha256sum -c - && \
-    tar -xzf go.tar.gz && \
-    rm go.tar.gz && \
-    go version
-
-
-RUN git clone https://github.com/containers/podman.git && \
-    cd podman && \
-    git checkout v4.6.0 && \
-    make BUILDTAGS="seccomp apparmor" && \
-    make install && \
-    cd .. && rm -rf podman
+RUN apt-get update && apt-get install -y \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Configure GitHub Actions Runner for amd64
 RUN useradd -m actions-runner
