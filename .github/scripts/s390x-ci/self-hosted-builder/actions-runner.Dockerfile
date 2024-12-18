@@ -50,20 +50,25 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Fix: Add Docker Engine repository correctly for ppc64le
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Replace apt sources for ppc64el
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
     apt-transport-https \
     ca-certificates \
     curl \
     gnupg-agent \
-    software-properties-common \
-    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
-    && echo "deb [arch=ppc64el] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list \
-    && apt-get update -o Acquire::Retries=3 && apt-get install -y \
+    software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    echo "deb [arch=ppc64el] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && apt-get install -y \
     docker-ce \
     docker-ce-cli \
-    containerd.io \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    containerd.io && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Copy amd64 dependencies from the ld-prefix stage
 COPY --from=ld-prefix / /usr/x86_64-linux-gnu/
