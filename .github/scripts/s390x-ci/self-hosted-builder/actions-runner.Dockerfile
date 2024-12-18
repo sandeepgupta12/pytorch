@@ -3,10 +3,11 @@ FROM docker.io/amd64/ubuntu:22.04 AS ld-prefix
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install amd64-specific dependencies
-RUN apt-get update && apt-get -y install \
+RUN apt-get update -o Acquire::Retries=3 && apt-get install -y \
     ca-certificates \
     libicu70 \
-    libssl3
+    libssl3 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Main image for ppc64le Ubuntu
 FROM ubuntu:22.04
@@ -15,12 +16,11 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Fix sources to point to ports.ubuntu.com for ppc64le
-RUN sed -i 's|archive.ubuntu.com|ports.ubuntu.com|g' /etc/apt/sources.list && \
-    sed -i 's|security.ubuntu.com|ports.ubuntu.com|g' /etc/apt/sources.list
+RUN sed -i 's|http://archive.ubuntu.com|http://ports.ubuntu.com|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com|http://ports.ubuntu.com|g' /etc/apt/sources.list
 
 # Update and clean apt
-RUN apt-get update -o Acquire::Retries=3 && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -o Acquire::Retries=3 && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies for building and testing PyTorch
 RUN apt-get update && apt-get -y install --no-install-recommends \
@@ -47,14 +47,14 @@ RUN apt-get update && apt-get -y install --no-install-recommends \
     python3-scipy \
     virtualenv \
     wget \
-    ca-certificates \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Replace apt sources for ppc64el
 RUN sed -i 's|http://archive.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
     sed -i 's|http://security.ubuntu.com/ubuntu|http://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list
 
-# Install dependencies
+# Install additional dependencies
 RUN apt-get update && apt-get install -y \
     apt-transport-https \
     ca-certificates \
@@ -68,7 +68,6 @@ RUN apt-get update && apt-get install -y \
     docker-ce-cli \
     containerd.io && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
 
 # Copy amd64 dependencies from the ld-prefix stage
 COPY --from=ld-prefix / /usr/x86_64-linux-gnu/
