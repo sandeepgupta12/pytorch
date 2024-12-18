@@ -10,7 +10,7 @@ RUN apt-get update -o Acquire::Retries=3 && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Main image for ppc64le Ubuntu
-FROM ubuntu:22.04
+FROM --platform=linux/ppc64le ubuntu:22.04
 
 # Set non-interactive mode for apt
 ENV DEBIAN_FRONTEND=noninteractive
