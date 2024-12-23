@@ -59,7 +59,15 @@ RUN apt-get install -y gcc-10 g++-10
 RUN git --version || (echo "Git installation failed!" && exit 1)
 RUN git config --global --add safe.directory "*"
 
-RUN apt-get install -y openssl
+# OpenSSL setup to ensure Python has SSL support
+FROM base as openssl
+# Set ulimit to avoid segmentation faults due to resource limits
+RUN ulimit -s unlimited
+
+ADD ./common/install_openssl-ppc64le.sh install_openssl.sh
+RUN export CFLAGS="-O0" && \
+    bash ./install_openssl.sh && rm install_openssl.sh
+ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 
 # EPEL for cmake
 FROM base as patchelf
