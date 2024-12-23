@@ -72,7 +72,8 @@ FROM base as openssl
 RUN ulimit -s unlimited
 
 ADD ./common/install_openssl-ppc64le.sh install_openssl.sh
-RUN bash ./install_openssl.sh && rm install_openssl.sh
+RUN export CFLAGS="-O0" && \
+    bash ./install_openssl.sh && rm install_openssl.sh
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 
 # EPEL for cmake
