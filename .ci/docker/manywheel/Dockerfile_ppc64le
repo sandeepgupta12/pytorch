@@ -69,7 +69,7 @@ FROM base as openssl
 # statically. We delete openssl afterwards.)
 
 # Set ulimit to avoid segmentation fault due to resource limits
-RUN ulimit -s unlimited && ulimit -u unlimited
+RUN ulimit -s unlimited
 
 ADD ./common/install_openssl-ppc64le.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
