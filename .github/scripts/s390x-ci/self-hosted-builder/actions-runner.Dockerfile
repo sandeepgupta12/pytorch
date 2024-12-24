@@ -82,7 +82,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copy custom scripts
 COPY fs/ /
-RUN chmod +x /usr/bin/actions-runner /usr/bin/entrypoint
+RUN chmod 777 /usr/bin/actions-runner /usr/bin/entrypoint
 
 # Configure GitHub Actions Runner for amd64
 RUN useradd -m actions-runner
