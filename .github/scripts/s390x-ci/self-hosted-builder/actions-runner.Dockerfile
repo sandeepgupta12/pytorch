@@ -85,9 +85,9 @@ COPY fs/ /
 RUN chmod 777 /usr/bin/actions-runner /usr/bin/entrypoint
 
 # Configure GitHub Actions Runner for amd64
-RUN useradd -m actions-runner
-USER actions-runner
-WORKDIR /home/actions-runner
+#RUN useradd -m actions-runner
+#USER actions-runner
+#WORKDIR /home/actions-runner
 
 # Set up Python virtual environment
 RUN virtualenv --system-site-packages venv
