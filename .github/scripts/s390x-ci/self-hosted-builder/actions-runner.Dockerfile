@@ -1,13 +1,13 @@
 # Stage 1: Temporary image for amd64 dependencies
-FROM docker.io/amd64/ubuntu:22.04 AS ld-prefix
-ENV DEBIAN_FRONTEND=noninteractive
+#FROM docker.io/amd64/ubuntu:22.04 AS ld-prefix
+#ENV DEBIAN_FRONTEND=noninteractive
 
 # Install amd64-specific dependencies
-RUN apt-get update -o Acquire::Retries=3 && apt-get install -y \
-    ca-certificates \
-    libicu70 \
-    libssl3 && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update -o Acquire::Retries=3 && apt-get install -y \
+ #   ca-certificates \
+ #   libicu70 \
+  #  libssl3 && \
+   # apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Main image for ppc64le Ubuntu
 FROM --platform=linux/ppc64le ubuntu:22.04
@@ -73,10 +73,10 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy amd64 dependencies from the ld-prefix stage
-COPY --from=ld-prefix / /usr/x86_64-linux-gnu/
-RUN ln -fs ../lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 /usr/x86_64-linux-gnu/lib64/
-RUN ln -fs /etc/resolv.conf /usr/x86_64-linux-gnu/etc/
-ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
+#COPY --from=ld-prefix / /usr/x86_64-linux-gnu/
+#RUN ln -fs ../lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 /usr/x86_64-linux-gnu/lib64/
+#RUN ln -fs /etc/resolv.conf /usr/x86_64-linux-gnu/etc/
+#ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
 
 # Copy custom scripts
 COPY fs/ /
