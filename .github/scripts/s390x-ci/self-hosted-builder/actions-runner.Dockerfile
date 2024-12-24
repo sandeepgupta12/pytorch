@@ -28,6 +28,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
 # Install dependencies for building and testing PyTorch
 RUN apt-get update && apt-get -y install --no-install-recommends \
     build-essential \
+    sudo \
+    vim \
     cmake \
     curl \
     gcc \
