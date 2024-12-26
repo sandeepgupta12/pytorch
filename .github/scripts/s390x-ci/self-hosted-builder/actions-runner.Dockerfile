@@ -56,6 +56,12 @@ RUN apt-get update && apt-get install -y \
     virtualenv && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# amd64 dependencies.
+COPY --from=ld-prefix / /usr/x86_64-linux-gnu/
+RUN ln -fs ../lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 /usr/x86_64-linux-gnu/lib64/
+RUN ln -fs /etc/resolv.conf /usr/x86_64-linux-gnu/etc/
+ENV QEMU_LD_PREFIX=/usr/x86_64-linux-gnu
+
 # Set up Python virtual environment
 RUN virtualenv --system-site-packages venv
 
