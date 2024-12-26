@@ -3,7 +3,7 @@
 # Temporary image: amd64 dependencies.
 FROM docker.io/amd64/ubuntu:22.04 AS ld-prefix
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y install ca-certificates libicu72 libssl3
+RUN apt-get update && apt-get -y install ca-certificates libicu70 libssl3
 
 # Stage 1: Main image for ppc64le Ubuntu
 FROM --platform=linux/ppc64le ubuntu:22.04
