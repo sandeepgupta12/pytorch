@@ -24,6 +24,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
     build-essential \
     curl \
     sudo \
+    jq \
     gnupg-agent \
     iptables \
     ca-certificates \
