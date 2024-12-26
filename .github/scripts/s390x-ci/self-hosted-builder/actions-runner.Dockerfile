@@ -1,7 +1,7 @@
 # Self-Hosted IBM Power Github Actions Runner.
 
 # Temporary image: amd64 dependencies.
-FROM docker.io/amd64/ubuntu:23.10 as ld-prefix
+FROM docker.io/amd64/ubuntu:22.04 AS ld-prefix
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get -y install ca-certificates libicu72 libssl3
 
@@ -25,7 +25,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
     curl \
     sudo \
     gnupg-agent \
-    iptables iptables-legacy \
+    iptables \
     ca-certificates \
     software-properties-common && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
