@@ -60,5 +60,48 @@ RUN virtualenv --system-site-packages venv
 COPY fs/ /
 RUN chmod 777 /usr/bin/actions-runner /usr/bin/entrypoint
 
+
+#installing and configuring the runner
+
+ARG RUNNERREPO="https://github.com/actions/runner" RUNNERPATCH
+
+RUN     apt-get -qq update -y && \
+        apt-get -qq -y install wget git sudo curl dotnet-sdk-8.0 && \
+        apt autoclean
+
+RUN     echo "Using SDK - `dotnet --version`"
+
+ADD     ${RUNNERPATCH} /tmp/runner.patch
+
+RUN     cd /tmp && \
+        git clone -q ${RUNNERREPO} && \
+        cd runner && \
+        git checkout main -b build && \
+        git apply /tmp/runner.patch && \
+        sed -i'' -e /version/s/8......\"$/${SDK}.0.100\"/ src/global.json
+
+
+RUN     cd /tmp/runner/src && \
+        ./dev.sh layout && \
+        ./dev.sh package && \
+        ./dev.sh test && \
+        rm -rf /root/.dotnet /root/.nuget
+
+RUN     useradd -c "Action Runner" -m runner && \
+        usermod -L runner && \
+        echo " runner  ALL=(ALL)       NOPASSWD: ALL" >/etc/sudoers.d/runner
+
+RUN     mkdir -p /opt/runner && \
+        tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
+        chown -R  runner:runner /opt/runner && \
+        su -c "/opt/runner/config.sh --version" runner
+
+RUN     apt-get -qq -y install cmake make automake autoconf m4 gcc-12-base libtool
+
+RUN     rm -rf /tmp/runner /tmp/runner.patch
+
+USER    runner
+
+
 # Download and extract GitHub Actions Runner
 #RUN curl -L https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz | tar -xz
