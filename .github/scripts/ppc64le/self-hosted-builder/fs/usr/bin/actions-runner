@@ -20,7 +20,7 @@ curl \
         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
         "https://api.github.com/orgs/${ORG}/actions/runners/registration-token" \
         -o "$token_file"
-
+ 
 unset ACCESS_TOKEN
 
 # register runner as ephemeral runner
