@@ -22,7 +22,7 @@ header_base64=$(echo -n "$header" | openssl base64 | tr -d '=' | tr '/+' '_-' | 
 payload_base64=$(echo -n "$payload" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
 
 signature=$(echo -n "${header_base64}.${payload_base64}" | \
-  openssl dgst -sha256 -sign "$APP_PRIVATE_KEY" | \
+  openssl dgst -sha256 -sign "${APP_PRIVATE_KEY}" | \
   openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
 
 generated_jwt="${header_base64}.${payload_base64}.${signature}"
