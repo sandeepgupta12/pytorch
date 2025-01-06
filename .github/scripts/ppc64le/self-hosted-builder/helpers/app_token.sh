@@ -13,20 +13,6 @@ set -o pipefail
 
 set -e  # Exit on error
 
-echo "Inside app_token.sh:"
-
-if [[ -z "$APP_ID" || -z "$INSTALL_ID" || -z "$APP_PRIVATE_KEY" ]]; then
-    echo "Missing required environment variables!" >&2
-    exit 1
-fi
-
-#APP_ID=$(cat $1)         # Path to appid.env
-#INSTALL_ID=$(cat $2)
-#APP_PRIVATE_KEY=$3      # Path to key_private.pem
-echo "APP_ID: $APP_ID"
-echo "INSTALL_ID: $INSTALL_ID"
-echo "APP_PRIVATE_KEY path: $APP_PRIVATE_KEY"
-
 # Generate JWT
 header='{"alg":"RS256","typ":"JWT"}'
 payload="{\"iat\":$(date +%s),\"exp\":$(( $(date +%s) + 600 )),\"iss\":${APP_ID}}"
@@ -37,10 +23,6 @@ payload_base64=$(echo -n "$payload" | openssl base64 | tr -d '=' | tr '/+' '_-' 
 signature=$(echo -n "${header_base64}.${payload_base64}" | \
   openssl dgst -sha256 -sign "${APP_PRIVATE_KEY}" | \
   openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
-
-echo "Contents of APP_PRIVATE_KEY:"
-cat "$APP_PRIVATE_KEY"
-
 
 generated_jwt="${header_base64}.${payload_base64}.${signature}"
 
@@ -57,5 +39,3 @@ app_installations_response=$(curl -sX POST \
     )
 
 echo "$app_installations_response" | jq --raw-output '.token'
-
-#echo "ACCESS_TOKEN=${jwt}" > "${DST_FILE}"
