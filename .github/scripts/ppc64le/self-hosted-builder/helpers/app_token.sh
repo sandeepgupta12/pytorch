@@ -28,34 +28,34 @@ echo "INSTALL_ID: $INSTALL_ID"
 echo "APP_PRIVATE_KEY path: $APP_PRIVATE_KEY"
 
 # Generate JWT
-# header='{"alg":"RS256","typ":"JWT"}'
-# payload="{\"iat\":$(date +%s),\"exp\":$(( $(date +%s) + 600 )),\"iss\":${APP_ID}}"
+header='{"alg":"RS256","typ":"JWT"}'
+payload="{\"iat\":$(date +%s),\"exp\":$(( $(date +%s) + 600 )),\"iss\":${APP_ID}}"
 
-# header_base64=$(echo -n "$header" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
-# payload_base64=$(echo -n "$payload" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+header_base64=$(echo -n "$header" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+payload_base64=$(echo -n "$payload" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
 
-# signature=$(echo -n "${header_base64}.${payload_base64}" | \
-#   openssl dgst -sha256 -sign "${APP_PRIVATE_KEY}" | \
-#   openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+signature=$(echo -n "${header_base64}.${payload_base64}" | \
+  openssl dgst -sha256 -sign "${APP_PRIVATE_KEY}" | \
+  openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
 
-# echo "Contents of APP_PRIVATE_KEY:"
-# cat "$APP_PRIVATE_KEY"
+echo "Contents of APP_PRIVATE_KEY:"
+cat "$APP_PRIVATE_KEY"
 
 
-# generated_jwt="${header_base64}.${payload_base64}.${signature}"
+generated_jwt="${header_base64}.${payload_base64}.${signature}"
 
-# echo $generated_jwt
-# API_VERSION=v3
-# API_HEADER="Accept: application/vnd.github+json"
+echo $generated_jwt
+API_VERSION=v3
+API_HEADER="Accept: application/vnd.github+json"
 
-# auth_header="Authorization: Bearer ${generated_jwt}"
+auth_header="Authorization: Bearer ${generated_jwt}"
 
-# app_installations_response=$(curl -sX POST \
-#         -H "${auth_header}" \
-#         -H "${API_HEADER}" \
-#         --url "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" \
-#     )
+app_installations_response=$(curl -sX POST \
+        -H "${auth_header}" \
+        -H "${API_HEADER}" \
+        --url "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" \
+    )
 
-# echo "$app_installations_response" | jq --raw-output '.token'
+echo "$app_installations_response" | jq --raw-output '.token'
 
 #echo "ACCESS_TOKEN=${jwt}" > "${DST_FILE}"
