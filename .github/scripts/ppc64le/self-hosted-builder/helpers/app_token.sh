@@ -11,6 +11,13 @@
 
 set -o pipefail
 
+set -e  # Exit on error
+
+if [[ -z "$APP_ID" || -z "$INSTALL_ID" || -z "$APP_PRIVATE_KEY" ]]; then
+    echo "Missing required environment variables!" >&2
+    exit 1
+fi
+
 #APP_ID=$(cat $1)         # Path to appid.env
 #INSTALL_ID=$(cat $2)
 #APP_PRIVATE_KEY=$3      # Path to key_private.pem
