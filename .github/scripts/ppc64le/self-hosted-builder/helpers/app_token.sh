@@ -13,6 +13,8 @@ set -o pipefail
 
 set -e  # Exit on error
 
+echo "Inside app_token.sh:"
+
 if [[ -z "$APP_ID" || -z "$INSTALL_ID" || -z "$APP_PRIVATE_KEY" ]]; then
     echo "Missing required environment variables!" >&2
     exit 1
