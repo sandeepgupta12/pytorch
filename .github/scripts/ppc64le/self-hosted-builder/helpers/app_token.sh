@@ -34,17 +34,17 @@ cat "$APP_PRIVATE_KEY"
 generated_jwt="${header_base64}.${payload_base64}.${signature}"
 
 echo $generated_jwt
-# API_VERSION=v3
-# API_HEADER="Accept: application/vnd.github+json"
+API_VERSION=v3
+API_HEADER="Accept: application/vnd.github+json"
 
-# auth_header="Authorization: Bearer ${generated_jwt}"
+auth_header="Authorization: Bearer ${generated_jwt}"
 
-# app_installations_response=$(curl -sX POST \
-#         -H "${auth_header}" \
-#         -H "${API_HEADER}" \
-#         --url "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" \
-#     )
+app_installations_response=$(curl -sX POST \
+        -H "${auth_header}" \
+        -H "${API_HEADER}" \
+        --url "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" \
+    )
 
-# echo "$app_installations_response" | jq --raw-output '.token'
+echo "$app_installations_response" | jq --raw-output '.token'
 
 #echo "ACCESS_TOKEN=${jwt}" > "${DST_FILE}"
