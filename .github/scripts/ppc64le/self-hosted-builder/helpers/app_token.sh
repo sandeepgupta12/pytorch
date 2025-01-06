@@ -11,9 +11,11 @@
 
 set -o pipefail
 
-APP_ID=$(cat $1)         # Path to appid.env
-INSTALL_ID=$(cat $2)
-APP_PRIVATE_KEY=$3      # Path to key_private.pem
+#APP_ID=$(cat $1)         # Path to appid.env
+#INSTALL_ID=$(cat $2)
+#APP_PRIVATE_KEY=$3      # Path to key_private.pem
+echo "APP_ID: $APP_ID"
+echo "INSTALL_ID: $INSTALL_ID"
 echo "APP_PRIVATE_KEY path: $APP_PRIVATE_KEY"
 
 # Generate JWT
