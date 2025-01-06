@@ -26,7 +26,6 @@ signature=$(echo -n "${header_base64}.${payload_base64}" | \
 
 generated_jwt="${header_base64}.${payload_base64}.${signature}"
 
-echo $generated_jwt
 API_VERSION=v3
 API_HEADER="Accept: application/vnd.github+json"
 
