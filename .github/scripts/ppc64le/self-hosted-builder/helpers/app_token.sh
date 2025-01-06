@@ -13,6 +13,7 @@ set -o pipefail
 
 #APP_ID=$(cat $1)         # Path to appid.env
 #PRIVATE_KEY_PATH=$2      # Path to key_private.pem
+echo "APP_PRIVATE_KEY path: $APP_PRIVATE_KEY"
 
 # Generate JWT
 header='{"alg":"RS256","typ":"JWT"}'
@@ -24,6 +25,10 @@ payload_base64=$(echo -n "$payload" | openssl base64 | tr -d '=' | tr '/+' '_-' 
 signature=$(echo -n "${header_base64}.${payload_base64}" | \
   openssl dgst -sha256 -sign "${APP_PRIVATE_KEY}" | \
   openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+
+echo "Contents of APP_PRIVATE_KEY:"
+cat "$APP_PRIVATE_KEY"
+
 
 generated_jwt="${header_base64}.${payload_base64}.${signature}"
 
