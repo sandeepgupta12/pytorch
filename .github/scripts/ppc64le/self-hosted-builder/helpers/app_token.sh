@@ -11,74 +11,39 @@
 
 set -o pipefail
 
-_GITHUB_HOST=${GITHUB_HOST:="github.com"}
+APP_ID=$(cat $1)         # Path to appid.env
+PRIVATE_KEY_PATH=$2      # Path to key_private.pem
+echo "APP_PRIVATE_KEY path: $APP_PRIVATE_KEY"
 
-# If URL is not github.com then use the enterprise api endpoint
-if [[ ${GITHUB_HOST} = "github.com" ]]; then
-  URI="https://api.${_GITHUB_HOST}"
-else
-  URI="https://${_GITHUB_HOST}/api/v3"
-fi
+# Generate JWT
+header='{"alg":"RS256","typ":"JWT"}'
+payload="{\"iat\":$(date +%s),\"exp\":$(( $(date +%s) + 600 )),\"iss\":${APP_ID}}"
 
-API_VERSION=v3
-API_HEADER="Accept: application/vnd.github.${API_VERSION}+json"
-CONTENT_LENGTH_HEADER="Content-Length: 0"
-APP_INSTALLATIONS_URI="${URI}/app/installations"
+header_base64=$(echo -n "$header" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
+payload_base64=$(echo -n "$payload" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
 
+signature=$(echo -n "${header_base64}.${payload_base64}" | \
+  openssl dgst -sha256 -sign "${APP_PRIVATE_KEY}" | \
+  openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n')
 
-# JWT parameters based off
-# https://docs.github.com/en/developers/apps/building-github-apps/authenticating-with-github-apps#authenticating-as-a-github-app
-#
-# JWT token issuance and expiration parameters
-JWT_IAT_DRIFT=60
-JWT_EXP_DELTA=600
-
-JWT_JOSE_HEADER='{
-    "alg": "RS256",
-    "typ": "JWT"
-}'
+echo "Contents of APP_PRIVATE_KEY:"
+cat "$APP_PRIVATE_KEY"
 
 
-build_jwt_payload() {
-    now=$(date +%s)
-    iat=$((now - JWT_IAT_DRIFT))
-    jq -c \
-        --arg iat_str "${iat}" \
-        --arg exp_delta_str "${JWT_EXP_DELTA}" \
-        --arg app_id_str "${APP_ID}" \
-    '
-        ($iat_str | tonumber) as $iat
-        | ($exp_delta_str | tonumber) as $exp_delta
-        | ($app_id_str | tonumber) as $app_id
-        | .iat = $iat
-        | .exp = ($iat + $exp_delta)
-        | .iss = $app_id
-    ' <<< "{}" | tr -d '\n'
-}
+generated_jwt="${header_base64}.${payload_base64}.${signature}"
 
-base64url() {
-    base64 | tr '+/' '-_' | tr -d '=\n'
-}
+echo $generated_jwt
+# API_VERSION=v3
+# API_HEADER="Accept: application/vnd.github+json"
 
-rs256_sign() {
-    openssl dgst -binary -sha256 -sign <(echo "$1")
-}
+# auth_header="Authorization: Bearer ${generated_jwt}"
 
-request_access_token() {
-    jwt_payload=$(build_jwt_payload)
-    encoded_jwt_parts=$(base64url <<<"${JWT_JOSE_HEADER}").$(base64url <<<"${jwt_payload}")
-    encoded_mac=$(echo -n "$encoded_jwt_parts" | rs256_sign "${APP_PRIVATE_KEY}" | base64url)
-    generated_jwt="${encoded_jwt_parts}.${encoded_mac}"
+# app_installations_response=$(curl -sX POST \
+#         -H "${auth_header}" \
+#         -H "${API_HEADER}" \
+#         --url "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" \
+#     )
 
-    auth_header="Authorization: Bearer ${generated_jwt}"
+# echo "$app_installations_response" | jq --raw-output '.token'
 
-    app_installations_response=$(curl -sX POST \
-        -H "${auth_header}" \
-        -H "${API_HEADER}" \
-        --header "X-GitHub-Api-Version: 2022-11-28" \
-        --url "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" \
-    )
-    echo "$app_installations_response" | jq --raw-output '.token'
-}
-
-request_access_token
+#echo "ACCESS_TOKEN=${jwt}" > "${DST_FILE}"
