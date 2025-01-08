@@ -27,6 +27,8 @@ unset ACCESS_TOKEN
 # it does one job, stops and unregisters
 registration_token=$(jq --raw-output .token "$token_file")
 
+cd /opt/runner
+
 ./config.sh \
         --unattended \
         --ephemeral \

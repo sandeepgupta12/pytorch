@@ -102,6 +102,6 @@ RUN     rm -rf /tmp/runner /tmp/runner.patch
 
 USER    runner
 
+ENTRYPOINT ["/usr/bin/entrypoint"]
+CMD ["/usr/bin/actions-runner"]
 
-# Download and extract GitHub Actions Runner
-#RUN curl -L https://github.com/actions/runner/releases/download/v2.317.0/actions-runner-linux-x64-2.317.0.tar.gz | tar -xz
