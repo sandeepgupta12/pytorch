@@ -12,7 +12,8 @@ ExecStartPre=-/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.
 ExecStartPre=-/usr/local/bin/gh_cat_token.sh /etc/actions-runner/%i/ghtoken.env /etc/actions-runner/%i/ghtoken.socket
 
 # Wait for token to be written to the pipe
-ExecStartPre=/bin/bash -c 'while [ ! -s /etc/actions-runner/%i/ghtoken.socket ]; do sleep 1; done'
+#ExecStartPre=/bin/bash -c 'while [ ! -s /etc/actions-runner/%i/ghtoken.socket ]; do sleep 1; done'
+ExecStartPre=/bin/bash -c 'while [ ! -e /etc/actions-runner/%i/ghtoken.socket ]; do sleep 1; done'
 
 ExecStart=/usr/bin/docker run \
               --env-file=/etc/actions-runner/%i/env \
