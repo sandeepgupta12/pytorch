@@ -49,3 +49,12 @@ rm -f "$token_file"
 
 # Run one job.
 ./run.sh
+
+# Unregister runner after completion
+ACCESS_TOKEN="$(cat /run/runner_secret)"
+curl \
+    -X DELETE \
+    -H "Accept: application/vnd.github.v3+json" \
+    -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+    "https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/$(jq --raw-output .id <runner-id.json)"
+unset ACCESS_TOKEN
