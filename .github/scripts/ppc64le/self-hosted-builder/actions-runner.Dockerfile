@@ -102,6 +102,9 @@ RUN     rm -rf /tmp/runner /tmp/runner.patch
 
 USER    runner
 
+# Set working directory
+WORKDIR /opt/runner
+
 ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["/usr/bin/actions-runner"]
 
