@@ -87,13 +87,16 @@ RUN     cd /tmp/runner/src && \
         ./dev.sh test && \
         rm -rf /root/.dotnet /root/.nuget
 
-RUN     useradd -c "Action Runner" -m runner && \
-        usermod -L runner && \
-        echo "runner ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/runner && \
-        groupadd docker || true && \
-        usermod -aG docker runner && \
-        chmod 660 /var/run/docker.sock && \
-        chgrp docker /var/run/docker.sock
+
+
+RUN useradd -c "Action Runner" -m runner && \
+    usermod -L runner && \
+    echo "runner ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/runner && \
+    groupadd docker || true && \
+    usermod -aG docker runner && \
+    echo "Fixing permissions at runtime if /var/run/docker.sock exists" && \
+    (test -S /var/run/docker.sock && chmod 660 /var/run/docker.sock && chgrp docker /var/run/docker.sock || true)
+
 
 RUN     mkdir -p /opt/runner && \
         tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
