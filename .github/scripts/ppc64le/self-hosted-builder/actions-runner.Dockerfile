@@ -89,7 +89,11 @@ RUN     cd /tmp/runner/src && \
 
 RUN     useradd -c "Action Runner" -m runner && \
         usermod -L runner && \
-        echo " runner  ALL=(ALL)       NOPASSWD: ALL" >/etc/sudoers.d/runner
+        echo "runner ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/runner && \
+        groupadd docker || true && \
+        usermod -aG docker runner && \
+        chmod 660 /var/run/docker.sock && \
+        chgrp docker /var/run/docker.sock
 
 RUN     mkdir -p /opt/runner && \
         tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
