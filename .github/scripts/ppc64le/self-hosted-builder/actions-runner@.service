@@ -1,7 +1,7 @@
 [Unit]
 Description=Self-Hosted IBM power Github Actions Runner
-After=network.target docker.service
-Requires=docker.service
+#After=network.target docker.service
+#Requires=docker.service
 StartLimitIntervalSec=0
 
 [Service]
