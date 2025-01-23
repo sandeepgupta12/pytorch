@@ -2,12 +2,10 @@
 
 set -e -u
 
-
-# first import docker image
-if [ -f ./manywheel-ppc64le.tar ] ; then
-        docker image load --input manywheel-ppc64le.tar
-        docker image tag docker.io/pytorch/manylinuxppc64le-builder:cpu-ppc64le docker.io/pytorch/manylinuxsppc64le-builder:cpu-ppc64le-main
-        rm -f manywheel-ppc64le.tar
+# Fetch GitHub access token
+if [ ! -f /run/runner_secret ]; then
+    echo "Error: Access token file not found at /run/runner_secret."
+    exit 1
 fi
 
 token_file=registration-token.json
@@ -28,7 +26,6 @@ unset ACCESS_TOKEN
 # it does one job, stops and unregisters
 registration_token=$(jq --raw-output .token "$token_file")
 
-cd /opt/runner
 
 ./config.sh \
         --unattended \
@@ -50,11 +47,23 @@ rm -f "$token_file"
 # Run one job.
 ./run.sh
 
-# Unregister runner after completion
-ACCESS_TOKEN="$(cat /run/runner_secret)"
-curl \
-    -X DELETE \
+# Unregister runner after job completion
+echo "Unregistering runner from GitHub..."
+runner_id=$(curl -s \
     -H "Accept: application/vnd.github.v3+json" \
-    -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-    "https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/$(jq --raw-output .id <runner-id.json)"
-unset ACCESS_TOKEN
+    -H "Authorization: Bearer $(cat /run/runner_secret)" \
+    "https://api.github.com/repos/${OWNER}/${REPO}/actions/runners" | \
+    jq --raw-output '.runners[] | select(.name=="'"${NAME}"'") | .id')
+
+if [ -n "$runner_id" ]; then
+    curl -s \
+        -X DELETE \
+        -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: Bearer $(cat /run/runner_secret)" \
+        "https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/$runner_id"
+    echo "Runner unregistered successfully."
+else
+    echo "Warning: Runner ID for ${NAME} not found. It may already be removed."
+fi
+
+echo "Ephemeral runner workflow completed."
