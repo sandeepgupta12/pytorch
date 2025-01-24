@@ -70,18 +70,20 @@ RUN git clone -q ${RUNNERREPO} /tmp/runner && \
     cd /tmp/runner && \
     git checkout main -b build && \
     git apply /tmp/runner.patch && \
-    sed -i'' -e /version/s/8......\"$/${SDK}.0.100\"/ src/global.json && \
-    ./src/dev.sh layout && ./src/dev.sh package && ./src/dev.sh test && \
-    mkdir -p /opt/runner && \
-    tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
-    chown -R runner:runner /opt/runner && \
-    su -c "/opt/runner/config.sh --version" runner && \
+    sed -i'' -e /version/s/8......\"$/${SDK}.0.100\"/ src/global.json 
+
+RUN  cd /tmp/runner/src && \
+    ./dev.sh layout && \
+    ./dev.sh package && \
+    ./dev.sh test && \
     rm -rf /root/.dotnet /root/.nuget
 
-RUN     mkdir -p /opt/runner && \
-        tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
-        chown -R  runner:runner /opt/runner && \
-        su -c "/opt/runner/config.sh --version" runner
+RUN mkdir -p /opt/runner && \
+    tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
+    chown -R  runner:runner /opt/runner && \
+    su -c "/opt/runner/config.sh --version" runner
+
+RUN     rm -rf /tmp/runner /tmp/runner.patch
 
 # Copy custom scripts and set permissions
 COPY fs/ /
