@@ -10,9 +10,8 @@ RUN echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy main res
     echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
     echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" >> /etc/apt/sources.list
 
-# Update and install basic tools
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
+# Fix sources for ppc64le and update system
+RUN apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
     apt-get -y install --no-install-recommends \
     build-essential \
     curl \
@@ -21,21 +20,16 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
     gnupg-agent \
     iptables \
     ca-certificates \
-    software-properties-common && \
+    software-properties-common \
+    vim \
+    python3 \
+    python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Switch to iptables-legacy
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy && \
     update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
-# Add Docker GPG key and repository
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
-    echo "deb [arch=ppc64el signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
-    apt-get update && apt-get install -y \
-    docker-ce \
-    docker-ce-cli \
-    containerd.io && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add Docker GPG key and repository
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
