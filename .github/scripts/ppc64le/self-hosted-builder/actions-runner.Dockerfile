@@ -71,8 +71,8 @@ RUN git clone -q ${RUNNERREPO} /tmp/runner && \
     git checkout main -b build && \
     git apply /tmp/runner.patch && \
     sed -i'' -e /version/s/8......\"$/${SDK}.0.100\"/ src/global.json && \
-    cd src && \
-    ./dev.sh layout && ./dev.sh package && ./dev.sh test && \
+    ./src/dev.sh layout && ./src/dev.sh package && ./src/dev.sh test && \
+    mkdir -p /opt/runner && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
     chown -R runner:runner /opt/runner && \
     rm -rf /tmp/runner /tmp/runner.patch /root/.dotnet /root/.nuget
