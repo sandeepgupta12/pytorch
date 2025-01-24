@@ -75,7 +75,13 @@ RUN git clone -q ${RUNNERREPO} /tmp/runner && \
     mkdir -p /opt/runner && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
     chown -R runner:runner /opt/runner && \
-    rm -rf /tmp/runner /tmp/runner.patch /root/.dotnet /root/.nuget
+    su -c "/opt/runner/config.sh --version" runner && \
+    rm -rf /root/.dotnet /root/.nuget
+
+RUN     mkdir -p /opt/runner && \
+        tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
+        chown -R  runner:runner /opt/runner && \
+        su -c "/opt/runner/config.sh --version" runner
 
 # Copy custom scripts and set permissions
 COPY fs/ /
