@@ -10,8 +10,9 @@ RUN echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy main res
     echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse" >> /etc/apt/sources.list && \
     echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" >> /etc/apt/sources.list
 
-# Fix sources for ppc64le and update system
-RUN apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
+# Update and install basic tools
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
     apt-get -y install --no-install-recommends \
     build-essential \
     curl \
@@ -20,11 +21,8 @@ RUN apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
     gnupg-agent \
     iptables \
     ca-certificates \
-    software-properties-common \
-    vim \
-    python3 \
-    python3-pip \
-    rm -rf /var/lib/apt/lists/*
+    software-properties-common && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Switch to iptables-legacy
 RUN update-alternatives --set iptables /usr/sbin/iptables-legacy && \
