@@ -26,11 +26,17 @@ RUN apt-get clean && \
     vim \
     python3 \
     python3-pip \
+    update-alternatives --set iptables /usr/sbin/iptables-legacy && \
+    update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Add Docker GPG key and repository
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo "deb [arch=ppc64el signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && apt-get install -y \
     docker-ce \
     docker-ce-cli \
     containerd.io && \
-    update-alternatives --set iptables /usr/sbin/iptables-legacy && \
-    update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add Docker GPG key and repository
