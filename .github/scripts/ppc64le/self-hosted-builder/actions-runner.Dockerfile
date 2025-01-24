@@ -70,7 +70,8 @@ RUN git clone -q ${RUNNERREPO} /tmp/runner && \
     cd /tmp/runner && \
     git checkout main -b build && \
     git apply /tmp/runner.patch && \
-    sed -i'' -e /version/s/8......\"$/${SDK}.0.100\"/ src/global.json \
+    sed -i'' -e /version/s/8......\"$/${SDK}.0.100\"/ src/global.json && \
+    cd src && \
     ./dev.sh layout && ./dev.sh package && ./dev.sh test && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
     chown -R runner:runner /opt/runner && \
