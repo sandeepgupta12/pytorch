@@ -11,7 +11,7 @@ RUN echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy main res
     echo "deb [arch=ppc64el] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" >> /etc/apt/sources.list
 
 # Fix sources for ppc64le and update system
-RUN apt-get clean && \
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \
     apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
     apt-get -y install --no-install-recommends \
     build-essential \
