@@ -29,5 +29,11 @@ RUN chmod +x /ppc64le-build.sh
 RUN dos2unix /ppc64le-build.sh || sed -i 's/\r$//' /ppc64le-build.sh
 RUN chmod +x /ppc64le-build.sh
 
+# Final stage
+FROM base AS final
+
+# Set the working directory
+WORKDIR /workspace/pytorch
+
 # Use CMD to run the script
 CMD ["/ppc64le-build.sh"]
