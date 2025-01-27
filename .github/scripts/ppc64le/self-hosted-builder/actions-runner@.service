@@ -1,7 +1,5 @@
 [Unit]
 Description=Self-Hosted IBM power Github Actions Runner
-#After=network.target docker.service
-#Requires=docker.service
 StartLimitIntervalSec=0
 
 [Service]
@@ -14,9 +12,6 @@ ExecStartPre=-/usr/bin/docker rm --force actions-runner.%i || true
 ExecStartPre=-/usr/bin/docker rm --force actions-runner.%i
 ExecStartPre=-/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.env /etc/actions-runner/%i/installid.env /etc/actions-runner/%i/key_private.pem /etc/actions-runner/%i/ghtoken.env
 ExecStartPre=-/usr/local/bin/gh_cat_token.sh /etc/actions-runner/%i/ghtoken.env /etc/actions-runner/%i/ghtoken.txt
-
-# Wait for token to be written to the pipe
-#ExecStartPre=/bin/bash -c 'while [ ! -s /etc/actions-runner/%i/ghtoken.txt ]; do sleep 1; done'
 
 ExecStart=/usr/bin/docker run \
               --env-file=/etc/actions-runner/%i/env \

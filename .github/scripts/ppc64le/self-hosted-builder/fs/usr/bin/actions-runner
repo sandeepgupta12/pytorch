@@ -41,7 +41,6 @@ if [ ! -f /run/runner_secret ]; then
 fi
 
 
-
 ACCESS_TOKEN="$(cat /run/runner_secret)"
 
 # Generate registration token
@@ -58,7 +57,6 @@ unset ACCESS_TOKEN
 # it does one job, stops and unregisters
 registration_token=$(jq --raw-output .token "$token_file")
 
-
 ./config.sh \
         --unattended \
         --ephemeral \
@@ -69,12 +67,7 @@ registration_token=$(jq --raw-output .token "$token_file")
         --labels self-hosted,linux.ppc64le
 
 unset registration_token
-#rm -f "$token_file"
-
-# enter into python virtual environment.
-# build workflows use "python -m pip install ...",
-# and it doesn't work for non-root user
-#source venv/bin/activate
+rm -f "$token_file"
 
 # Run one job.
 ./run.sh
