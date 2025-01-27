@@ -24,7 +24,7 @@ RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
 COPY . /workspace/pytorch
 
 # Copy the build script and make it executable
-COPY ../../../.github/scripts/ppc64le-build.sh /ppc64le-build.sh
+COPY manywheel/ppc64le-build.sh /ppc64le-build.sh
 RUN chmod +x /ppc64le-build.sh
 
 # Verify permissions and ensure Unix line endings
