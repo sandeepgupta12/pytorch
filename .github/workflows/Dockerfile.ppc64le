@@ -4,13 +4,13 @@ FROM registry.access.redhat.com/ubi9/ubi:9.3
 # Install necessary dependencies
 RUN dnf install -y \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
-    dnf install -y git cmake ninja-build gcc-toolset-13 rust cargo \
+    dnf install -y git cmake ninja-build gcc-c++ rust cargo \
     python3 python3-devel && \
     dnf clean all
 
 # Set up GCC toolset and compilers
-ENV CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc
-ENV CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++
+#ENV CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc
+#ENV CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++
 
 # Set Python and pip aliases to use Python 3.9
 RUN ln -sf /usr/bin/python3 /usr/bin/python && \
@@ -20,7 +20,8 @@ COPY requirements.txt .
 # Install Python packages via pip
 RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 
-RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
+#RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy the PyTorch source code into the container
 COPY . /workspace/pytorch
