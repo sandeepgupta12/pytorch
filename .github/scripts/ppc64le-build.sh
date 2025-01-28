@@ -7,11 +7,30 @@ PACKAGE_VERSION=${PACKAGE_VERSION:-v2.4.0}
 cd /workspace/$PACKAGE_NAME
 
 # Build and install PyTorch wheel
-if ! (MAX_JOBS=4 python setup.py bdist_wheel && pip install dist/*.whl); then
+if ! (MAX_JOBS=4 python setup.py bdist_wheel); then
     echo "------------------$PACKAGE_NAME:install_fails-------------------------------------"
     exit 1
 fi
 
+# List all the wheels in the dist directory
+echo "Listing all generated wheel files:"
+ls dist/*.whl
+
+# Get the single wheel file to install (you can adjust this to get only one wheel if multiple are generated)
+WHEEL_FILE=$(ls dist/*.whl | head -n 1)
+
+# Ensure that only one wheel file is present, exit if there are multiple wheels
+WHEEL_COUNT=$(ls dist/*.whl | wc -l)
+if [ "$WHEEL_COUNT" -gt 1 ]; then
+    echo "------------------$PACKAGE_NAME:multiple_wheels_detected-------------------------"
+    exit 1
+fi
+
+# Install the generated wheel
+if ! pip install "$WHEEL_FILE" --force-reinstall; then
+    echo "------------------$PACKAGE_NAME:install_fails--------------------------------------"
+    exit 1
+fi
 # Basic test to ensure installation success
 
 
