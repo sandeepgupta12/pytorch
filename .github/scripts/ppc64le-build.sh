@@ -9,7 +9,7 @@ export PYTORCH_BUILD_NUMBER=1
 cd /workspace/$PACKAGE_NAME
 
 # Build and install PyTorch wheel
-if ! (MAX_JOBS=4 python setup.py bdist_wheel); then
+if ! (MAX_JOBS=4 python setup.py bdist_wheel --version=$PYTORCH_BUILD_VERSION); then
     echo "------------------$PACKAGE_NAME:install_fails-------------------------------------"
     exit 1
 fi
