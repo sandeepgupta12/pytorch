@@ -321,8 +321,13 @@ jobs:
       - name: Archive ppc64le artifacts into zip
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-          cd dist
-          zip -1 ../artifacts.zip *.whl
+          set -e
+          if [ -d "dist" ]; then
+            rm -f artifacts.zip  # Remove old zip if it exists
+            zip -9 -r artifacts.zip dist/
+          else
+            echo "Warning: dist directory not found, skipping artifact creation."
+          fi
   
       - name: Store PyTorch Build Artifacts for ppc64le
         uses: actions/upload-artifact@v3
