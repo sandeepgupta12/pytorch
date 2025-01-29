@@ -3,6 +3,7 @@
 # Environment variables
 PACKAGE_NAME=pytorch
 PACKAGE_VERSION=${PACKAGE_VERSION:-v2.4.0}
+export PYTORCH_BUILD_VERSION=2.6.0
 
 cd /workspace/$PACKAGE_NAME
 
