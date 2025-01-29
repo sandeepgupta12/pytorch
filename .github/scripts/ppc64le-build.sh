@@ -6,10 +6,14 @@ PACKAGE_VERSION=${PACKAGE_VERSION:-v2.4.0}
 export PYTORCH_BUILD_VERSION=2.6.0
 export PYTORCH_BUILD_NUMBER=1
 
+# Clean up old artifacts (even though it's a new container)
+rm -rf build/ dist/ torch.egg-info/
+
 cd /workspace/$PACKAGE_NAME
 
+rm -rf build/ dist/ torch.egg-info/
 # Build and install PyTorch wheel
-if ! (MAX_JOBS=4 python setup.py bdist_wheel --version=$PYTORCH_BUILD_VERSION); then
+if ! (MAX_JOBS=4 python setup.py bdist_wheel ); then
     echo "------------------$PACKAGE_NAME:install_fails-------------------------------------"
     exit 1
 fi
