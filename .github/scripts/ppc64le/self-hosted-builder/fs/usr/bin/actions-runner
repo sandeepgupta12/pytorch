@@ -4,6 +4,13 @@ set -e -u
 
 trap cleanup EXIT
 
+# first import docker image
+if [ -f ./manywheel-ppc64le.tar ] ; then
+        docker image load --input manywheel-ppc64le.tar
+        docker image tag docker.io/pytorch/manylinuxppc64le-builder:cpu-ppc64le docker.io/pytorch/manylinuxsppc64le-builder:cpu-ppc64le-main
+        rm -f manywheel-ppc64le.tar
+fi
+
 token_file=registration-token.json
 
 # Function to clean up and unregister the runner
