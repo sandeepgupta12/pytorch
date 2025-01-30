@@ -15,11 +15,6 @@ if ! (MAX_JOBS=4 python setup.py bdist_wheel && pip install dist/*.whl); then
     exit 1
 fi
 
-# Basic test to ensure installation success
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_bfloat16
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_float16
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_float32
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_float64
 
 cd ..
 pip install pytest pytest-xdist
@@ -28,7 +23,7 @@ if ! pytest -n $(nproc) -vvvv $PACKAGE_NAME/test/common_extended_utils.py $PACKA
    exit 0
 fi
 echo "-----start test
-if ! pytest "$PACKAGE_NAME/test/test_utils.py"; then
+if ! pytest -Xrs test; then
     echo "------------------$PACKAGE_NAME:install_success_but_test_fails---------------------"
     exit 2
 else
