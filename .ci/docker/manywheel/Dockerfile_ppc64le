@@ -14,7 +14,8 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python && \
 
 #RUN ln -s requirements.txt .ci/docker/manywheel/requirements.txt
 
-COPY ../../../../requirements.txt .
+RUN ls ../../../../
+COPY ../../../../pytoch/requirements.txt .
 # Install Python packages via pip
 RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 
