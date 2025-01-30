@@ -95,6 +95,7 @@ USER runner
 # Set working directory
 WORKDIR /opt/runner
 
+COPY --chown=actions-runner:actions-runner manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
 # Define entry point and command
 ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["/usr/bin/actions-runner"]
