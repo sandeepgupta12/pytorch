@@ -30,10 +30,10 @@ numpy \
 psutil \
 pyyaml \
 requests \
-setuptools<=72.1.0 \
+"setuptools<=72.1.0" \
 types-dataclasses \
-typing-extensions>=4.10.0 \
-sympy==1.13.1 \
+"typing-extensions>=4.10.0" \
+"sympy==1.13.1" \
 filelock \
 networkx \
 jinja2 \
@@ -41,7 +41,7 @@ fsspec \
 lintrunner  \
 ninja \
 packaging \
-optree>=0.13.0
+"optree>=0.13.0"
 
 
 # Copy the PyTorch source code into the container
