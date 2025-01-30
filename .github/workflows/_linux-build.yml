@@ -307,7 +307,7 @@ jobs:
           s3-bucket: ${{ inputs.s3-bucket }}
 
       - name: Store PyTorch Build Artifacts for s390x
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && !inputs.use_split_build && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}
@@ -316,7 +316,7 @@ jobs:
           path: artifacts.zip
 
       - name: Store PyTorch Build Artifacts for s390x for split build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped' && inputs.use_split_build && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}-experimental-split-build
@@ -336,7 +336,7 @@ jobs:
           fi
   
       - name: Store PyTorch Build Artifacts for ppc64le
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@4
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}
