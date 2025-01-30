@@ -15,11 +15,34 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python && \
 #RUN ln -s requirements.txt .ci/docker/manywheel/requirements.txt
 
 
-COPY requirements.txt .
+#COPY requirements.txt .
 # Install Python packages via pip
 RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 
-RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
+#RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
+
+RUN source /opt/rh/gcc-toolset-13/enable
+
+RUN pip install astunparse \
+expecttest>=0.2.1 \
+hypothesis \
+numpy \
+psutil \
+pyyaml \
+requests \
+setuptools<=72.1.0 \
+types-dataclasses \
+typing-extensions>=4.10.0 \
+sympy==1.13.1 \
+filelock \
+networkx \
+jinja2 \
+fsspec \
+lintrunner  \
+ninja \
+packaging \
+optree>=0.13.0
+
 
 # Copy the PyTorch source code into the container
 COPY . /workspace/pytorch
