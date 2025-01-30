@@ -23,7 +23,7 @@ RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 
 #RUN source /opt/rh/gcc-toolset-13/enable
 
-RUN source /opt/rh/gcc-toolset-13/enable && pip install astunparse \
+RUN bash -c source /opt/rh/gcc-toolset-13/enable && pip install astunparse \
 expecttest>=0.2.1 \
 hypothesis \
 numpy \
