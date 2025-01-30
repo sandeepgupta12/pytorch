@@ -336,7 +336,7 @@ jobs:
           fi
   
       - name: Store PyTorch Build Artifacts for ppc64le
-        uses: actions/upload-artifact@4
+        uses: actions/upload-artifact@v4
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         with:
           name: ${{ inputs.build-environment }}
