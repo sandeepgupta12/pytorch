@@ -89,7 +89,7 @@ RUN     rm -rf /tmp/runner /tmp/runner.patch
 COPY fs/ /
 RUN chmod 777 /usr/bin/actions-runner /usr/bin/entrypoint
 
-COPY --chown=runner/runner ~/manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
+COPY --chown=runner/runner manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
 
 
 # Switch to the runner user
