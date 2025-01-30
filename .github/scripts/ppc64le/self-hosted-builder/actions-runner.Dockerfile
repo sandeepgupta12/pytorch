@@ -89,13 +89,15 @@ RUN     rm -rf /tmp/runner /tmp/runner.patch
 COPY fs/ /
 RUN chmod 777 /usr/bin/actions-runner /usr/bin/entrypoint
 
+COPY --chown=actions-runner:actions-runner manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
+
+
 # Switch to the runner user
 USER runner
 
 # Set working directory
 WORKDIR /opt/runner
 
-COPY --chown=actions-runner:actions-runner manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
 # Define entry point and command
 ENTRYPOINT ["/usr/bin/entrypoint"]
 CMD ["/usr/bin/actions-runner"]
