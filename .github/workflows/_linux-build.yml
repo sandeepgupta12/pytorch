@@ -205,7 +205,9 @@ jobs:
       - name: ls
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-          ls -l
+          ls -l $(pwd)
+          echo "#################"
+          ls -l ${GITHUB_WORKSPACE}
 
       - name: Run Docker container and execute build script
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
