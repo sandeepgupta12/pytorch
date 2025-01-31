@@ -205,7 +205,7 @@ jobs:
       - name: Run Docker container and execute build script
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-            docker run --rm -v "$(pwd):/workspace/pytorch" ${{ inputs.docker-image-name }} /ppc64le-build.sh
+            docker run --rm -v "$(pwd):/workspace/pytorch" ${{ inputs.docker-image-name }} bash -c "chown -R runner:runner /workspace/pytorch && /ppc64le-build.sh"
 
       - name: Build
         if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '' ) && (inputs.build-environment != 'linux-ppc64le-binary-manywheel')
