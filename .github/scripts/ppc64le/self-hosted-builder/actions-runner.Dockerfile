@@ -59,6 +59,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #     usermod -aG docker runner && \
 #     (test -S /var/run/docker.sock && chmod 660 /var/run/docker.sock && chgrp docker /var/run/docker.sock || true)
 
+# Create a non-root user temporarily for the runner setup
+RUN useradd -m runner && \
+    echo "runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
 
 # Add and configure GitHub Actions runner
 ARG RUNNERREPO="https://github.com/actions/runner"
@@ -81,7 +84,10 @@ RUN  cd /tmp/runner/src && \
 RUN mkdir -p /opt/runner && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
     #chown -R  runner:runner /opt/runner && \
-    su -c "/opt/runner/config.sh --version"
+    su - runner -c "/opt/runner/config.sh --version"
+
+# Remove temporary user after setup
+RUN deluser runner && rm -rf /etc/sudoers.d/runner
 
 RUN     rm -rf /tmp/runner /tmp/runner.patch
 
