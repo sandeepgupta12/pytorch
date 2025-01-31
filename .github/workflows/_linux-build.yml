@@ -202,10 +202,15 @@ jobs:
           rm -rf dist/*
           mkdir -p dist
 
+      - name: ls
+        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+        run: |
+          ls -l
+
       - name: Run Docker container and execute build script
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-            docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 ls /workspace/pytorch
+            docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash
 
 
       - name: Build
