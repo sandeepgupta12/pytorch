@@ -52,16 +52,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 
 # Setup user and permissions
-# RUN useradd -c "Action Runner" -m runner && \
-#     usermod -L runner && \
-#     echo "runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner && \
-#     groupadd docker || true && \
-#     usermod -aG docker runner && \
-#     (test -S /var/run/docker.sock && chmod 660 /var/run/docker.sock && chgrp docker /var/run/docker.sock || true)
+RUN useradd -c "Action Runner" -m runner && \
+    usermod -L runner && \
+    echo "runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner && \
+    groupadd docker || true && \
+    usermod -aG docker runner && \
+    (test -S /var/run/docker.sock && chmod 660 /var/run/docker.sock && chgrp docker /var/run/docker.sock || true)
 
-# Create a non-root user temporarily for the runner setup
-RUN useradd -m runner && \
-    echo "runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner
 
 # Add and configure GitHub Actions runner
 ARG RUNNERREPO="https://github.com/actions/runner"
@@ -83,11 +80,8 @@ RUN  cd /tmp/runner/src && \
 
 RUN mkdir -p /opt/runner && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
-    #chown -R  runner:runner /opt/runner && \
+    chown -R  runner:runner /opt/runner && \
     su - runner -c "/opt/runner/config.sh --version"
-
-# Remove temporary user after setup
-RUN deluser runner && rm -rf /etc/sudoers.d/runner
 
 RUN     rm -rf /tmp/runner /tmp/runner.patch
 
@@ -99,7 +93,7 @@ COPY  manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
 
 
 # Switch to the runner user
-#USER runner
+USER runner
 
 # Set working directory
 WORKDIR /opt/runner
