@@ -19,6 +19,6 @@ jobs:
     uses: ./.github/workflows/_linux-build.yml
     with:
       build-environment: linux-ppc64le-binary-manywheel
-      docker-image-name: pytorch/manylinuxsppc64le-builder:cpu-ppc64le-main
+      docker-image-name: pytorch/ubi9-ppc64le-builder:cpu-ppc64le-main
       runner: linux.ppc64le            # Example runner
       
