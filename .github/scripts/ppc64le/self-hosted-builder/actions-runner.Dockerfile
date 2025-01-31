@@ -52,12 +52,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 
 # Setup user and permissions
-RUN useradd -c "Action Runner" -m runner && \
-    usermod -L runner && \
-    echo "runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner && \
-    groupadd docker || true && \
-    usermod -aG docker runner && \
-    (test -S /var/run/docker.sock && chmod 660 /var/run/docker.sock && chgrp docker /var/run/docker.sock || true)
+# RUN useradd -c "Action Runner" -m runner && \
+#     usermod -L runner && \
+#     echo "runner ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/runner && \
+#     groupadd docker || true && \
+#     usermod -aG docker runner && \
+#     (test -S /var/run/docker.sock && chmod 660 /var/run/docker.sock && chgrp docker /var/run/docker.sock || true)
 
 
 # Add and configure GitHub Actions runner
@@ -80,7 +80,7 @@ RUN  cd /tmp/runner/src && \
 
 RUN mkdir -p /opt/runner && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
-    chown -R  runner:runner /opt/runner && \
+    #chown -R  runner:runner /opt/runner && \
     su -c "/opt/runner/config.sh --version" runner
 
 RUN     rm -rf /tmp/runner /tmp/runner.patch
@@ -89,11 +89,11 @@ RUN     rm -rf /tmp/runner /tmp/runner.patch
 COPY fs/ /
 RUN chmod 777 /usr/bin/actions-runner /usr/bin/entrypoint
 
-COPY --chown=runner/runner manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
+COPY  manywheel-ppc64le.tar /home/actions-runner/manywheel-ppc64le.tar
 
 
 # Switch to the runner user
-USER runner
+#USER runner
 
 # Set working directory
 WORKDIR /opt/runner
