@@ -81,7 +81,7 @@ RUN  cd /tmp/runner/src && \
 RUN mkdir -p /opt/runner && \
     tar -xf /tmp/runner/_package/*.tar.gz -C /opt/runner && \
     #chown -R  runner:runner /opt/runner && \
-    su -c "/opt/runner/config.sh --version" runner
+    su -c "/opt/runner/config.sh --version"
 
 RUN     rm -rf /tmp/runner /tmp/runner.patch
 
