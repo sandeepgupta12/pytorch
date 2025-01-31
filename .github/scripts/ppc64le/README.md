@@ -65,7 +65,7 @@ $ sudo echo <github_app_install_id> | sudo tee /etc/actions-runner/<name>/instal
 $ sudo echo NAME=<worker_name> | sudo tee    /etc/actions-runner/<name>/env
 $ sudo echo ORG=<github_org>   | sudo tee -a /etc/actions-runner/<name>/env
 $ cd self-hosted-builder
-$ sudo /bin/cp helpers/*.sh /usr/local/bin/
+$ sudo /bin/cp helpers/*.sh /local/bin/
 $ sudo chmod 755 /usr/local/bin/app_token.sh /usr/local/bin/gh_token_generator.sh
 ```
 
