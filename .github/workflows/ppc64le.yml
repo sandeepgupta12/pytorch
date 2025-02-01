@@ -32,13 +32,13 @@ jobs:
       - name: Debug .git directory inside container
         run: |
           docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "ls -la /workspace/pytorch/.git || echo '.git directory not found'"
-      - name: Debug Git Submodules
+      
+      - name: Debug ownership inside container
         run: |
           docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
-            echo 'Checking submodules...';
-            git -C /workspace/pytorch submodule status;
-            git -C /workspace/pytorch submodule foreach git status;
-          "
+            ls -ld /workspace/pytorch;
+            ls -ld /workspace/pytorch/.git;
+            whoami"
         
       
       - name: Run Docker container and execute build script
