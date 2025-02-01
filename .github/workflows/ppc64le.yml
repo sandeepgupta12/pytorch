@@ -27,6 +27,31 @@ jobs:
       - name: Build Docker image for ppc64le
         run: |
           docker build -f .github/workflows/Dockerfile.ppc64le -t pytorch-ppc64le:ubi9.3 .
+      
+      - name: Run Docker container and execute build script
+        
+        run: |
+            docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash
+
+      - name: Archive ppc64le artifacts into zip
+        
+        run: |
+          set -e
+          if [ -d "dist" ]; then
+            rm -f artifacts.zip  # Remove old zip if it exists
+            zip -9 -r artifacts.zip dist/
+          else
+            echo "Warning: dist directory not found, skipping artifact creation."
+          fi
+      
+      - name: Store PyTorch Build Artifacts for ppc64le
+        uses: actions/upload-artifact@v4
+        
+        with:
+          name: test
+          retention-days: 14
+          if-no-files-found: error
+          path: artifacts.zip
 
   linux-ubi-9-3-cpu-ppc64le-build:
 
