@@ -19,21 +19,31 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          submodules: true
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Remove old untagged images (optional cleanup)
-        run: |
-          docker image prune -a -f
+     
       - name: Build Docker image for ppc64le
         run: |
           docker build -f .github/workflows/Dockerfile.ppc64le -t pytorch-ppc64le:ubi9.3 .
+
+      - name: Debug .git directory inside container
+        run: |
+          docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "ls -la /workspace/pytorch/.git || echo '.git directory not found'"
+      
       
       - name: Run Docker container and execute build script
         
         run: |
-            docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c \
-            "git config --global --add safe.directory /workspace/pytorch && \
-            git submodule update --init --recursive && \
+            docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c
+            if [ -d /workspace/pytorch/.git ]; then
+              git config --global --add safe.directory /workspace/pytorch &&
+              git submodule update --init --recursive
+            else
+              echo 'Error: /workspace/pytorch is not a valid Git repository'
+              exit 1
+            fi
             /ppc64le-build.sh"
 
       - name: Archive ppc64le artifacts into zip
