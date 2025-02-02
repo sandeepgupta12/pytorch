@@ -45,7 +45,6 @@ jobs:
         run: |
           docker run --rm -u $(id -u):$(id -g) -v "$(pwd):/workspace/pytorch/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
             export GIT_DISCOVERY_ACROSS_FILESYSTEM=1 &&
-            git config --global --add safe.directory /workspace/pytorch &&
             git -C /workspace/pytorch submodule deinit --all --force &&
             git -C /workspace/pytorch submodule update --init --recursive --force &&
             /ppc64le-build.sh"
