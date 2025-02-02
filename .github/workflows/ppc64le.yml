@@ -40,7 +40,11 @@ jobs:
             ls -ld /workspace/pytorch/.git;
             whoami"
         
-      - run: echo "Runner workspace ${{ github.workspace }}"
+      - run: |
+          docker run --rm -u $(id -u):$(id -g) -v "/opt/runner/_work/pytorch/pytorch:/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
+          export GIT_DISCOVERY_ACROSS_FILESYSTEM=1 &&
+          git -C /workspace/pytorch status"
+
 
       - name: Run Docker container and execute build script
         run: |
