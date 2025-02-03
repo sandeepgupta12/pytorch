@@ -29,22 +29,13 @@ jobs:
         run: |
           docker build -f .github/workflows/Dockerfile.ppc64le -t pytorch-ppc64le:ubi9.3 .
 
-      - name: Create Docker Volume
-        run: docker volume create pytorch_workspace
-
-      - name: Copy Repository to Docker Volume
-        run: |
-          docker run --rm \
-            -v pytorch_workspace:/workspace/pytorch \
-            -v "${{ github.workspace }}:/repo" \
-            pytorch-ppc64le:ubi9.3 bash -c "cp -r /repo/* /workspace/pytorch/"
+      
 
       - name: Run Docker container and execute build script
         run: |
-          docker run --rm -u $(id -u):$(id -g) -v "pytorch_workspace:/workspace/pytorch" pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
-  
-
-        
+          docker run -d --name temp_builder pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+          docker wait temp_builder
+          docker cp temp_builder:/workspace/pytorch/dist/. dist/
 
       - name: Archive ppc64le artifacts into zip
         
