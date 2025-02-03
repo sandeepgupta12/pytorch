@@ -24,7 +24,7 @@ RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
 #RUN pip install -r requirements.txt
 
 # Copy the PyTorch source code into the container
-#COPY . /workspace/pytorch
+COPY . /workspace/pytorch
 
 # Copy the build script and make it executable
 COPY .github/scripts/ppc64le-build.sh /ppc64le-build.sh

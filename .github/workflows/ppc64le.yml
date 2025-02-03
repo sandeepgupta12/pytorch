@@ -29,30 +29,11 @@ jobs:
         run: |
           docker build -f .github/workflows/Dockerfile.ppc64le -t pytorch-ppc64le:ubi9.3 .
 
-      - name: Debug .git directory inside container
-        run: |
-          docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "ls -la /workspace/pytorch/.git || echo '.git directory not found'"
-      
-      - name: Debug ownership inside container
-        run: |
-          docker run --rm -v "$(pwd):/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
-            ls -ld /workspace/pytorch;
-            ls -ld /workspace/pytorch/.git;
-            whoami"
-        
-      - run: |
-          docker run --rm -u $(id -u):$(id -g) -v "/opt/runner/_work/pytorch/pytorch:/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
-          export GIT_DISCOVERY_ACROSS_FILESYSTEM=1 &&
-          git -C /workspace/pytorch status"
-
-
       - name: Run Docker container and execute build script
         run: |
-          docker run --rm -u $(id -u):$(id -g) -v "${{ github.workspace }}:/workspace/pytorch/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
-            export GIT_DISCOVERY_ACROSS_FILESYSTEM=1 &&
-            git -C /workspace/pytorch submodule deinit --all --force &&
-            git -C /workspace/pytorch submodule update --init --recursive --force &&
-            /ppc64le-build.sh"
+          docker run -it --name temp_builder pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+          docker cp temp_builder:/workspace/pytorch/dist/* dist/
+
         
 
       - name: Archive ppc64le artifacts into zip
