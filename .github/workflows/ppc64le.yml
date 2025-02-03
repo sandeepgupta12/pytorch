@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Docker container and execute build script
         run: |
-          docker run -it --name temp_builder pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+          docker run -d --name temp_builder pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
           docker cp temp_builder:/workspace/pytorch/dist/* dist/
 
         
