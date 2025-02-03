@@ -31,9 +31,12 @@ jobs:
 
       - name: Run Docker container and execute build script
         run: |
-          docker run -d --name temp_builder pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
-          docker wait temp_builder
-          docker cp temp_builder:/workspace/pytorch/dist/. dist/
+          docker run --rm -u $(id -u):$(id -g) -v "${{ github.workspace }}:/workspace/pytorch" pytorch-ppc64le:ubi9.3 bash -c "
+            export GIT_DISCOVERY_ACROSS_FILESYSTEM=1 &&
+            git -C /workspace/pytorch submodule deinit --all --force &&
+            git -C /workspace/pytorch submodule update --init --recursive --force &&
+            /ppc64le-build.sh"
+  
 
         
 
