@@ -196,18 +196,7 @@ jobs:
           job_identifier: ${{ github.workflow }}_${{ inputs.build-environment }}
           s3_bucket: ${{ inputs.s3-bucket }}
 
-      - name: Clean dist directory before build
-        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
-        run: |
-          rm -rf dist/*
-          mkdir -p dist
-
-      - name: ls
-        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
-        run: |
-          ls -l $(pwd)
-          echo "#################"
-          ls -l ${GITHUB_WORKSPACE}
+      
 
       - name: Run Docker container and execute build script
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
