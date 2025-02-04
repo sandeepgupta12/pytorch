@@ -203,7 +203,9 @@ jobs:
         run: |
             docker run -d --name temp_builder pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
             docker wait temp_builder
+            docker logs temp_builder
             docker cp temp_builder:/workspace/pytorch/dist/. dist/
+            docker rm temp_builder
 
 
       - name: Build
@@ -326,13 +328,8 @@ jobs:
       - name: Archive ppc64le artifacts into zip
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         run: |
-          set -e
-          if [ -d "dist" ]; then
-            rm -f artifacts.zip  # Remove old zip if it exists
-            zip -9 -r artifacts.zip dist/
-          else
-            echo "Warning: dist directory not found, skipping artifact creation."
-          fi
+          zip -1 -r artifacts.zip dist/ build/custom_test_artifacts build/lib build/bin .additional_ci_files
+
   
       - name: Store PyTorch Build Artifacts for ppc64le
         uses: actions/upload-artifact@v4
