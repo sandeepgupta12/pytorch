@@ -22,6 +22,7 @@ RUN apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout="10" && \
     ca-certificates \
     software-properties-common \
     vim \
+    zip \
     python3 \
     python3-pip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
