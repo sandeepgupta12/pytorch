@@ -325,7 +325,7 @@ jobs:
           path: artifacts.zip
 
       - name: Archive ppc64le artifacts into zip
-        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9'
         run: |
           zip -1 -r artifacts.zip dist/
       
