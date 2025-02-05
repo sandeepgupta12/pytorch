@@ -324,6 +324,10 @@ jobs:
           if-no-files-found: error
           path: artifacts.zip
 
+      - name: Archive ppc64le artifacts into zip
+        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+        run: |
+          zip -1 -r artifacts.zip dist/
       
   
       - name: Store PyTorch Build Artifacts for ppc64le

@@ -7,8 +7,6 @@ Type=simple
 Restart=always
 
 # Cleanup stale containers
-ExecStartPre=-/usr/bin/docker rm --force actions-runner.%i || true
-
 ExecStartPre=-/usr/bin/docker rm --force actions-runner.%i
 ExecStartPre=-/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.env /etc/actions-runner/%i/installid.env /etc/actions-runner/%i/key_private.pem /etc/actions-runner/%i/ghtoken.env
 ExecStartPre=-/usr/local/bin/gh_cat_token.sh /etc/actions-runner/%i/ghtoken.env /etc/actions-runner/%i/ghtoken.txt
@@ -29,10 +27,6 @@ ExecStop=/bin/sh -c "docker wait actions-runner.%i"
 ExecStop=/bin/sh -c "docker rm actions-runner.%i"
 
 ExecStop=/usr/bin/env rm -f /etc/actions-runner/%i/ghtoken.env /etc/actions-runner/%i/ghtoken.txt
-
-# Logging and Permissions
-StandardOutput=journal
-StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
