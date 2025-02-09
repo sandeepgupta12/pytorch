@@ -339,6 +339,10 @@ jobs:
           if-no-files-found: error
           path: artifacts.zip
 
+      - name: Cleanup dangling Docker images
+        if: always() && inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9'
+        run: docker image prune -f
+
       - name: Upload sccache stats
         if: steps.build.outcome != 'skipped' && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
         uses: seemethere/upload-artifact-s3@v5
@@ -355,8 +359,7 @@ jobs:
         if: always() && (inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9')
 
       - name: Cleanup docker
-        if: always() && (inputs.build-environment == 'linux-s390x-binary-manywheel' || inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9')
-        shell: bash
+        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel'
         run: |
           # on s390x stop the container for clean worker stop
           # ignore expansion of "docker ps -q" since it could be empty
