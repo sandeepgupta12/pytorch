@@ -19,21 +19,13 @@ fi
 cd ..
 pip install pytest pytest-xdist
 
-echo "-----start test
-# register PrivateUse1HooksInterface
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_bfloat16
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_float16
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_float32
-python test/test_utils.py TestDeviceUtilsCPU.test_device_mode_ops_sparse_mm_reduce_cpu_float64
-
-echo "-----start test
 if ! pytest "$PACKAGE_NAME/test/test_utils.py"; then
     echo "------------------$PACKAGE_NAME:install_success_but_test_fails---------------------"
     
 else
     echo "------------------$PACKAGE_NAME:install_and_test_both_success-------------------------"
 fi
-if ! pytest -Xrs test; then
+if ! pytest -v -s "$PACKAGE_NAME/test"; then
     echo "------------------$PACKAGE_NAME:install_success_but_test_fails---------------------"
     exit 2
 else
