@@ -35,9 +35,9 @@ RUN mkdir -p /workspace/pytorch
 #RUN git submodule update --init --recursive
 
 # Copy the build script and make it executable
-#COPY .github/scripts/ppc64le-build.sh /ppc64le-build.sh
+COPY .github/scripts/ppc64le-build.sh /ppc64le-build.sh
 
 ENTRYPOINT []
-CMD ["/bin/bash"]
+CMD ["sleep", "infinity"]
 
 
