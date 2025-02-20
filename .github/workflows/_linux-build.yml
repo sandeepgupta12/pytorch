@@ -216,7 +216,7 @@ jobs:
           USE_SPLIT_BUILD: ${{ inputs.use_split_build }}
         run: |
           START_TIME=$(date +%s)
-          if [[ ${BUILD_ENVIRONMENT} == *"s390x"* ]]; then
+          if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
             JENKINS_USER=
             USED_IMAGE="${DOCKER_IMAGE_S390X}"
             # ensure that docker container cleanly exits in 12 hours
@@ -225,7 +225,7 @@ jobs:
             DOCKER_SHELL_CMD="sleep 12h"
 
             # since some steps are skipped on s390x, if they are necessary, run them here
-            env | grep '^GITHUB' >> "/tmp/github_env_${GITHUB_RUN_ID}"
+            # env | grep '^GITHUB' >> "/tmp/github_env_${GITHUB_RUN_ID}"
             env | grep '^CI' >> "/tmp/github_env_${GITHUB_RUN_ID}"
           else
             JENKINS_USER="--user jenkins"
