@@ -26,6 +26,7 @@ RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 RUN pip install -r requirements.txt
 
 # Copy the PyTorch source code into the container
+RUN mkdir -p /workspace/pytorch
 #COPY . /workspace/pytorch
 
 #WORKDIR /workspace/pytorch

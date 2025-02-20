@@ -288,7 +288,7 @@ jobs:
             docker run -d --name "$CONTAINER_NAME" pytorch-ppc64le:ubi9.3
 
             # Step 2: Ensure the directory exists in the container
-            docker exec "$CONTAINER_NAME" mkdir -p /workspace/pytorch
+           
 
             # Step 3: Copy the Build Script into the Container
             docker cp . "$CONTAINER_NAME":/workspace/pytorch
