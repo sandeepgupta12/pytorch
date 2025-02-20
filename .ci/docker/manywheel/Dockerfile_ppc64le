@@ -28,7 +28,7 @@ RUN pip install -r requirements.txt
 # Copy the PyTorch source code into the container
 #COPY . /workspace/pytorch
 
-#WORKDIR /workspace/pytorch
+WORKDIR /workspace/pytorch
 
 # Ensure submodules are initialized and updated
 #RUN git submodule update --init --recursive
