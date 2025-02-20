@@ -119,7 +119,7 @@ jobs:
       # checkout. In other cases you should prefer a local checkout.
       - name: Checkout PyTorch
         uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
-        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        
         with:
           no-sudo: true
 
@@ -160,20 +160,20 @@ jobs:
 
       - name: Parse ref
         id: parse-ref
-        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        
         run: .github/scripts/parse_ref.py
 
       - name: Get workflow job id
         id: get-job-id
         uses: ./.github/actions/get-workflow-job-id
-        if: always() && inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Apply the filter logic to the build step too if the test-config label is already there
       - name: Select all requested test configurations (if the test matrix is available)
         id: filter
-        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        
         uses: ./.github/actions/filter-test-configs
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
