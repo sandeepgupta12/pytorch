@@ -283,7 +283,10 @@ jobs:
         run: |
             CONTAINER_NAME="temp_builder_${RUN_ID}"
             docker run -d --name "$CONTAINER_NAME" pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
-            
+            docker wait "$CONTAINER_NAME"
+            docker logs "$CONTAINER_NAME"
+            docker cp "$CONTAINER_NAME":/workspace/pytorch/dist/. dist/
+            docker rm "$CONTAINER_NAME"
 
       - name: Archive artifacts into zip
         if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped'
