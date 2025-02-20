@@ -286,13 +286,13 @@ jobs:
 
             # Step 1: Create a Docker Volume
             docker volume create "$WORKSPACE_VOLUME"
-
+            echo "Listing GITHUB_WORKSPACE contents:"
             ls -la "$GITHUB_WORKSPACE"
 
             docker run --rm \
               -v "$GITHUB_WORKSPACE:/src" \
               -v "$WORKSPACE_VOLUME:/workspace" \
-              ubuntu bash -c "mkdir -p /workspace && cp -r /src/* /workspace/"
+              ubuntu bash -c "mkdir -p /workspace && [ -d /src ] && cp -r /src/* /workspace/ || echo 'Warning: /src/ is empty'"
 
               # Step 4: Verify Copying
             docker run --rm -v "$WORKSPACE_VOLUME:/workspace" ubuntu ls -la /workspace
