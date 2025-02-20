@@ -191,7 +191,7 @@ jobs:
           s3_bucket: ${{ inputs.s3-bucket }}
 
       - name: Build
-        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && (inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9')
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '')
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
@@ -273,7 +273,7 @@ jobs:
             "${USED_IMAGE}" \
             ${DOCKER_SHELL_CMD}
           )
-          docker exec -t "${container_name}" sh -c '.ci/pytorch/build.sh'
+          docker exec -t "${container_name}" sh -c '.github/scrips/ppc64le-build.sh'
 
           END_TIME=$(date +%s)
           echo "build_time=$((END_TIME - START_TIME))" >> "$GITHUB_OUTPUT"
