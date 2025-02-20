@@ -281,7 +281,7 @@ jobs:
       - name: Execute Build and Tests inside ppc64le Docker Container
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9'
         run: |
-            docker run --rm -v $(pwd):/workspace/pytorch pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
+            docker run --rm -v $(GITHUB_WORKSPACE):/workspace/pytorch pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
   
 
       - name: Archive artifacts into zip
