@@ -12,14 +12,13 @@ concurrency:
 
 jobs:
   
-  linux-ubi-9-3-cpu-ppc64le-build:
-
-    name: linux-ubi9-3-cpu-ppc64le
+  ppc64le-UBI-9-3-Build-and-Test:
+    name: ppc64le-UBI-9-3-Build-and-Test
     uses: ./.github/workflows/_linux-build.yml
     
     with:
-      build-environment: linux-ppc64le-binary-manywheel
+      build-environment: linux-ppc64le-binary-manywheel-ubi9
       docker-image-name: pytorch-ppc64le:ubi9.3
-      runner: linux.ppc64le
+      runner: linux.ppc64le 
         
       
