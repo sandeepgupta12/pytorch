@@ -207,7 +207,7 @@ jobs:
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
           TORCH_CUDA_ARCH_LIST: ${{ inputs.cuda-arch-list }}
           DOCKER_IMAGE: ${{ steps.calculate-docker-image.outputs.docker-image }}
-          DOCKER_IMAGE_S390X: ${{ inputs.docker-image-name }}
+          #DOCKER_IMAGE_S390X: ${{ inputs.docker-image-name }}
           DOCKER_IMAGE_ppc64le: ${{ inputs.docker-image-name }}
           XLA_CUDA: ${{ contains(inputs.build-environment, 'xla') && '0' || '' }}
           DEBUG: ${{ inputs.build-with-debug && '1' || '0' }}
