@@ -119,7 +119,7 @@ jobs:
       # checkout. In other cases you should prefer a local checkout.
       - name: Checkout PyTorch
         uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
-        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        
         with:
           no-sudo: true
 
@@ -160,20 +160,20 @@ jobs:
 
       - name: Parse ref
         id: parse-ref
-        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        
         run: .github/scripts/parse_ref.py
 
       - name: Get workflow job id
         id: get-job-id
         uses: ./.github/actions/get-workflow-job-id
-        if: always() && inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Apply the filter logic to the build step too if the test-config label is already there
       - name: Select all requested test configurations (if the test matrix is available)
         id: filter
-        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
+        
         uses: ./.github/actions/filter-test-configs
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -191,7 +191,7 @@ jobs:
           s3_bucket: ${{ inputs.s3-bucket }}
 
       - name: Build
-        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && (inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9')
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '')
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
@@ -208,6 +208,7 @@ jobs:
           TORCH_CUDA_ARCH_LIST: ${{ inputs.cuda-arch-list }}
           DOCKER_IMAGE: ${{ steps.calculate-docker-image.outputs.docker-image }}
           DOCKER_IMAGE_S390X: ${{ inputs.docker-image-name }}
+          DOCKER_IMAGE_ppc64le: ${{ inputs.docker-image-name }}
           XLA_CUDA: ${{ contains(inputs.build-environment, 'xla') && '0' || '' }}
           DEBUG: ${{ inputs.build-with-debug && '1' || '0' }}
           OUR_GITHUB_JOB_ID: ${{ steps.get-job-id.outputs.job-id }}
@@ -216,9 +217,9 @@ jobs:
           USE_SPLIT_BUILD: ${{ inputs.use_split_build }}
         run: |
           START_TIME=$(date +%s)
-          if [[ ${BUILD_ENVIRONMENT} == *"s390x"* ]]; then
+          if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
             JENKINS_USER=
-            USED_IMAGE="${DOCKER_IMAGE_S390X}"
+            USED_IMAGE="${DOCKER_IMAGE_ppc64le}"
             # ensure that docker container cleanly exits in 12 hours
             # if for some reason cleanup action doesn't stop container
             # when job is cancelled
@@ -279,7 +280,7 @@ jobs:
           echo "build_time=$((END_TIME - START_TIME))" >> "$GITHUB_OUTPUT"
 
       - name: Execute Build and Tests inside ppc64le Docker Container
-        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9'
+        if: inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
         run: |
             CONTAINER_NAME="temp_builder_${RUN_ID}"
             docker run -d --name "$CONTAINER_NAME" pytorch-ppc64le:ubi9.3 /ppc64le-build.sh
