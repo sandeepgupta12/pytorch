@@ -287,10 +287,15 @@ jobs:
             # Step 1: Create a Docker Volume
             docker volume create "$WORKSPACE_VOLUME"
 
+            ls -la "$GITHUB_WORKSPACE"
+
             docker run --rm \
               -v "$GITHUB_WORKSPACE:/src" \
               -v "$WORKSPACE_VOLUME:/workspace" \
-              ubuntu bash -c "cp -r /src/* /workspace/"
+              ubuntu bash -c "mkdir -p /workspace && cp -r /src/* /workspace/"
+
+              # Step 4: Verify Copying
+            docker run --rm -v "$WORKSPACE_VOLUME:/workspace" ubuntu ls -la /workspace
 
             # Step 2: Run the Container with the Volume
             docker run -d --name "$CONTAINER_NAME" -v "$WORKSPACE_VOLUME":/workspace pytorch-ppc64le:ubi9.3
