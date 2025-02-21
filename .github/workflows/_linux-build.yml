@@ -293,8 +293,10 @@ jobs:
             # Step 3: Copy the Build Script into the Container
             docker cp . "$CONTAINER_NAME":/workspace/pytorch
 
+            docker exec -t "$CONTAINER_NAME" sh -c 'ls -la /workspace/pytorch'
+
             # Step 4: Execute the Build Script inside the Container
-            docker exec -t "$CONTAINER_NAME" sh -c 'cd /workspace/pytorch && chmod +x ./ppc64le-build.sh && ./ppc64le-build.sh'
+            docker exec -t "$CONTAINER_NAME" sh -c 'cd /workspace/pytorch && .github/scripts/ppc64le-build.sh'
 
             # Step 5: Wait for the Build to Complete
             docker wait "$CONTAINER_NAME"
