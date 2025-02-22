@@ -18,7 +18,7 @@ jobs:
     
     with:
       build-environment: linux-ppc64le-binary-manywheel-ubi9
-      docker-image-name: docker.io/pytorch/pytorch-ppc64le:ubi9.3-main
+      docker-image-name: localhost/pytorch-ppc64le:ubi9.3
       runner: linux.ppc64le 
         
       
