@@ -191,7 +191,7 @@ jobs:
           s3_bucket: ${{ inputs.s3-bucket }}
 
       - name: Build
-        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '')
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && inputs.build-environment != 'linux-ppc64le-binary-manywheel-ubi9'
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
@@ -281,34 +281,7 @@ jobs:
       - name: Execute Build and Tests inside ppc64le Docker Container
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9'
         run: |
-            CONTAINER_NAME="temp_builder_${RUN_ID}"
-
-
-            # Step 2: Run the Container with the Volume
-            docker run -d --name "$CONTAINER_NAME" pytorch-ppc64le:ubi9.3
-
-            # Step 2: Ensure the directory exists in the container
-           
-
-            # Step 3: Copy the Build Script into the Container
-            docker cp . "$CONTAINER_NAME":/workspace/pytorch
-
-            docker exec -t "$CONTAINER_NAME" sh -c 'ls -la /workspace/pytorch'
-
-            # Step 4: Execute the Build Script inside the Container
-            docker exec -t "$CONTAINER_NAME" sh -c 'cd /workspace/pytorch && .github/scripts/ppc64le-build.sh'
-
-            # Step 5: Wait for the Build to Complete
-            docker wait "$CONTAINER_NAME"
-
-            # Step 6: Capture Logs
-            docker logs "$CONTAINER_NAME"
-
-            # Step 7: Copy Artifacts from Container to Host
-            docker cp "$CONTAINER_NAME":/workspace/pytorch/dist/. dist/
-
-            # Step 8: Cleanup
-            docker rm "$CONTAINER_NAME"
+            docker run --rm -v $(GITHUB_WORKSPACE):/workspace/pytorch ${{ inputs.docker-image-name }} /ppc64le-build.sh
             
   
 
