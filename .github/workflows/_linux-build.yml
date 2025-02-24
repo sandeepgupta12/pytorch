@@ -362,6 +362,6 @@ jobs:
         if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel'
         shell: bash
         run: |
-          # on s390x stop the container for clean worker stop
-          docker stop -a || true
-          docker kill -a || true
+         
+          docker ps -q | xargs -r docker stop
+          docker ps -aq | xargs -r docker rm
