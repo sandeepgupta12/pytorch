@@ -281,7 +281,7 @@ jobs:
       - name: Execute Build and Tests inside ppc64le Docker Container
         if: inputs.build-environment == 'linux-ppc64le-binary-manywheel-ubi9'
         run: |
-            docker run --rm -v ${GITHUB_WORKSPACE}:/workspace/pytorch ${{ inputs.docker-image-name }} /ppc64le-build.sh
+            docker run --rm -v ${GITHUB_WORKSPACE}:/workspace/pytorch ${{ inputs.docker-image-name }} .github/scripts/ppc64le-build.sh
             
   
 
