@@ -5,7 +5,7 @@ set -e -u
 trap cleanup EXIT
 
 # first import docker image
-if [ -f ./ubi-s390x.tar ] ; then
+if [ -f ./ubi-ppc64le.tar ] ; then
         docker image load --input ubi-ppc64le.tar
         docker image tag docker.io/pytorch/ubippc64le-builder:cpu-ppc64le docker.io/pytorch/ubippc64le-builder:cpu-ppc64le-main
         rm -f ubi-ppc64le.tar
