@@ -3,16 +3,31 @@
 ## Install prerequisites.
 
 ```
-Install Docker 
+$ sudo dnf install podman podman-docker jq
 ```
-## Clone pytorch repository
-
 ## Add services.
 
 ```
 $ sudo cp self-hosted-builder/*.service /etc/systemd/system/
 $ sudo systemctl daemon-reload
 ```
+
+## Rebuild the image
+
+First build s390x builder image `docker.io/pytorch/ubippc64le-builder`,
+using following commands:
+
+```
+$ cd ~
+$ git clone https://github.com/pytorch/pytorch
+$ cd pytorch
+$ git submodule update --init --recursive
+$ GPU_ARCH_TYPE=cpu-ppc64le "$(pwd)/.ci/docker/manywheel/build.sh" ubippc64le-builder
+$ docker image tag localhost/pytorch/ubippc64le-builder docker.io/pytorch/ubippc64le-builder:cpu-ppc64le
+$ docker image save -o ~/ubi-ppc64le.tar docker.io/pytorch/ubippc64le-builder:cpu-ppc64le
+```
+
+
 Next step is to build `actions-runner` image using:
 
 ```

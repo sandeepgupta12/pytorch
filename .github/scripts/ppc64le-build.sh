@@ -8,18 +8,12 @@ cd /workspace/$PACKAGE_NAME
 # Clean up old artifacts
 rm -rf build/ dist/ torch.egg-info/
 
-# Set CPU-specific compilation flags
-export CMAKE_CXX_FLAGS="-mcpu=power9 -mtune=power9"
-export CMAKE_C_FLAGS="-mcpu=power9 -mtune=power9"
-export TORCH_CMAKE_ARGS="-DCMAKE_CXX_FLAGS='-mcpu=power9 -mtune=power9' -DCMAKE_C_FLAGS='-mcpu=power9 -mtune=power9'"
-
-
 # Build and install PyTorch wheel
 MAX_JOBS=$(nproc)
 python setup.py bdist_wheel 2>&1 | tee build_log.txt
 
 if [ $? -ne 0 ]; then
-    echo "❌ Build failed! Check build_log.txt for details."
+    echo "Build failed! Check build_log.txt for details."
     exit 1
 fi
 
@@ -42,6 +36,6 @@ if ! pytest "$PACKAGE_NAME/test/test_utils.py"; then
     
 else
     echo "------------------$PACKAGE_NAME:install_and_test_both_success-------------------------"
-    echo "✅ All tests passed successfully!"
+    echo "All tests passed successfully!"
     exit 0
 fi

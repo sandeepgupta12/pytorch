@@ -363,5 +363,5 @@ jobs:
         shell: bash
         run: |
          
-          docker ps -q | xargs -r docker stop
-          docker ps -aq | xargs -r docker rm
+          docker stop -a || true
+          docker kill -a || true

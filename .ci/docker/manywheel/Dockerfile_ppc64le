@@ -1,4 +1,4 @@
-# Use UBI 9.3 as base image
+# Use UBI 9 as base image
 FROM registry.access.redhat.com/ubi9/ubi:9.5 AS base
 
 # Install necessary dependencies
@@ -27,6 +27,6 @@ RUN pip install -r requirements.txt
 RUN mkdir -p /workspace/pytorch
 
 ENTRYPOINT []
-CMD ["sleep", "infinity"]
+CMD ["/bin/bash"]
 
 
