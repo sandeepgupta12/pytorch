@@ -1,5 +1,5 @@
 # Use UBI 9.3 as base image
-FROM registry.access.redhat.com/ubi9/ubi:9.5
+FROM registry.access.redhat.com/ubi9/ubi:9.5 AS base
 
 # Install necessary dependencies
 RUN dnf install -y \
@@ -24,6 +24,7 @@ RUN pip install wheel setuptools pyyaml typing_extensions expecttest
 
 #RUN source /opt/rh/gcc-toolset-13/enable && pip install -r requirements.txt
 RUN pip install -r requirements.txt
+
 
 # Copy the PyTorch source code into the container
 RUN mkdir -p /workspace/pytorch

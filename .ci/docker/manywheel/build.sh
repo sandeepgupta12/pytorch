@@ -67,6 +67,7 @@ case ${GPU_ARCH_TYPE} in
         ;;
 
     cpu-ppc64le)
+        TARGET=base
         DOCKER_TAG=ppc64le
         GPU_IMAGE=redhat/ubi9
         DOCKER_GPU_BUILD_ARG=""
