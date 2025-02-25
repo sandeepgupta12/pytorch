@@ -42,8 +42,8 @@ autoconf --version
 
 # Update config.guess and config.sub before running configure
 mkdir -p build-aux
-wget -O build-aux/config.guess http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
-wget -O build-aux/config.sub http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
+wget -O build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess || { echo "Failed to download config.guess"; exit 1; }
+wget -O build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub || { echo "Failed to download config.sub"; exit 1; }
 chmod +x build-aux/config.guess build-aux/config.sub
 
 # Regenerate configure scripts
