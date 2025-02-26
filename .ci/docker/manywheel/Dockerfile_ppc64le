@@ -8,10 +8,9 @@ ENV LANGUAGE=C.UTF-8
 
 ARG DEVTOOLSET_VERSION=13
 
-# Set up environment variables for Python 3.12
-ENV PATH=/opt/python/cp312-cp312/bin:$PATH
-RUN alternatives --set python /opt/python/cp312-cp312/bin/python3.12
-RUN alternatives --set python3 /opt/python/cp312-cp312/bin/python3.12
+# Create symbolic links for Python 3.12
+RUN ln -sf /opt/python/cp312-cp312/bin/python3.12 /usr/bin/python3 && \
+    ln -sf /opt/python/cp312-cp312/bin/python3.12 /usr/bin/python
 
 # Install required system dependencies
 RUN yum -y install epel-release && \
