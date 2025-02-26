@@ -246,6 +246,7 @@ jobs:
           # shellcheck disable=SC2086
           container_name=$(podman run \
             --cgroup-manager=cgroupfs \
+            --cgroup-parent=/sys/fs/cgroup
             --cgroupns=private \
             --pid=host \
             --memory="${TOTAL_AVAILABLE_MEMORY_IN_GB%.*}g" \
