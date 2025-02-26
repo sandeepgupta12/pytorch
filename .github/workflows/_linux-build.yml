@@ -240,6 +240,7 @@ jobs:
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
           # shellcheck disable=SC2086
           container_name=$(podman run \
+            --cgroup-manager=cgroupfs \
             --cgroupns=host \
             -e BUILD_ENVIRONMENT \
             -e MAX_JOBS="$(nproc --ignore=2)" \
