@@ -188,7 +188,7 @@ jobs:
           s3_bucket: ${{ inputs.s3-bucket }}
 
       - name: Build
-        if: steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == ''
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && (inputs.build-environment != 'linux-ppc64le-binary-manywheel')
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
@@ -274,6 +274,13 @@ jobs:
 
           END_TIME=$(date +%s)
           echo "build_time=$((END_TIME - START_TIME))" >> "$GITHUB_OUTPUT"
+
+      - name: Execute Build and Tests inside ppc64le Docker Container
+        if: inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+        run: |
+            docker run --rm -v ${GITHUB_WORKSPACE}:/workspace/pytorch ${{ inputs.docker-image-name }} /workspace/pytorch/.github/scripts/ppc64le-build.sh
+      
+            
 
       - name: Archive artifacts into zip
         if: inputs.build-generates-artifacts && steps.build.outcome != 'skipped'
