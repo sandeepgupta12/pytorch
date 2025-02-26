@@ -7,6 +7,9 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     zlib-devel bzip2-devel ncurses-devel sqlite-devel \
     readline-devel tk-devel gdbm-devel libpcap-devel xz-devel \
     libffi-devel openssl-devel
+# Get build utilities
+MY_DIR=$(dirname "${BASH_SOURCE[0]}")
+source $MY_DIR/build_utils.sh
 
 # Install the latest autoconf
 AUTOCONF_ROOT=autoconf-2.69
