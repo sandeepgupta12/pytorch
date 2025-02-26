@@ -188,7 +188,7 @@ jobs:
           s3_bucket: ${{ inputs.s3-bucket }}
 
       - name: Build
-        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && (inputs.build-environment != 'linux-ppc64le-binary-manywheel')
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '')
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
