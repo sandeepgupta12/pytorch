@@ -25,7 +25,7 @@ curl \
         -X POST \
         -H "Accept: application/vnd.github.v3+json" \
         -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-        "https://api.github.com/orgs/${ORG}/actions/runners/registration-token" \
+        "https://api.github.com/orgs/${OWNER}/${REPO}/actions/runners/registration-token" \
         -o "$token_file"
  
 unset ACCESS_TOKEN
@@ -40,7 +40,7 @@ registration_token=$(jq --raw-output .token "$token_file")
 ./config.sh \
         --unattended \
         --ephemeral \
-        --url "https://github.com/${ORG}" \
+        --url "https://github.com/${OWNER}/${REPO}" \
         --token "${registration_token}" \
         --name "${NAME}" \
         --no-default-labels \
