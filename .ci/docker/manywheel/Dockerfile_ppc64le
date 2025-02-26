@@ -38,6 +38,7 @@ COPY manywheel/build_scripts /build_scripts
 ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 RUN bash /build_scripts/build.sh && rm -r /build_scripts
 
+FROM base as final
 
 ENTRYPOINT []
 CMD ["/bin/bash"]
