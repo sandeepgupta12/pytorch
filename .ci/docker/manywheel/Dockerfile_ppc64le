@@ -1,44 +1,106 @@
+# Use the manylinux_2_28 base image for ppc64le
 FROM quay.io/pypa/manylinux_2_28_ppc64le as base
 
+# Language variables
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV LANGUAGE=C.UTF-8
 
 ARG DEVTOOLSET_VERSION=13
 
-# Install OS dependencies
-RUN yum -y install epel-release && yum -y update
-RUN yum install -y \
-  sudo autoconf automake bison bzip2 curl diffutils file git make \
-  patch perl unzip util-linux wget which xz yasm less zstd libgomp \
-  gcc-toolset-${DEVTOOLSET_VERSION}-gcc gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
-  gcc-toolset-${DEVTOOLSET_VERSION}-binutils gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
-  cmake rust cargo llvm-devel libzstd-devel \
-  python3.12-devel python3.12-setuptools python3.12-pip \
-  python3-virtualenv python3.12-pyyaml python3.12-numpy python3.12-wheel \
-  python3.12-cryptography \
-  blas-devel openblas-devel lapack-devel atlas-devel \
-  libjpeg-devel libxslt-devel libxml2-devel openssl-devel valgrind
+# Set up environment variables for Python 3.12
+ENV PATH=/opt/python/cp312-cp312/bin:$PATH
+RUN alternatives --set python /opt/python/cp312-cp312/bin/python3.12
+RUN alternatives --set python3 /opt/python/cp312-cp312/bin/python3.12
 
+# Install required system dependencies
+RUN yum -y install epel-release && \
+    yum -y update && \
+    yum install -y \
+      sudo \
+      autoconf \
+      automake \
+      bison \
+      bzip2 \
+      curl \
+      diffutils \
+      file \
+      git \
+      make \
+      patch \
+      perl \
+      unzip \
+      util-linux \
+      wget \
+      which \
+      xz \
+      yasm \
+      less \
+      zstd \
+      libgomp \
+      gcc-toolset-${DEVTOOLSET_VERSION}-gcc \
+      gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
+      gcc-toolset-${DEVTOOLSET_VERSION}-binutils \
+      gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
+      cmake \
+      rust \
+      cargo \
+      llvm-devel \
+      libzstd-devel \
+      python3.12-devel \
+      python3.12-setuptools \
+      python3.12-pip \
+      python3-virtualenv \
+      python3.12-pyyaml \
+      python3.12-numpy \
+      python3.12-wheel \
+      python3.12-cryptography \
+      blas-devel \
+      openblas-devel \
+      lapack-devel \
+      atlas-devel \
+      libjpeg-devel \
+      libxslt-devel \
+      libxml2-devel \
+      openssl-devel \
+      valgrind
+
+# Add gcc-toolset to the path
 ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
 
+# Configure git to avoid safe directory issues
 RUN git config --global --add safe.directory "*"
 
-# Remove old Python
-RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
+# Install required Python packages
+RUN pip install --upgrade pip
+RUN pip install typing_extensions
 
-FROM base as patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-RUN cp $(which patchelf) /patchelf
+# Install test dependencies
+RUN dnf install -y \
+      protobuf-devel \
+      protobuf-c-devel \
+      protobuf-lite-devel \
+      wget \
+      patch
 
-FROM patchelf as python
-COPY manywheel/build_scripts /build_scripts
-ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
-RUN bash /build_scripts/build.sh && rm -r /build_scripts
+# Install grpcio with system OpenSSL
+RUN env GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True pip install grpcio==1.65.4
 
-FROM base as final
+# Build and install ml_dtypes 0.4.0 with patches
+RUN cd ~ && \
+    git clone https://github.com/jax-ml/ml_dtypes && \
+    cd ml_dtypes && \
+    git checkout v0.4.0 && \
+    git submodule update --init --recursive && \
+    wget https://github.com/jax-ml/ml_dtypes/commit/b969f76914d6b30676721bc92bf0f6021a0d1321.patch && \
+    wget https://github.com/jax-ml/ml_dtypes/commit/d4e6d035ecda073eab8bcf60f4eef572ee7087e6.patch && \
+    patch -p1 < b969f76914d6b30676721bc92bf0f6021a0d1321.patch && \
+    patch -p1 < d4e6d035ecda073eab8bcf60f4eef572ee7087e6.patch && \
+    python3 setup.py bdist_wheel && \
+    pip install dist/*.whl && \
+    rm -rf ~/ml_dtypes
 
+# Set default entrypoint
 ENTRYPOINT []
 CMD ["/bin/bash"]
