@@ -240,6 +240,7 @@ jobs:
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
           # shellcheck disable=SC2086
           container_name=$(docker run \
+            --cgroupns=host \
             -e BUILD_ENVIRONMENT \
             -e MAX_JOBS="$(nproc --ignore=2)" \
             -e AWS_DEFAULT_REGION \
@@ -264,6 +265,7 @@ jobs:
             --cap-add=SYS_PTRACE \
             --tty \
             --detach \
+            --privileged \
             ${JENKINS_USER} \
             -v "${GITHUB_WORKSPACE}:/var/lib/jenkins/workspace" \
             -w /var/lib/jenkins/workspace \
