@@ -32,3 +32,8 @@ MANYLINUX1_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel libXext-de
 # Get build utilities
 MY_DIR=$(dirname "${BASH_SOURCE[0]}")
 source $MY_DIR/build_utils.sh
+
+# Development tools and libraries
+yum -y install bzip2 make git patch unzip bison yasm diffutils \
+    automake which file \
+    ${PYTHON_COMPILE_DEPS}
