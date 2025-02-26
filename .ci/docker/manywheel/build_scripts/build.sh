@@ -1,45 +1,27 @@
 #!/bin/bash
+# Top-level build script called from Dockerfile
+# Script used only in CD pipeline
+
+# Stop at any error, show all commands
 set -ex
 
-# Install required dependencies
-yum -y install bzip2 make git patch unzip bison yasm diffutils \
-    automake which file autoconf automake libtool \
-    zlib-devel bzip2-devel ncurses-devel sqlite-devel \
-    readline-devel tk-devel gdbm-devel libpcap-devel xz-devel \
-    libffi-devel openssl-devel
-# Get build utilities
-MY_DIR=$(dirname "${BASH_SOURCE[0]}")
-source $MY_DIR/build_utils.sh
-
-# Install the latest autoconf
+# openssl version to build, with expected sha256 hash of .tar.gz
+# archive
+OPENSSL_ROOT=openssl-1.1.1l
+OPENSSL_HASH=0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1
+DEVTOOLS_HASH=a8ebeb4bed624700f727179e6ef771dafe47651131a00a78b342251415646acc
+PATCHELF_HASH=d9afdff4baeacfbc64861454f368b7f2c15c44d245293f7587bbf726bfe722fb
+CURL_ROOT=curl-7.73.0
+CURL_HASH=cf34fe0b07b800f1c01a499a6e8b2af548f6d0e044dca4a29d88a4bee146d131
 AUTOCONF_ROOT=autoconf-2.69
 AUTOCONF_HASH=954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
-build_autoconf "$AUTOCONF_ROOT" "$AUTOCONF_HASH"
-autoconf --version
 
-# Build Python
-/build_scripts/install_cpython.sh
+# Dependencies for compiling Python that we want to remove from
+# the final image after compiling Python
+PYTHON_COMPILE_DEPS="zlib-devel bzip2-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel libpcap-devel xz-devel libffi-devel"
 
-PY39_BIN=/opt/python/cp39-cp39/bin
-
-# Fix SSL certificate issues
-$PY39_BIN/pip install certifi
-ln -s "$($PY39_BIN/python -c 'import certifi; print(certifi.where())')" /opt/_internal/certs.pem
-export SSL_CERT_FILE=/opt/_internal/certs.pem
-
-# Install latest pypi release of auditwheel
-$PY39_BIN/pip install auditwheel
-
-# Cleanup unnecessary packages
-yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
-    avahi freetype bitstream-vera-fonts \
-    zlib-devel bzip2-devel ncurses-devel sqlite-devel \
-    readline-devel tk-devel gdbm-devel libpcap-devel xz-devel \
-    libffi-devel || true > /dev/null 2>&1
-yum -y clean all > /dev/null 2>&1
-
-# Run tests to verify Python installation
-for PYTHON in /opt/python/*/bin/python; do
-    $PYTHON /build_scripts/manylinux1-check.py
-    $PYTHON /build_scripts/ssl-check.py
-done
+if [ "$(uname -m)" != "s390x" ] ; then
+    PYTHON_COMPILE_DEPS="${PYTHON_COMPILE_DEPS} db4-devel"
+else
+    PYTHON_COMPILE_DEPS="${PYTHON_COMPILE_DEPS} libdb-devel"
+fi
