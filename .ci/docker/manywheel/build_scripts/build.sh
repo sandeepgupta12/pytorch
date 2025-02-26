@@ -28,7 +28,3 @@ fi
 
 # Libraries that are allowed as part of the manylinux1 profile
 MANYLINUX1_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel libXext-devel libXrender-devel  mesa-libGL-devel libICE-devel libSM-devel ncurses-devel"
-
-# Get build utilities
-MY_DIR=$(dirname "${BASH_SOURCE[0]}")
-source $MY_DIR/build_utils.sh
