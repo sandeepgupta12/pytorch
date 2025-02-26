@@ -187,8 +187,13 @@ jobs:
           job_identifier: ${{ github.workflow }}_${{ inputs.build-environment }}
           s3_bucket: ${{ inputs.s3-bucket }}
 
+      - name: debug cgroug
+        run: |
+          podman info --format '{{.Host.CgroupManager}}'
+          cat /proc/self/cgroup
+
       - name: Build
-        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
+        if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '')
         id: build
         env:
           BUILD_ENVIRONMENT: ${{ inputs.build-environment }}
@@ -239,9 +244,9 @@ jobs:
           # detached container should get cleaned up by teardown_ec2_linux
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
           # shellcheck disable=SC2086
-          container_name=$(podman run \
+          container_name=$(docker run \
             --cgroup-manager=cgroupfs \
-            --cgroupns=host \
+            --cgroupns=private \
             -e BUILD_ENVIRONMENT \
             -e MAX_JOBS="$(nproc --ignore=2)" \
             -e AWS_DEFAULT_REGION \
