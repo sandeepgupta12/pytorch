@@ -1,53 +1,42 @@
-FROM quay.io/pypa/manylinux_2_28_ppc64le as base
+#!/bin/bash
+set -ex
 
-ENV LC_ALL=C.UTF-8
-ENV LANG=C.UTF-8
-ENV LANGUAGE=C.UTF-8
+# Install required dependencies
+yum -y install bzip2 make git patch unzip bison yasm diffutils \
+    automake which file autoconf automake libtool \
+    zlib-devel bzip2-devel ncurses-devel sqlite-devel \
+    readline-devel tk-devel gdbm-devel libpcap-devel xz-devel \
+    libffi-devel openssl-devel
 
-ARG DEVTOOLSET_VERSION=13
+# Install the latest autoconf
+AUTOCONF_ROOT=autoconf-2.69
+AUTOCONF_HASH=954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
+build_autoconf "$AUTOCONF_ROOT" "$AUTOCONF_HASH"
+autoconf --version
 
-# Install OS dependencies
-RUN yum -y install epel-release && yum -y update
-RUN yum install -y \
-  sudo autoconf automake bison bzip2 curl diffutils file git make \
-  patch perl unzip util-linux wget which xz yasm less zstd libgomp \
-  gcc-toolset-${DEVTOOLSET_VERSION}-gcc gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
-  gcc-toolset-${DEVTOOLSET_VERSION}-binutils gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
-  cmake rust cargo llvm-devel libzstd-devel \
-  python3.12-devel python3.12-setuptools python3.12-pip \
-  python3-virtualenv python3.12-pyyaml python3.12-numpy python3.12-wheel \
-  python3.12-cryptography \
-  blas-devel openblas-devel lapack-devel atlas-devel \
-  libjpeg-devel libxslt-devel libxml2-devel openssl-devel valgrind
+# Build Python
+/build_scripts/install_cpython.sh
 
-ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
+PY39_BIN=/opt/python/cp39-cp39/bin
 
-RUN git config --global --add safe.directory "*"
+# Fix SSL certificate issues
+$PY39_BIN/pip install certifi
+ln -s "$($PY39_BIN/python -c 'import certifi; print(certifi.where())')" /opt/_internal/certs.pem
+export SSL_CERT_FILE=/opt/_internal/certs.pem
 
-# Remove old Python
-RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
+# Install latest pypi release of auditwheel
+$PY39_BIN/pip install auditwheel
 
-FROM base as patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-RUN cp $(which patchelf) /patchelf
+# Cleanup unnecessary packages
+yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
+    avahi freetype bitstream-vera-fonts \
+    zlib-devel bzip2-devel ncurses-devel sqlite-devel \
+    readline-devel tk-devel gdbm-devel libpcap-devel xz-devel \
+    libffi-devel || true > /dev/null 2>&1
+yum -y clean all > /dev/null 2>&1
 
-FROM patchelf as python
-COPY manywheel/build_scripts /build_scripts
-ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
-RUN bash /build_scripts/build.sh && rm -r /build_scripts
-
-FROM base as final
-COPY --from=python             /opt/python                           /opt/python
-COPY --from=python             /opt/_internal                        /opt/_internal
-COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel  /usr/local/bin/auditwheel
-COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
-
-RUN alternatives --set python /usr/bin/python3.12
-RUN alternatives --set python3 /usr/bin/python3.12
-
-RUN pip-3.12 install typing_extensions
-
-ENTRYPOINT []
-CMD ["/bin/bash"]
+# Run tests to verify Python installation
+for PYTHON in /opt/python/*/bin/python; do
+    $PYTHON /build_scripts/manylinux1-check.py
+    $PYTHON /build_scripts/ssl-check.py
+done
