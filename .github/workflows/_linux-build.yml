@@ -217,7 +217,7 @@ jobs:
           START_TIME=$(date +%s)
           
             JENKINS_USER=
-            USED_IMAGE="${DOCKER_IMAGE_S390X}"
+            USED_IMAGE=pytorch/ubippc64le-builder:cpu-ppc64le-main
             # ensure that docker container cleanly exits in 12 hours
             # if for some reason cleanup action doesn't stop container
             # when job is cancelled
