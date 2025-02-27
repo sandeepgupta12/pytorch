@@ -29,6 +29,7 @@ RUN yum -y install epel-release && \
       patch \
       perl \
       unzip \
+      ninja-build \
       util-linux \
       wget \
       which \
