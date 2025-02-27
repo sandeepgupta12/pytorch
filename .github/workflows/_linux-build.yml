@@ -260,7 +260,7 @@ jobs:
             ${JENKINS_USER} \
             -v "${GITHUB_WORKSPACE}:/var/lib/jenkins/workspace" \
             -w /var/lib/jenkins/workspace \
-           pytorch/ubippc64le-builder:cpu-ppc64le-main /workspace/pytorch/.ci/pytorch/build.sh
+           pytorch/ubippc64le-builder:cpu-ppc64le-main .ci/pytorch/build.sh
       
           END_TIME=$(date +%s)
           echo "build_time=$((END_TIME - START_TIME))" >> "$GITHUB_OUTPUT"
