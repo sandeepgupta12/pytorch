@@ -257,6 +257,7 @@ jobs:
             --security-opt seccomp=unconfined \
             --cap-add=SYS_PTRACE \
             --tty \
+            ${JENKINS_USER} \
           -v ${GITHUB_WORKSPACE}:/workspace/pytorch pytorch/ubippc64le-builder:cpu-ppc64le-main /workspace/pytorch/.ci/pytorch/build.sh
       
           END_TIME=$(date +%s)
