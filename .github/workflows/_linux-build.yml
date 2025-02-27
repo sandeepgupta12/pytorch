@@ -214,7 +214,7 @@ jobs:
         run: |
           START_TIME=$(date +%s)
           
-          if [[ ${BUILD_ENVIRONMENT} == *"s390x"* !! ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
+          if [[ ${BUILD_ENVIRONMENT} == *"s390x"* || ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
             JENKINS_USER=
             USED_IMAGE="${DOCKER_IMAGE_S390X}"
             # ensure that docker container cleanly exits in 12 hours
