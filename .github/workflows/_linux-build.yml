@@ -235,7 +235,9 @@ jobs:
           # detached container should get cleaned up by teardown_ec2_linux
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
           # shellcheck disable=SC2086
-          docker run --rm -v ${GITHUB_WORKSPACE}:/workspace/pytorch pytorch/ubippc64le-builder:cpu-ppc64le-main /workspace/pytorch/.github/scripts/ppc64le-build.sh
+          docker run --rm \
+          -e BUILD_ENVIRONMENT \
+          -v ${GITHUB_WORKSPACE}:/workspace/pytorch pytorch/ubippc64le-builder:cpu-ppc64le-main /workspace/pytorch/.ci/pytorch/build.sh
       
           END_TIME=$(date +%s)
           echo "build_time=$((END_TIME - START_TIME))" >> "$GITHUB_OUTPUT"
