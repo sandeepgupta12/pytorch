@@ -215,7 +215,7 @@ jobs:
           USE_SPLIT_BUILD: ${{ inputs.use_split_build }}
         run: |
           START_TIME=$(date +%s)
-          if [[ ${BUILD_ENVIRONMENT} == *"s390x"* || ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
+          
             JENKINS_USER=
             USED_IMAGE="${DOCKER_IMAGE_S390X}"
             # ensure that docker container cleanly exits in 12 hours
@@ -226,11 +226,7 @@ jobs:
             # since some steps are skipped on s390x, if they are necessary, run them here
             env | grep '^GITHUB' >> "/tmp/github_env_${GITHUB_RUN_ID}"
             env | grep '^CI' >> "/tmp/github_env_${GITHUB_RUN_ID}"
-          else
-            JENKINS_USER="--user jenkins"
-            USED_IMAGE="${DOCKER_IMAGE}"
-            DOCKER_SHELL_CMD=
-          fi
+          
 
           # Leaving 1GB for the runner and other things
           TOTAL_AVAILABLE_MEMORY_IN_GB=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024/1024 - 1 }' /proc/meminfo)
