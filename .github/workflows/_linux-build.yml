@@ -255,6 +255,8 @@ jobs:
             -e USE_SPLIT_BUILD \
             --env-file="/tmp/github_env_${GITHUB_RUN_ID}" \
             --security-opt seccomp=unconfined \
+            --cap-add=SYS_PTRACE \
+            --tty \
           -v ${GITHUB_WORKSPACE}:/workspace/pytorch pytorch/ubippc64le-builder:cpu-ppc64le-main /workspace/pytorch/.ci/pytorch/build.sh
       
           END_TIME=$(date +%s)
