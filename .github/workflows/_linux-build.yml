@@ -237,6 +237,22 @@ jobs:
           # shellcheck disable=SC2086
           docker run --rm \
           -e BUILD_ENVIRONMENT \
+          -e MAX_JOBS="$(nproc --ignore=2)" \
+            -e AWS_DEFAULT_REGION \
+            -e PR_NUMBER \
+            -e SHA1 \
+            -e BRANCH \
+            -e SCCACHE_BUCKET \
+            -e SCCACHE_REGION \
+            -e XLA_CUDA \
+            -e XLA_CLANG_CACHE_S3_BUCKET_NAME \
+            -e SKIP_SCCACHE_INITIALIZATION=1 \
+            -e TORCH_CUDA_ARCH_LIST \
+            -e PR_LABELS \
+            -e OUR_GITHUB_JOB_ID \
+            -e HUGGING_FACE_HUB_TOKEN \
+            -e SCRIBE_GRAPHQL_ACCESS_TOKEN \
+            -e USE_SPLIT_BUILD \
           -v ${GITHUB_WORKSPACE}:/workspace/pytorch pytorch/ubippc64le-builder:cpu-ppc64le-main /workspace/pytorch/.ci/pytorch/build.sh
       
           END_TIME=$(date +%s)
