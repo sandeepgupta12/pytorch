@@ -63,8 +63,22 @@ RUN yum -y install epel-release && \
       libxml2-devel \
       openssl-devel \
       valgrind
+  
 
-RUN yum install -y cmake ninja && \
+# Ensure the correct Python version is used
+ENV PATH=/opt/python/cp312-cp312/bin:$PATH
+# Add gcc-toolset to the path
+ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
+
+# Configure git to avoid safe directory issues
+RUN git config --global --add safe.directory "*"
+
+# Install required Python packages
+RUN pip install --upgrade pip
+RUN pip install typing_extensions
+
+RUN yum install -y cmake ninja-build && \
       pip install \
         astunparse \
         expecttest>=0.3.0 \
@@ -83,20 +97,6 @@ RUN yum install -y cmake ninja && \
         sympy==1.13.3 \
         types-dataclasses \
         typing-extensions>=4.10.0
-  
-
-# Ensure the correct Python version is used
-ENV PATH=/opt/python/cp312-cp312/bin:$PATH
-# Add gcc-toolset to the path
-ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
-
-# Configure git to avoid safe directory issues
-RUN git config --global --add safe.directory "*"
-
-# Install required Python packages
-RUN pip install --upgrade pip
-RUN pip install typing_extensions
 
 # Install test dependencies
 RUN dnf install -y \
