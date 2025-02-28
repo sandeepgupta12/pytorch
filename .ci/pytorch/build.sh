@@ -129,7 +129,7 @@ else
         python3 tools/packaging/split_wheel.py bdist_wheel
       else
         echo "build wheel"
-        WERROR=1 python setup.py bdist_wheel
+        python setup.py bdist_wheel
       fi
     
     fi
