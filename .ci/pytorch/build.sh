@@ -129,7 +129,7 @@ else
         python3 tools/packaging/split_wheel.py bdist_wheel
       else
         echo "build wheel"
-        #WERROR=1 python setup.py bdist_wheel
+        WERROR=1 python setup.py bdist_wheel
       fi
     
     fi
@@ -156,12 +156,3 @@ else
   fi
 fi
 
-if [[ "$BUILD_ENVIRONMENT" != *libtorch* && "$BUILD_ENVIRONMENT" != *bazel* ]]; then
-  # export test times so that potential sharded tests that'll branch off this build will use consistent data
-  # don't do this for libtorch as libtorch is C++ only and thus won't have python tests run on its build
-  python tools/stats/export_test_times.py
-fi
-# don't do this for bazel or s390x as they don't use sccache
-if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
-  print_sccache_stats
-fi
