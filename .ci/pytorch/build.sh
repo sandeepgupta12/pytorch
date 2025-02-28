@@ -27,17 +27,36 @@ cmake --version
 echo "Environment variables:"
 env
 
+if [[ "$BUILD_ENVIRONMENT" == *cuda* ]]; then
+  # Use jemalloc during compilation to mitigate https://github.com/pytorch/pytorch/issues/116289
+  export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+  echo "NVCC version:"
+  nvcc --version
+fi
 
+if [[ "$BUILD_ENVIRONMENT" == *cuda11* ]]; then
+  if [[ "$BUILD_ENVIRONMENT" != *cuda11.3* && "$BUILD_ENVIRONMENT" != *clang* ]]; then
+    # TODO: there is a linking issue when building with UCC using clang,
+    # disable it for now and to be fix later.
+    # TODO: disable UCC temporarily to enable CUDA 12.1 in CI
+    export USE_UCC=1
+    export USE_SYSTEM_UCC=1
+  fi
+fi
 
-
-
-
+if [[ ${BUILD_ENVIRONMENT} == *"parallelnative"* ]]; then
+  export ATEN_THREADING=NATIVE
+fi
 
 # Enable LLVM dependency for TensorExpr testing
 export USE_LLVM=/opt/llvm
 export LLVM_DIR=/opt/llvm/lib/cmake/llvm
 
-
+if [[ "$BUILD_ENVIRONMENT" == *executorch* ]]; then
+  # To build test_edge_op_registration
+  export BUILD_EXECUTORCH=ON
+  export USE_CUDA=0
+fi
 
 if ! which conda; then
   # In ROCm CIs, we are doing cross compilation on build machines with
@@ -74,8 +93,133 @@ else
   fi
 fi
 
+if [[ "$BUILD_ENVIRONMENT" == *aarch64* ]]; then
+  export USE_MKLDNN=1
+  export USE_MKLDNN_ACL=1
+  export ACL_ROOT_DIR=/ComputeLibrary
+fi
 
+if [[ "$BUILD_ENVIRONMENT" == *libtorch* ]]; then
+  POSSIBLE_JAVA_HOMES=()
+  POSSIBLE_JAVA_HOMES+=(/usr/local)
+  POSSIBLE_JAVA_HOMES+=(/usr/lib/jvm/java-8-openjdk-amd64)
+  POSSIBLE_JAVA_HOMES+=(/Library/Java/JavaVirtualMachines/*.jdk/Contents/Home)
+  # Add the Windows-specific JNI
+  POSSIBLE_JAVA_HOMES+=("$PWD/.circleci/windows-jni/")
+  for JH in "${POSSIBLE_JAVA_HOMES[@]}" ; do
+    if [[ -e "$JH/include/jni.h" ]] ; then
+      # Skip if we're not on Windows but haven't found a JAVA_HOME
+      if [[ "$JH" == "$PWD/.circleci/windows-jni/" && "$OSTYPE" != "msys" ]] ; then
+        break
+      fi
+      echo "Found jni.h under $JH"
+      export JAVA_HOME="$JH"
+      export BUILD_JNI=ON
+      break
+    fi
+  done
+  if [ -z "$JAVA_HOME" ]; then
+    echo "Did not find jni.h"
+  fi
+fi
 
+# Use special scripts for Android builds
+if [[ "${BUILD_ENVIRONMENT}" == *-android* ]]; then
+  export ANDROID_NDK=/opt/ndk
+  build_args=()
+  if [[ "${BUILD_ENVIRONMENT}" == *-arm-v7a* ]]; then
+    build_args+=("-DANDROID_ABI=armeabi-v7a")
+  elif [[ "${BUILD_ENVIRONMENT}" == *-arm-v8a* ]]; then
+    build_args+=("-DANDROID_ABI=arm64-v8a")
+  elif [[ "${BUILD_ENVIRONMENT}" == *-x86_32* ]]; then
+    build_args+=("-DANDROID_ABI=x86")
+  elif [[ "${BUILD_ENVIRONMENT}" == *-x86_64* ]]; then
+    build_args+=("-DANDROID_ABI=x86_64")
+  fi
+  if [[ "${BUILD_ENVIRONMENT}" == *vulkan* ]]; then
+    build_args+=("-DUSE_VULKAN=ON")
+  fi
+  build_args+=("-DUSE_LITE_INTERPRETER_PROFILER=OFF")
+  exec ./scripts/build_android.sh "${build_args[@]}" "$@"
+fi
+
+if [[ "$BUILD_ENVIRONMENT" != *android* && "$BUILD_ENVIRONMENT" == *vulkan* ]]; then
+  export USE_VULKAN=1
+  # shellcheck disable=SC1091
+  source /var/lib/jenkins/vulkansdk/setup-env.sh
+fi
+
+if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
+  # hcc used to run out of memory, silently exiting without stopping
+  # the build process, leaving undefined symbols in the shared lib,
+  # causing undefined symbol errors when later running tests.
+  # We used to set MAX_JOBS to 4 to avoid, but this is no longer an issue.
+  if [ -z "$MAX_JOBS" ]; then
+    export MAX_JOBS=$(($(nproc) - 1))
+  fi
+
+  if [[ -n "$CI" && -z "$PYTORCH_ROCM_ARCH" ]]; then
+      # Set ROCM_ARCH to gfx906 for CI builds, if user doesn't override.
+      echo "Limiting PYTORCH_ROCM_ARCH to gfx906 for CI builds"
+      export PYTORCH_ROCM_ARCH="gfx906"
+  fi
+
+  # hipify sources
+  python tools/amd_build/build_amd.py
+fi
+
+if [[ "$BUILD_ENVIRONMENT" == *xpu* ]]; then
+  # shellcheck disable=SC1091
+  source /opt/intel/oneapi/compiler/latest/env/vars.sh
+  # XPU kineto feature dependencies are not fully ready, disable kineto build as temp WA
+  export USE_KINETO=0
+  export TORCH_XPU_ARCH_LIST=pvc
+fi
+
+# sccache will fail for CUDA builds if all cores are used for compiling
+# gcc 7 with sccache seems to have intermittent OOM issue if all cores are used
+if [ -z "$MAX_JOBS" ]; then
+  if { [[ "$BUILD_ENVIRONMENT" == *cuda* ]]; } && which sccache > /dev/null; then
+    export MAX_JOBS=$(($(nproc) - 1))
+  fi
+fi
+
+# TORCH_CUDA_ARCH_LIST must be passed from an environment variable
+if [[ "$BUILD_ENVIRONMENT" == *cuda* && -z "$TORCH_CUDA_ARCH_LIST" ]]; then
+  echo "TORCH_CUDA_ARCH_LIST must be defined"
+  exit 1
+fi
+
+# We only build FlashAttention files for CUDA 8.0+, and they require large amounts of
+# memory to build and will OOM
+if [[ "$BUILD_ENVIRONMENT" == *cuda* ]] && [[ 1 -eq $(echo "${TORCH_CUDA_ARCH_LIST} >= 8.0" | bc) ]] && [ -z "$MAX_JOBS_OVERRIDE" ]; then
+  echo "WARNING: FlashAttention files require large amounts of memory to build and will OOM"
+  echo "Setting MAX_JOBS=(nproc-2)/3 to reduce memory usage"
+  export MAX_JOBS="$(( $(nproc --ignore=2) / 3 ))"
+fi
+
+if [[ "${BUILD_ENVIRONMENT}" == *clang* ]]; then
+  export CC=clang
+  export CXX=clang++
+fi
+
+if [[ "$BUILD_ENVIRONMENT" == *-clang*-asan* ]]; then
+  if [[ "$BUILD_ENVIRONMENT" == *cuda* ]]; then
+    export USE_CUDA=1
+  fi
+  export USE_ASAN=1
+  export REL_WITH_DEB_INFO=1
+  export UBSAN_FLAGS="-fno-sanitize-recover=all"
+  unset USE_LLVM
+fi
+
+if [[ "${BUILD_ENVIRONMENT}" == *no-ops* ]]; then
+  export USE_PER_OPERATOR_HEADERS=0
+fi
+
+if [[ "${BUILD_ENVIRONMENT}" == *-pch* ]]; then
+    export USE_PRECOMPILED_HEADERS=1
+fi
 
 if [[ "${BUILD_ENVIRONMENT}" != *android* && "${BUILD_ENVIRONMENT}" != *cuda* ]]; then
   export BUILD_STATIC_RUNTIME_BENCHMARK=ON
@@ -85,7 +229,23 @@ if [[ "$BUILD_ENVIRONMENT" == *-debug* ]]; then
   export CMAKE_BUILD_TYPE=RelWithAssert
 fi
 
-
+# Do not change workspace permissions for ROCm and s390x CI jobs
+# as it can leave workspace with bad permissions for cancelled jobs
+if [[ "$BUILD_ENVIRONMENT" != *rocm* && "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *ppc64le* && -d /var/lib/jenkins/workspace ]]; then
+  # Workaround for dind-rootless userid mapping (https://github.com/pytorch/ci-infra/issues/96)
+  WORKSPACE_ORIGINAL_OWNER_ID=$(stat -c '%u' "/var/lib/jenkins/workspace")
+  cleanup_workspace() {
+    echo "sudo may print the following warning message that can be ignored. The chown command will still run."
+    echo "    sudo: setrlimit(RLIMIT_STACK): Operation not permitted"
+    echo "For more details refer to https://github.com/sudo-project/sudo/issues/42"
+    sudo chown -R "$WORKSPACE_ORIGINAL_OWNER_ID" /var/lib/jenkins/workspace
+  }
+  # Disable shellcheck SC2064 as we want to parse the original owner immediately.
+  # shellcheck disable=SC2064
+  trap_add cleanup_workspace EXIT
+  sudo chown -R jenkins /var/lib/jenkins/workspace
+  git config --global --add safe.directory /var/lib/jenkins/workspace
+fi
 
 
 if [[ "$BUILD_ENVIRONMENT" == *-bazel-* ]]; then
@@ -117,7 +277,8 @@ else
     # set only when building other architectures
     # or building non-XLA tests.
     if [[ "$BUILD_ENVIRONMENT" != *rocm*  &&
-          "$BUILD_ENVIRONMENT" != *xla* ]]; then
+          "$BUILD_ENVIRONMENT" != *xla* &&
+          "$BUILD_ENVIRONMENT" != *ppc64le*]]; then
       if [[ "$BUILD_ENVIRONMENT" != *py3.8* ]]; then
         # Install numpy-2.0.2 for builds which are backward compatible with 1.X
         python -mpip install numpy==2.0.2
@@ -128,12 +289,90 @@ else
       if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
         python3 tools/packaging/split_wheel.py bdist_wheel
       else
-        echo "build wheel"
+        WERROR=1 python setup.py bdist_wheel
+      fi
+    else
+      python setup.py clean
+      if [[ "$BUILD_ENVIRONMENT" == *xla* ]]; then
+        source .ci/pytorch/install_cache_xla.sh
+      fi
+      if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+        echo "USE_SPLIT_BUILD cannot be used with xla or rocm"
+        exit 1
+      else
         python setup.py bdist_wheel
       fi
-    
     fi
- 
+    pip_install_whl "$(echo dist/*.whl)"
+
+    # TODO: I'm not sure why, but somehow we lose verbose commands
+    set -x
+
+    assert_git_not_dirty
+    # Copy ninja build logs to dist folder
+    mkdir -p dist
+    if [ -f build/.ninja_log ]; then
+      cp build/.ninja_log dist
+    fi
+
+    if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
+      # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
+      sudo rm -f /opt/cache/bin/cc
+      sudo rm -f /opt/cache/bin/c++
+      sudo rm -f /opt/cache/bin/gcc
+      sudo rm -f /opt/cache/bin/g++
+      pushd /opt/rocm/llvm/bin
+      if [[ -d original ]]; then
+        sudo mv original/clang .
+        sudo mv original/clang++ .
+      fi
+      sudo rm -rf original
+      popd
+    fi
+
+    CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
+    CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
+    CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
+    mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
+
+    # Build custom operator tests.
+    CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
+    CUSTOM_OP_TEST="$PWD/test/custom_operator"
+    python --version
+    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+
+    mkdir -p "$CUSTOM_OP_BUILD"
+    pushd "$CUSTOM_OP_BUILD"
+    cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
+
+    # Build jit hook tests
+    JIT_HOOK_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/jit-hook-build"
+    JIT_HOOK_TEST="$PWD/test/jit_hooks"
+    python --version
+    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+    mkdir -p "$JIT_HOOK_BUILD"
+    pushd "$JIT_HOOK_BUILD"
+    cmake "$JIT_HOOK_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
+
+    # Build custom backend tests.
+    CUSTOM_BACKEND_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-backend-build"
+    CUSTOM_BACKEND_TEST="$PWD/test/custom_backend"
+    python --version
+    mkdir -p "$CUSTOM_BACKEND_BUILD"
+    pushd "$CUSTOM_BACKEND_BUILD"
+    cmake "$CUSTOM_BACKEND_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
   else
     # Test no-Python build
     echo "Building libtorch"
@@ -156,3 +395,12 @@ else
   fi
 fi
 
+if [[ "$BUILD_ENVIRONMENT" != *libtorch* && "$BUILD_ENVIRONMENT" != *bazel* ]]; then
+  # export test times so that potential sharded tests that'll branch off this build will use consistent data
+  # don't do this for libtorch as libtorch is C++ only and thus won't have python tests run on its build
+  python tools/stats/export_test_times.py
+fi
+# don't do this for bazel or s390x as they don't use sccache
+if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
+  print_sccache_stats
+fi
