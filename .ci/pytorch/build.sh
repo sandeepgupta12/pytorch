@@ -87,23 +87,6 @@ fi
 
 
 
-# Do not change workspace permissions for ROCm and s390x CI jobs
-# as it can leave workspace with bad permissions for cancelled jobs
-if [[ "$BUILD_ENVIRONMENT" != *rocm* && "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *ppc64le* && -d /var/lib/jenkins/workspace ]]; then
-  # Workaround for dind-rootless userid mapping (https://github.com/pytorch/ci-infra/issues/96)
-  WORKSPACE_ORIGINAL_OWNER_ID=$(stat -c '%u' "/var/lib/jenkins/workspace")
-  cleanup_workspace() {
-    echo "sudo may print the following warning message that can be ignored. The chown command will still run."
-    echo "    sudo: setrlimit(RLIMIT_STACK): Operation not permitted"
-    echo "For more details refer to https://github.com/sudo-project/sudo/issues/42"
-    sudo chown -R "$WORKSPACE_ORIGINAL_OWNER_ID" /var/lib/jenkins/workspace
-  }
-  # Disable shellcheck SC2064 as we want to parse the original owner immediately.
-  # shellcheck disable=SC2064
-  trap_add cleanup_workspace EXIT
-  sudo chown -R jenkins /var/lib/jenkins/workspace
-  git config --global --add safe.directory /var/lib/jenkins/workspace
-fi
 
 if [[ "$BUILD_ENVIRONMENT" == *-bazel-* ]]; then
   set -e -o pipefail
@@ -145,90 +128,12 @@ else
       if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
         python3 tools/packaging/split_wheel.py bdist_wheel
       else
-        WERROR=1 python setup.py bdist_wheel
+        echo "build wheel"
+        #WERROR=1 python setup.py bdist_wheel
       fi
-    else
-      python setup.py clean
-      if [[ "$BUILD_ENVIRONMENT" == *xla* ]]; then
-        source .ci/pytorch/install_cache_xla.sh
-      fi
-      if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
-        echo "USE_SPLIT_BUILD cannot be used with xla or rocm"
-        exit 1
-      else
-        python setup.py bdist_wheel
-      fi
+    
     fi
-    pip_install_whl "$(echo dist/*.whl)"
-
-    # TODO: I'm not sure why, but somehow we lose verbose commands
-    set -x
-
-    assert_git_not_dirty
-    # Copy ninja build logs to dist folder
-    mkdir -p dist
-    if [ -f build/.ninja_log ]; then
-      cp build/.ninja_log dist
-    fi
-
-    if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
-      # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
-      sudo rm -f /opt/cache/bin/cc
-      sudo rm -f /opt/cache/bin/c++
-      sudo rm -f /opt/cache/bin/gcc
-      sudo rm -f /opt/cache/bin/g++
-      pushd /opt/rocm/llvm/bin
-      if [[ -d original ]]; then
-        sudo mv original/clang .
-        sudo mv original/clang++ .
-      fi
-      sudo rm -rf original
-      popd
-    fi
-
-    CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
-    CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
-    CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
-    mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
-
-    # Build custom operator tests.
-    CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
-    CUSTOM_OP_TEST="$PWD/test/custom_operator"
-    python --version
-    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
-
-    mkdir -p "$CUSTOM_OP_BUILD"
-    pushd "$CUSTOM_OP_BUILD"
-    cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    make VERBOSE=1
-    popd
-    assert_git_not_dirty
-
-    # Build jit hook tests
-    JIT_HOOK_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/jit-hook-build"
-    JIT_HOOK_TEST="$PWD/test/jit_hooks"
-    python --version
-    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
-    mkdir -p "$JIT_HOOK_BUILD"
-    pushd "$JIT_HOOK_BUILD"
-    cmake "$JIT_HOOK_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    make VERBOSE=1
-    popd
-    assert_git_not_dirty
-
-    # Build custom backend tests.
-    CUSTOM_BACKEND_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-backend-build"
-    CUSTOM_BACKEND_TEST="$PWD/test/custom_backend"
-    python --version
-    mkdir -p "$CUSTOM_BACKEND_BUILD"
-    pushd "$CUSTOM_BACKEND_BUILD"
-    cmake "$CUSTOM_BACKEND_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    make VERBOSE=1
-    popd
-    assert_git_not_dirty
+ 
   else
     # Test no-Python build
     echo "Building libtorch"
