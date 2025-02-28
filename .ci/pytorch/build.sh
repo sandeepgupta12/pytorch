@@ -87,3 +87,176 @@ fi
 
 
 
+# Do not change workspace permissions for ROCm and s390x CI jobs
+# as it can leave workspace with bad permissions for cancelled jobs
+if [[ "$BUILD_ENVIRONMENT" != *rocm* && "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *ppc64le* && -d /var/lib/jenkins/workspace ]]; then
+  # Workaround for dind-rootless userid mapping (https://github.com/pytorch/ci-infra/issues/96)
+  WORKSPACE_ORIGINAL_OWNER_ID=$(stat -c '%u' "/var/lib/jenkins/workspace")
+  cleanup_workspace() {
+    echo "sudo may print the following warning message that can be ignored. The chown command will still run."
+    echo "    sudo: setrlimit(RLIMIT_STACK): Operation not permitted"
+    echo "For more details refer to https://github.com/sudo-project/sudo/issues/42"
+    sudo chown -R "$WORKSPACE_ORIGINAL_OWNER_ID" /var/lib/jenkins/workspace
+  }
+  # Disable shellcheck SC2064 as we want to parse the original owner immediately.
+  # shellcheck disable=SC2064
+  trap_add cleanup_workspace EXIT
+  sudo chown -R jenkins /var/lib/jenkins/workspace
+  git config --global --add safe.directory /var/lib/jenkins/workspace
+fi
+
+if [[ "$BUILD_ENVIRONMENT" == *-bazel-* ]]; then
+  set -e -o pipefail
+
+  get_bazel
+
+  # Leave 1 CPU free and use only up to 80% of memory to reduce the change of crashing
+  # the runner
+  BAZEL_MEM_LIMIT="--local_ram_resources=HOST_RAM*.8"
+  BAZEL_CPU_LIMIT="--local_cpu_resources=HOST_CPUS-1"
+
+  if [[ "$CUDA_VERSION" == "cpu" ]]; then
+    # Build torch, the Python module, and tests for CPU-only
+    tools/bazel build --config=no-tty "${BAZEL_MEM_LIMIT}" "${BAZEL_CPU_LIMIT}" --config=cpu-only :torch :torch/_C.so :all_tests
+  else
+    tools/bazel build --config=no-tty "${BAZEL_MEM_LIMIT}" "${BAZEL_CPU_LIMIT}" //...
+  fi
+else
+  # check that setup.py would fail with bad arguments
+  echo "The next three invocations are expected to fail with invalid command error messages."
+  ( ! get_exit_code python setup.py bad_argument )
+  ( ! get_exit_code python setup.py clean] )
+  ( ! get_exit_code python setup.py clean bad_argument )
+
+  if [[ "$BUILD_ENVIRONMENT" != *libtorch* ]]; then
+    # rocm builds fail when WERROR=1
+    # XLA test build fails when WERROR=1
+    # set only when building other architectures
+    # or building non-XLA tests.
+    if [[ "$BUILD_ENVIRONMENT" != *rocm*  &&
+          "$BUILD_ENVIRONMENT" != *xla* ]]; then
+      if [[ "$BUILD_ENVIRONMENT" != *py3.8* ]]; then
+        # Install numpy-2.0.2 for builds which are backward compatible with 1.X
+        python -mpip install numpy==2.0.2
+      fi
+
+      WERROR=1 python setup.py clean
+
+      if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+        python3 tools/packaging/split_wheel.py bdist_wheel
+      else
+        WERROR=1 python setup.py bdist_wheel
+      fi
+    else
+      python setup.py clean
+      if [[ "$BUILD_ENVIRONMENT" == *xla* ]]; then
+        source .ci/pytorch/install_cache_xla.sh
+      fi
+      if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+        echo "USE_SPLIT_BUILD cannot be used with xla or rocm"
+        exit 1
+      else
+        python setup.py bdist_wheel
+      fi
+    fi
+    pip_install_whl "$(echo dist/*.whl)"
+
+    # TODO: I'm not sure why, but somehow we lose verbose commands
+    set -x
+
+    assert_git_not_dirty
+    # Copy ninja build logs to dist folder
+    mkdir -p dist
+    if [ -f build/.ninja_log ]; then
+      cp build/.ninja_log dist
+    fi
+
+    if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
+      # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
+      sudo rm -f /opt/cache/bin/cc
+      sudo rm -f /opt/cache/bin/c++
+      sudo rm -f /opt/cache/bin/gcc
+      sudo rm -f /opt/cache/bin/g++
+      pushd /opt/rocm/llvm/bin
+      if [[ -d original ]]; then
+        sudo mv original/clang .
+        sudo mv original/clang++ .
+      fi
+      sudo rm -rf original
+      popd
+    fi
+
+    CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
+    CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
+    CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
+    mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
+
+    # Build custom operator tests.
+    CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
+    CUSTOM_OP_TEST="$PWD/test/custom_operator"
+    python --version
+    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+
+    mkdir -p "$CUSTOM_OP_BUILD"
+    pushd "$CUSTOM_OP_BUILD"
+    cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
+
+    # Build jit hook tests
+    JIT_HOOK_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/jit-hook-build"
+    JIT_HOOK_TEST="$PWD/test/jit_hooks"
+    python --version
+    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+    mkdir -p "$JIT_HOOK_BUILD"
+    pushd "$JIT_HOOK_BUILD"
+    cmake "$JIT_HOOK_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
+
+    # Build custom backend tests.
+    CUSTOM_BACKEND_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-backend-build"
+    CUSTOM_BACKEND_TEST="$PWD/test/custom_backend"
+    python --version
+    mkdir -p "$CUSTOM_BACKEND_BUILD"
+    pushd "$CUSTOM_BACKEND_BUILD"
+    cmake "$CUSTOM_BACKEND_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
+  else
+    # Test no-Python build
+    echo "Building libtorch"
+
+    # This is an attempt to mitigate flaky libtorch build OOM error. By default, the build parallelization
+    # is set to be the number of CPU minus 2. So, let's try a more conservative value here. A 4xlarge has
+    # 16 CPUs
+    if [ -z "$MAX_JOBS_OVERRIDE" ]; then
+      MAX_JOBS=$(nproc --ignore=4)
+      export MAX_JOBS
+    fi
+
+    # NB: Install outside of source directory (at the same level as the root
+    # pytorch folder) so that it doesn't get cleaned away prior to docker push.
+    BUILD_LIBTORCH_PY=$PWD/tools/build_libtorch.py
+    mkdir -p ../cpp-build/caffe2
+    pushd ../cpp-build/caffe2
+    WERROR=1 VERBOSE=1 DEBUG=1 python "$BUILD_LIBTORCH_PY"
+    popd
+  fi
+fi
+
+if [[ "$BUILD_ENVIRONMENT" != *libtorch* && "$BUILD_ENVIRONMENT" != *bazel* ]]; then
+  # export test times so that potential sharded tests that'll branch off this build will use consistent data
+  # don't do this for libtorch as libtorch is C++ only and thus won't have python tests run on its build
+  python tools/stats/export_test_times.py
+fi
+# don't do this for bazel or s390x as they don't use sccache
+if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
+  print_sccache_stats
+fi
