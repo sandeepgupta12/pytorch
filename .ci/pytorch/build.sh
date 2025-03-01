@@ -401,6 +401,6 @@ if [[ "$BUILD_ENVIRONMENT" != *libtorch* && "$BUILD_ENVIRONMENT" != *bazel* ]]; 
   python tools/stats/export_test_times.py
 fi
 # don't do this for bazel or s390x as they don't use sccache
-if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
+if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *ppc64le* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
   print_sccache_stats
 fi
