@@ -231,11 +231,16 @@ jobs:
             DOCKER_SHELL_CMD=
           fi
 
-          # Leaving 1GB for the runner and other things
-          TOTAL_AVAILABLE_MEMORY_IN_GB=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024/1024 - 1 }' /proc/meminfo)
-          # https://docs.docker.com/engine/containers/resource_constraints/#--memory-swap-details, the 3GB swap
-          # comes from https://github.com/pytorch/test-infra/pull/6058
-          TOTAL_MEMORY_WITH_SWAP=$(("${TOTAL_AVAILABLE_MEMORY_IN_GB%.*}" + 3))
+          # Compute memory limits, but skip setting them for ppc64le
+          if [[ ${BUILD_ENVIRONMENT} != *"ppc64le"* ]]; then
+            # Leaving 1GB for the runner and other things
+            TOTAL_AVAILABLE_MEMORY_IN_GB=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024/1024 - 1 }' /proc/meminfo)
+            # https://docs.docker.com/engine/containers/resource_constraints/#--memory-swap-details, the 3GB swap
+            # comes from https://github.com/pytorch/test-infra/pull/6058
+            TOTAL_MEMORY_WITH_SWAP=$(("${TOTAL_AVAILABLE_MEMORY_IN_GB%.*}" + 3))MEMORY_FLAGS="--memory=${TOTAL_AVAILABLE_MEMORY_IN_GB%.*}g --memory-swap=${TOTAL_MEMORY_WITH_SWAP}g"
+          else
+            MEMORY_FLAGS=""
+          fi
 
           # detached container should get cleaned up by teardown_ec2_linux
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
@@ -263,6 +268,7 @@ jobs:
             --cap-add=SYS_PTRACE \
             --tty \
             --detach \
+            ${MEMORY_FLAGS} \
             ${JENKINS_USER} \
             -v "${GITHUB_WORKSPACE}:/var/lib/jenkins/workspace" \
             -w /var/lib/jenkins/workspace \
