@@ -78,26 +78,6 @@ RUN git config --global --add safe.directory "*"
 RUN pip install --upgrade pip
 RUN pip install typing_extensions
 
-RUN yum install -y cmake ninja-build && \
-      pip install \
-        astunparse \
-        expecttest>=0.3.0 \
-        filelock \
-        fsspec \
-        hypothesis \
-        jinja2 \
-        networkx \
-        numpy \
-        optree>=0.13.0 \
-        packaging \
-        psutil \
-        pyyaml \
-        requests \
-        setuptools \
-        sympy==1.13.3 \
-        types-dataclasses \
-        typing-extensions>=4.10.0
-
 # Install test dependencies
 RUN dnf install -y \
       protobuf-devel \
@@ -105,9 +85,6 @@ RUN dnf install -y \
       protobuf-lite-devel \
       wget \
       patch
-
-# Install grpcio with system OpenSSL
-RUN env GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True pip install grpcio==1.65.4
 
 # Set default entrypoint
 ENTRYPOINT []
