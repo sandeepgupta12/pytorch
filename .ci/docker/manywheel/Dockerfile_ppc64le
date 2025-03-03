@@ -79,15 +79,7 @@ RUN pip install --upgrade pip
 RUN pip install typing_extensions
 
 RUN yum install -y cmake ninja-build && \
-      pip install filelock \
-        fsspec \
-        hypothesis \
-        jinja2 \
-        networkx \
-        numpy \
-        optree>=0.13.0 \
-        packaging \
-        psutil \
+      pip install psutil \
         pyyaml \
         setuptools 
 
