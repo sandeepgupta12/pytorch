@@ -76,7 +76,7 @@ RUN git config --global --add safe.directory "*"
 
 # Install required Python packages
 RUN pip install --upgrade pip
-RUN pip install typing_extensions
+RUN pip install typing_extensions setuptools
 
 # Install test dependencies
 RUN dnf install -y \
