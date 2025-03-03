@@ -42,6 +42,7 @@ RUN yum -y install epel-release && \
       gcc-toolset-${DEVTOOLSET_VERSION}-binutils \
       gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
       cmake \
+      ninja-build \
       rust \
       cargo \
       llvm-devel \
@@ -76,13 +77,8 @@ RUN git config --global --add safe.directory "*"
 
 # Install required Python packages
 RUN pip install --upgrade pip
-RUN pip install typing_extensions
-
-RUN yum install -y cmake ninja-build && \
-      pip install psutil \
-        pyyaml \
-        setuptools 
-
+RUN pip install typing_extensions pyyaml setuptools
+ 
 # Install test dependencies
 RUN dnf install -y \
       protobuf-devel \
