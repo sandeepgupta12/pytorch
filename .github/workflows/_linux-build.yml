@@ -245,7 +245,7 @@ jobs:
           fi
 
           # Compute memory limits, but skip setting them for ppc64le
-          if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
+          if [[ ${BUILD_ENVIRONMENT} != *"ppc64le"* ]]; then
             
             # Leaving 1GB for the runner and other things
             TOTAL_AVAILABLE_MEMORY_IN_GB=$(awk '/MemTotal/ { printf "%.3f \n", $2/1024/1024 - 1 }' /proc/meminfo)
