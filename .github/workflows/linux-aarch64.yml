@@ -17,7 +17,7 @@ concurrency:
 jobs:
 
   get-label-type:
-    if: github.repository_owner == 'pytorch'
+    
     name: get-label-type
     uses: pytorch/pytorch/.github/workflows/_runner-determinator.yml@main
     with:
@@ -29,9 +29,9 @@ jobs:
   linux-jammy-aarch64-py3_10-build:
     name: linux-jammy-aarch64-py3.10
     uses: ./.github/workflows/_linux-build.yml
-    needs: get-label-type
+    
     with:
-      runner_prefix: ${{ needs.get-label-type.outputs.label-type }}
+      runner_prefix: linux
       build-environment: linux-jammy-aarch64-py3.10
       docker-image-name: pytorch-linux-jammy-aarch64-py3.10-gcc11
       runner: linux.arm64.2xlarge
