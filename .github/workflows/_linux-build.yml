@@ -230,6 +230,14 @@ jobs:
             JENKINS_USER=""
             USED_IMAGE="${DOCKER_IMAGE_PPC64LE}"
 
+            # ensure that docker container cleanly exits in 12 hours
+            # if for some reason cleanup action doesn't stop container
+            # when job is cancelled
+            DOCKER_SHELL_CMD="sleep 12h"
+            
+            env | grep '^GITHUB' >> "/tmp/github_env_${GITHUB_RUN_ID}"
+            env | grep '^CI' >> "/tmp/github_env_${GITHUB_RUN_ID}"
+
           else
             JENKINS_USER="--user jenkins"
             USED_IMAGE="${DOCKER_IMAGE}"
