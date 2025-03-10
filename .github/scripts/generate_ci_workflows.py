@@ -360,7 +360,7 @@ def main() -> None:
         ),
         (
             jinja_env.get_template("linux_binary_build_workflow.yml.j2"),
-            PPC64le_BINARY_BUILD_WORKFLOWS,
+            PPC64LE_BINARY_BUILD_WORKFLOWS,
         ),
         (
             jinja_env.get_template("linux_binary_build_workflow.yml.j2"),
