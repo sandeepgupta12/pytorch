@@ -11,6 +11,18 @@ on:
     branches:
       - temp-ppc64le-wheel-branch-v6
   workflow_dispatch:
+env:
+  # Needed for conda builds
+  ALPINE_IMAGE: "308535385114.dkr.ecr.us-east-1.amazonaws.com/tool/alpine"
+  AWS_DEFAULT_REGION: us-east-1
+  BINARY_ENV_FILE: /tmp/env
+  BUILD_ENVIRONMENT: linux-ppc64le-binary-manywheel
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  PYTORCH_FINAL_PACKAGE_DIR: /artifacts
+  PYTORCH_ROOT: /pytorch
+  SHA1: ${{ github.event.pull_request.head.sha || github.sha }}
+  SKIP_ALL_TESTS: 0
 
 concurrency:
   group: linux-ppc64le-binary-manywheel-${{ github.event.pull_request.number || github.ref_name }}-${{ github.ref_type == 'branch' && github.sha }}-${{ github.event_name == 'workflow_dispatch' }}
@@ -36,7 +48,7 @@ jobs:
       # TODO: This is a legacy variable that we eventually want to get rid of in
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
-      GPU_ARCH_TYPE: cpu-ppc64le
+      #GPU_ARCH_TYPE: cpu-ppc64le
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.9"
