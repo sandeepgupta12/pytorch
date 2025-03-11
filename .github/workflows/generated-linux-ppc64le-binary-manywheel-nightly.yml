@@ -64,7 +64,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_9-cpu-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - wheel-py3_9-cpu-build
       - get-label-type
@@ -76,7 +76,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.9"
       build_name: wheel-py3_9-cpu
       build_environment: linux-ppc64le-binary-manywheel
@@ -85,7 +85,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_9-cpu-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -97,7 +97,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.9"
       build_name: wheel-py3_9-cpu
     secrets:
@@ -106,7 +106,7 @@ jobs:
 
   wheel-py3_10-cpu-build:
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+   
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: wheel
@@ -114,7 +114,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.10"
       runner_prefix: linux.ppc64le
       build_name: wheel-py3_10-cpu
@@ -123,10 +123,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_10-cpu-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - wheel-py3_10-cpu-build
-      - get-label-type
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -135,7 +135,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.10"
       build_name: wheel-py3_10-cpu
       build_environment: linux-ppc64le-binary-manywheel
@@ -144,7 +144,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_10-cpu-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -156,7 +156,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.10"
       build_name: wheel-py3_10-cpu
     secrets:
@@ -164,9 +164,9 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   wheel-py3_11-cpu-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: wheel
@@ -174,7 +174,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.11"
       runner_prefix: "${{ needs.get-label-type.outputs.label-type }}"
       build_name: wheel-py3_11-cpu
@@ -183,10 +183,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_11-cpu-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - wheel-py3_11-cpu-build
-      - get-label-type
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -195,7 +195,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.11"
       build_name: wheel-py3_11-cpu
       build_environment: linux-ppc64le-binary-manywheel
@@ -204,7 +204,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_11-cpu-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -216,7 +216,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.11"
       build_name: wheel-py3_11-cpu
     secrets:
@@ -224,9 +224,9 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   wheel-py3_12-cpu-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+  
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: wheel
@@ -234,7 +234,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.12"
       runner_prefix: "${{ needs.get-label-type.outputs.label-type }}"
       build_name: wheel-py3_12-cpu
@@ -243,10 +243,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_12-cpu-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - wheel-py3_12-cpu-build
-      - get-label-type
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -255,7 +255,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.12"
       build_name: wheel-py3_12-cpu
       build_environment: linux-ppc64le-binary-manywheel
@@ -264,7 +264,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_12-cpu-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -276,7 +276,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.12"
       build_name: wheel-py3_12-cpu
     secrets:
@@ -284,9 +284,9 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   wheel-py3_13-cpu-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: wheel
@@ -294,7 +294,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.13"
       runner_prefix: "${{ needs.get-label-type.outputs.label-type }}"
       build_name: wheel-py3_13-cpu
@@ -303,10 +303,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_13-cpu-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - wheel-py3_13-cpu-build
-      - get-label-type
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -315,7 +315,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.13"
       build_name: wheel-py3_13-cpu
       build_environment: linux-ppc64le-binary-manywheel
@@ -324,7 +324,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_13-cpu-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -336,7 +336,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.13"
       build_name: wheel-py3_13-cpu
     secrets:
@@ -344,9 +344,9 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   wheel-py3_13t-cpu-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: wheel
@@ -354,7 +354,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.13t"
       runner_prefix: "${{ needs.get-label-type.outputs.label-type }}"
       build_name: wheel-py3_13t-cpu
@@ -363,10 +363,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_13t-cpu-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - wheel-py3_13t-cpu-build
-      - get-label-type
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -375,7 +375,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.13t"
       build_name: wheel-py3_13t-cpu
       build_environment: linux-ppc64le-binary-manywheel
@@ -384,7 +384,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   wheel-py3_13t-cpu-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -396,7 +396,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu
-      DOCKER_IMAGE: pytorch/manylinux2_28-builder:cpu-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-main
       DESIRED_PYTHON: "3.13t"
       build_name: wheel-py3_13t-cpu
     secrets:
