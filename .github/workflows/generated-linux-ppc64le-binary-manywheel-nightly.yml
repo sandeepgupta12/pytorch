@@ -40,7 +40,7 @@ jobs:
       curr_ref_type: ${{ github.ref_type }}
 
 
-   wheel-py3_12-cpu-ppc64le-build:
+  wheel-py3_12-cpu-ppc64le-build:
   
     uses: ./.github/workflows/_binary-build-linux.yml
     
