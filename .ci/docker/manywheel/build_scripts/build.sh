@@ -44,6 +44,11 @@ echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
 tar -xzf $AUTOCONF_ROOT.tar.gz
 cd $AUTOCONF_ROOT
 
+# Update config.guess and config.sub
+curl -o build-aux/config.guess http://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+curl -o build-aux/config.sub http://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+chmod +x build-aux/config.guess build-aux/config.sub
+
 # Configure with the correct host
 ./configure --host=powerpc64le-pc-linux-gnu
 
