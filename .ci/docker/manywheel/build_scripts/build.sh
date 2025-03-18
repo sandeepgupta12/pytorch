@@ -87,22 +87,6 @@ ln -s $($PY39_BIN/python -c 'import certifi; print(certifi.where())') \
 # Dockerfiles:
 export SSL_CERT_FILE=/opt/_internal/certs.pem
 
-######################
-# Remove old file if it exists
-rm -f curl-7.73.0.tar.bz2
-
-# Download the file
-curl -sLO https://curl.askapache.com/download/curl-7.73.0.tar.bz2
-
-# Verify SHA256 Checksum
-echo "cf34fe0b07b800f1c01a499a6e8b2af548f6d0e044dca4a29d88a4bee146d131  curl-7.73.0.tar.bz2" | sha256sum -c -
-
-# If checksum fails, exit with an error
-if [ $? -ne 0 ]; then
-    echo "Error: SHA256 checksum mismatch for curl-7.73.0.tar.bz2"
-    exit 1
-fi
-#############################
 # Install newest curl
 build_curl $CURL_ROOT $CURL_HASH
 rm -rf /usr/local/include/curl /usr/local/lib/libcurl* /usr/local/lib/pkgconfig/libcurl.pc
