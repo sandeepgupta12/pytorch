@@ -38,25 +38,27 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     automake which file \
     ${PYTHON_COMPILE_DEPS}
 
-# Install newest autoconf manually
-wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz
-tar -xzf autoconf-2.71.tar.gz
-cd autoconf-2.71
-./configure
+# Download and extract Autoconf
+curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
+echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
+tar -xzf $AUTOCONF_ROOT.tar.gz
+cd $AUTOCONF_ROOT
+
+# Configure with the correct host
+./configure --host=powerpc64le-pc-linux-gnu
+
+# Build and install
 make -j$(nproc)
 make install
-cd ..
 
-# Verify installation
-autoconf --version
+# Clean up
+cd ..
+rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
+
 
 # Install newest autoconf (previous method)
 #build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 
-
-
-# Install newest autoconf
-build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 autoconf --version
 
 # Compile the latest Python releases.
