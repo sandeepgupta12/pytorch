@@ -39,6 +39,12 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     ${PYTHON_COMPILE_DEPS}
 
 # Install newest autoconf
+curl -sLO http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
+curl -sLO http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
+chmod +x config.guess config.sub
+mv config.guess config.sub build-aux/
+
+# Install newest autoconf
 build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 autoconf --version
 
