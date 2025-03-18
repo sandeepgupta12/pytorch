@@ -28,7 +28,12 @@ function check_sha256sum {
     check_var ${fname}
     local sha256=$2
     check_var ${sha256}
-
+# Compute and print actual checksum
+    echo "✅ Expected SHA256: ${openssl_sha256}"
+    echo "🔍 Calculating actual SHA256..."
+    actual_sha256=$(sha256sum ${openssl_fname}.tar.gz | awk '{print $1}')
+    echo "🔴 Actual SHA256: $actual_sha256"
+    
     echo "${sha256}  ${fname}" > ${fname}.sha256
     sha256sum -c ${fname}.sha256
     rm -f ${fname}.sha256
@@ -42,11 +47,6 @@ function build_openssl {
     check_var ${openssl_sha256}
     check_var ${OPENSSL_DOWNLOAD_URL}
     curl -sLO ${OPENSSL_DOWNLOAD_URL}/${openssl_fname}.tar.gz 
-    # Compute and print actual checksum
-    echo "✅ Expected SHA256: ${openssl_sha256}"
-    echo "🔍 Calculating actual SHA256..."
-    actual_sha256=$(sha256sum ${openssl_fname}.tar.gz | awk '{print $1}')
-    echo "🔴 Actual SHA256: $actual_sha256"
     
     check_sha256sum ${openssl_fname}.tar.gz ${openssl_sha256}
     tar -xzf ${openssl_fname}.tar.gz
