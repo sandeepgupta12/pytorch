@@ -38,15 +38,21 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     automake which file \
     ${PYTHON_COMPILE_DEPS}
 
-# Install newest autoconf
-if [ ! -d "build-aux" ]; then
-    mkdir -p build-aux
-fi
-cd build-aux || exit 1
-curl -o config.guess -sL http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
-curl -o config.sub -sL http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
-chmod +x config.guess config.sub
+# Install newest autoconf manually
+wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz
+tar -xzf autoconf-2.71.tar.gz
+cd autoconf-2.71
+./configure
+make -j$(nproc)
+make install
 cd ..
+
+# Verify installation
+autoconf --version
+
+# Install newest autoconf (previous method)
+#build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+
 
 
 # Install newest autoconf
