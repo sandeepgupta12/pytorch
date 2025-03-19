@@ -29,9 +29,9 @@ function check_sha256sum {
     local sha256=$2
     check_var ${sha256}
 # Compute and print actual checksum
-    echo "✅ Expected SHA256: ${openssl_sha256}"
+    echo "✅ Expected SHA256: ${sha256}"
     echo "🔍 Calculating actual SHA256..."
-    actual_sha256=$(sha256sum ${openssl_fname}.tar.gz | awk '{print $1}')
+    actual_sha256=$(sha256sum ${fname} | awk '{print $1}')
     echo "🔴 Actual SHA256: $actual_sha256"
     
     echo "${sha256}  ${fname}" > ${fname}.sha256
