@@ -55,6 +55,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
+      DESIRED_DEVTOOLSET: cxx11-abi
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.13"
@@ -80,6 +81,7 @@ jobs:
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
+      DESIRED_DEVTOOLSET: cxx11-abi
       use_split_build: False
       DESIRED_PYTHON: "3.13"
       build_name: manywheel-py3_13-cpu-ppc64le
@@ -102,6 +104,7 @@ jobs:
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
+      DESIRED_DEVTOOLSET: cxx11-abi
       use_split_build: False
       DESIRED_PYTHON: "3.13"
       build_name: manywheel-py3_13-cpu-ppc64le
