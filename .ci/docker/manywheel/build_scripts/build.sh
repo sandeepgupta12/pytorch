@@ -13,6 +13,7 @@ DEVTOOLS_HASH=a8ebeb4bed624700f727179e6ef771dafe47651131a00a78b342251415646acc
 PATCHELF_HASH=d9afdff4baeacfbc64861454f368b7f2c15c44d245293f7587bbf726bfe722fb
 CURL_ROOT=curl-7.73.0
 CURL_HASH=cf34fe0b07b800f1c01a499a6e8b2af548f6d0e044dca4a29d88a4bee146d131
+#CURL_HASH=ed444155f1fd7d72c44424f9333893e64cbd6c1cbe4489619bce99c4dda58c14
 AUTOCONF_ROOT=autoconf-2.69
 AUTOCONF_HASH=954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
 
@@ -38,8 +39,32 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     automake which file \
     ${PYTHON_COMPILE_DEPS}
 
-# Install newest autoconf
-build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+# Download and extract Autoconf
+curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
+echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
+tar -xzf $AUTOCONF_ROOT.tar.gz
+cd $AUTOCONF_ROOT
+
+# Update config.guess and config.sub
+curl -o build-aux/config.guess http://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+curl -o build-aux/config.sub http://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+chmod +x build-aux/config.guess build-aux/config.sub
+
+# Configure with the correct host
+./configure --host=powerpc64le-pc-linux-gnu
+
+# Build and install
+make -j$(nproc)
+make install
+
+# Clean up
+cd ..
+rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
+
+
+# Install newest autoconf (previous method)
+#build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+
 autoconf --version
 
 # Compile the latest Python releases.
