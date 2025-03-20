@@ -12,6 +12,7 @@ on an NVIDIA GPU with compute capability >= 3.0.
 
 import builtins
 import ctypes
+import functools
 import glob
 import importlib
 import inspect
@@ -334,6 +335,8 @@ def _load_global_deps() -> None:
     except OSError as err:
         # Can only happen for wheel with cuda libs as PYPI deps
         # As PyTorch is not purelib, but nvidia-*-cu12 is
+        from torch.version import cuda as cuda_version
+
         cuda_libs: dict[str, str] = {
             "cublas": "libcublas.so.*[0-9]",
             "cudnn": "libcudnn.so.*[0-9]",
@@ -349,6 +352,14 @@ def _load_global_deps() -> None:
             "nccl": "libnccl.so.*[0-9]",
             "nvtx": "libnvToolsExt.so.*[0-9]",
         }
+        # cufiile is only available on cuda 12+
+        # TODO: Remove once CUDA 11.8 binaries are deprecated
+        if cuda_version is not None:
+            t_version = cuda_version.split(".")
+            t_major = int(t_version[0])  # type: ignore[operator]
+            if t_major >= 12:
+                cuda_libs["cufile"] = "libcufile.so.*[0-9]"
+
         is_cuda_lib_err = [
             lib for lib in cuda_libs.values() if lib.split(".")[0] in err.args[0]
         ]
@@ -1482,7 +1493,7 @@ def set_deterministic_debug_mode(debug_mode: _Union[builtins.int, str]) -> None:
         _C._set_deterministic_algorithms(True)
     else:
         raise RuntimeError(
-            "invalid value of debug_mode, expected 0, 1, or 2, " f"but got {debug_mode}"
+            f"invalid value of debug_mode, expected 0, 1, or 2, but got {debug_mode}"
         )
 
 
@@ -2680,6 +2691,7 @@ else:
         raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
+@functools.cache
 def get_device_module(device: _Optional[_Union[torch.device, str]] = None):
     """
     Returns the module associated with a given device(e.g., torch.device('cuda'), "mtia:0", "xpu", ...).
