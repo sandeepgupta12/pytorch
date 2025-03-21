@@ -421,7 +421,7 @@ def generate_wheels_matrix(
                             "cxx11-abi"
                             if (
                                 arch_version
-                                in ["cpu-cxx11-abi", "cpu-aarch64", "cpu-s390x"]
+                                in ["cpu-cxx11-abi", "cpu-aarch64", "cpu-s390x", "cpu-ppc64le"]
                             )
                             or os == "linux"
                             else ""
