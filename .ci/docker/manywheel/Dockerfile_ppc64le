@@ -6,7 +6,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV LANGUAGE=C.UTF-8
 
-ARG DEVTOOLSET_VERSION=13
+ARG DEVTOOLSET_VERSION=14
 
 # Create symbolic links for Python 3.12
 RUN ln -sf /opt/python/cp312-cp312/bin/python3.12 /usr/bin/python3 && \
