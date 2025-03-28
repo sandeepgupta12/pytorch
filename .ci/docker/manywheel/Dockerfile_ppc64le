@@ -41,7 +41,7 @@ RUN yum -y install epel-release && \
       gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
       gcc-toolset-${DEVTOOLSET_VERSION}-binutils \
       gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
-      cmake \
+      cmake==3.31.6 \
       ninja-build \
       rust \
       cargo \
@@ -104,14 +104,14 @@ RUN alternatives --set python3 /usr/bin/python3.12
 
 RUN pip-3.12 install typing_extensions
  
+# Set default entrypoint
+ENTRYPOINT []
+CMD ["/bin/bash"]
+
 # Install test dependencies
 RUN dnf install -y \
       protobuf-devel \
       protobuf-c-devel \
       protobuf-lite-devel \
-      wget \
-      patch
-
-# Set default entrypoint
-ENTRYPOINT []
-CMD ["/bin/bash"]
+      hdf5-devel \
+      python3-h5py
