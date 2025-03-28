@@ -41,7 +41,7 @@ RUN yum -y install epel-release && \
       gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
       gcc-toolset-${DEVTOOLSET_VERSION}-binutils \
       gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
-      cmake==3.31.6 \
+      cmake \
       ninja-build \
       rust \
       cargo \
