@@ -305,7 +305,7 @@ if [[ "$(uname)" == 'Linux' &&  "$PACKAGE_TYPE" == 'manywheel' ]]; then
   # between precompiled headers and vectorization builtins.
   # This fix is not available in earlier gcc versions.
   # gcc-14 uses ABI19.
-  if [[ "$(uname -m)" != "s390x" ]]; then
+  if [[ "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le" ]]; then
     python -c "import torch; exit(0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1016' else 1)"
   fi
   popd
