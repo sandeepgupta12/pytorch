@@ -27,7 +27,7 @@ jobs:
           docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
 
   linux-manylinux-2_28-py3-cpu-ppc64le-build:
-    if: github.repository_owner == 'pytorch'
+    
     name: linux-manylinux-2_28-py3-cpu-ppc64le-build
     uses: ./.github/workflows/_linux-build.yml
     with:
