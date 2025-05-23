@@ -30,6 +30,7 @@ jobs:
     
     name: linux-manylinux-2_28-py3-cpu-ppc64le-build
     uses: ./.github/workflows/_linux-build.yml
+    needs: linux-ppc64le-docker-image-build
     with:
       build-environment: linux-ppc64le-binary-manywheel
       docker-image-name: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
