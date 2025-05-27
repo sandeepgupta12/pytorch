@@ -78,13 +78,6 @@ RUN git config --global --add safe.directory "*"
 # installed python doesn't have development parts. Rebuild it from scratch
 RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 
-# EPEL for cmake
-FROM base as patchelf
-# Install patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-RUN cp $(which patchelf) /patchelf
-
 RUN alternatives --set python /usr/bin/python3.12
 RUN alternatives --set python3 /usr/bin/python3.12
 
