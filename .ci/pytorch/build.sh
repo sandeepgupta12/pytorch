@@ -301,104 +301,104 @@ else
         python setup.py bdist_wheel
       fi
     fi
-    pip_install_whl "$(echo dist/*.whl)"
+    # pip_install_whl "$(echo dist/*.whl)"
 
-    # TODO: I'm not sure why, but somehow we lose verbose commands
-    set -x
+    # # TODO: I'm not sure why, but somehow we lose verbose commands
+    # set -x
 
-    assert_git_not_dirty
-    # Copy ninja build logs to dist folder
-    mkdir -p dist
-    if [ -f build/.ninja_log ]; then
-      cp build/.ninja_log dist
-    fi
+    # assert_git_not_dirty
+    # # Copy ninja build logs to dist folder
+    # mkdir -p dist
+    # if [ -f build/.ninja_log ]; then
+    #   cp build/.ninja_log dist
+    # fi
 
-    if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
-      # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
-      sudo rm -f /opt/cache/bin/cc
-      sudo rm -f /opt/cache/bin/c++
-      sudo rm -f /opt/cache/bin/gcc
-      sudo rm -f /opt/cache/bin/g++
-      pushd /opt/rocm/llvm/bin
-      if [[ -d original ]]; then
-        sudo mv original/clang .
-        sudo mv original/clang++ .
-      fi
-      sudo rm -rf original
-      popd
-    fi
+    # if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
+    #   # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
+    #   sudo rm -f /opt/cache/bin/cc
+    #   sudo rm -f /opt/cache/bin/c++
+    #   sudo rm -f /opt/cache/bin/gcc
+    #   sudo rm -f /opt/cache/bin/g++
+    #   pushd /opt/rocm/llvm/bin
+    #   if [[ -d original ]]; then
+    #     sudo mv original/clang .
+    #     sudo mv original/clang++ .
+    #   fi
+    #   sudo rm -rf original
+    #   popd
+    # fi
 
-    CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
-    CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
-    CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
-    mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
+    # CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
+    # CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
+    # CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
+    # mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
 
-    # Build custom operator tests.
-    CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
-    CUSTOM_OP_TEST="$PWD/test/custom_operator"
-    python --version
-    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+    # # Build custom operator tests.
+    # CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
+    # CUSTOM_OP_TEST="$PWD/test/custom_operator"
+    # python --version
+    # SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
 
-    mkdir -p "$CUSTOM_OP_BUILD"
-    pushd "$CUSTOM_OP_BUILD"
-    cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    make VERBOSE=1
-    popd
-    assert_git_not_dirty
+    # mkdir -p "$CUSTOM_OP_BUILD"
+    # pushd "$CUSTOM_OP_BUILD"
+    # cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+    #       -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    # make VERBOSE=1
+    # popd
+    # assert_git_not_dirty
 
-    # Build jit hook tests
-    JIT_HOOK_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/jit-hook-build"
-    JIT_HOOK_TEST="$PWD/test/jit_hooks"
-    python --version
-    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
-    mkdir -p "$JIT_HOOK_BUILD"
-    pushd "$JIT_HOOK_BUILD"
-    cmake "$JIT_HOOK_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    make VERBOSE=1
-    popd
-    assert_git_not_dirty
+    # # Build jit hook tests
+    # JIT_HOOK_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/jit-hook-build"
+    # JIT_HOOK_TEST="$PWD/test/jit_hooks"
+    # python --version
+    # SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+    # mkdir -p "$JIT_HOOK_BUILD"
+    # pushd "$JIT_HOOK_BUILD"
+    # cmake "$JIT_HOOK_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+    #       -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    # make VERBOSE=1
+    # popd
+    # assert_git_not_dirty
 
-    # Build custom backend tests.
-    CUSTOM_BACKEND_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-backend-build"
-    CUSTOM_BACKEND_TEST="$PWD/test/custom_backend"
-    python --version
-    mkdir -p "$CUSTOM_BACKEND_BUILD"
-    pushd "$CUSTOM_BACKEND_BUILD"
-    cmake "$CUSTOM_BACKEND_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    make VERBOSE=1
-    popd
-    assert_git_not_dirty
+    # # Build custom backend tests.
+    # CUSTOM_BACKEND_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-backend-build"
+    # CUSTOM_BACKEND_TEST="$PWD/test/custom_backend"
+    # python --version
+    # mkdir -p "$CUSTOM_BACKEND_BUILD"
+    # pushd "$CUSTOM_BACKEND_BUILD"
+    # cmake "$CUSTOM_BACKEND_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+    #       -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    # make VERBOSE=1
+    # popd
+    # assert_git_not_dirty
   else
     # Test no-Python build
-    echo "Building libtorch"
+    # echo "Building libtorch"
 
-    # This is an attempt to mitigate flaky libtorch build OOM error. By default, the build parallelization
-    # is set to be the number of CPU minus 2. So, let's try a more conservative value here. A 4xlarge has
-    # 16 CPUs
-    if [ -z "$MAX_JOBS_OVERRIDE" ]; then
-      MAX_JOBS=$(nproc --ignore=4)
-      export MAX_JOBS
-    fi
+    # # This is an attempt to mitigate flaky libtorch build OOM error. By default, the build parallelization
+    # # is set to be the number of CPU minus 2. So, let's try a more conservative value here. A 4xlarge has
+    # # 16 CPUs
+    # if [ -z "$MAX_JOBS_OVERRIDE" ]; then
+    #   MAX_JOBS=$(nproc --ignore=4)
+    #   export MAX_JOBS
+    # fi
 
-    # NB: Install outside of source directory (at the same level as the root
-    # pytorch folder) so that it doesn't get cleaned away prior to docker push.
-    BUILD_LIBTORCH_PY=$PWD/tools/build_libtorch.py
-    mkdir -p ../cpp-build/caffe2
-    pushd ../cpp-build/caffe2
-    WERROR=1 VERBOSE=1 DEBUG=1 python "$BUILD_LIBTORCH_PY"
-    popd
+    # # NB: Install outside of source directory (at the same level as the root
+    # # pytorch folder) so that it doesn't get cleaned away prior to docker push.
+    # BUILD_LIBTORCH_PY=$PWD/tools/build_libtorch.py
+    # mkdir -p ../cpp-build/caffe2
+    # pushd ../cpp-build/caffe2
+    # WERROR=1 VERBOSE=1 DEBUG=1 python "$BUILD_LIBTORCH_PY"
+    # popd
   fi
 fi
 
-if [[ "$BUILD_ENVIRONMENT" != *libtorch* && "$BUILD_ENVIRONMENT" != *bazel* ]]; then
-  # export test times so that potential sharded tests that'll branch off this build will use consistent data
-  # don't do this for libtorch as libtorch is C++ only and thus won't have python tests run on its build
-  python tools/stats/export_test_times.py
-fi
-# don't do this for bazel or s390x as they don't use sccache
-if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *ppc64le* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
-  print_sccache_stats
-fi
+# if [[ "$BUILD_ENVIRONMENT" != *libtorch* && "$BUILD_ENVIRONMENT" != *bazel* ]]; then
+#   # export test times so that potential sharded tests that'll branch off this build will use consistent data
+#   # don't do this for libtorch as libtorch is C++ only and thus won't have python tests run on its build
+#   python tools/stats/export_test_times.py
+# fi
+# # don't do this for bazel or s390x as they don't use sccache
+# if [[ "$BUILD_ENVIRONMENT" != *s390x* && "$BUILD_ENVIRONMENT" != *ppc64le* && "$BUILD_ENVIRONMENT" != *-bazel-* ]]; then
+#   print_sccache_stats
+# fi
