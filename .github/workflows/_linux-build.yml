@@ -132,14 +132,18 @@ jobs:
           role-session-name: gha-linux-build
           aws-region: us-east-1
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: manylinuxppc64le-builder-image
+      # - name: Download Docker image artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: manylinuxppc64le-builder-image
   
-      - name: Load Docker image
+      # - name: Load Docker image
+      #   run: |
+      #     docker load -i manylinuxppc64le-builder.tar
+      
+      - name: Build Docker image for ppc64le
         run: |
-          docker load -i manylinuxppc64le-builder.tar
+          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
           
       - name: Calculate docker image
         id: calculate-docker-image
