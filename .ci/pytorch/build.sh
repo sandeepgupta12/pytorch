@@ -303,49 +303,49 @@ else
     fi
      pip_install_whl "$(echo dist/*.whl)"
 
-    # # TODO: I'm not sure why, but somehow we lose verbose commands
-    # set -x
+    # TODO: I'm not sure why, but somehow we lose verbose commands
+    set -x
 
-    # assert_git_not_dirty
-    # # Copy ninja build logs to dist folder
-    # mkdir -p dist
-    # if [ -f build/.ninja_log ]; then
-    #   cp build/.ninja_log dist
-    # fi
+    assert_git_not_dirty
+    # Copy ninja build logs to dist folder
+    mkdir -p dist
+    if [ -f build/.ninja_log ]; then
+      cp build/.ninja_log dist
+    fi
 
-    # if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
-    #   # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
-    #   sudo rm -f /opt/cache/bin/cc
-    #   sudo rm -f /opt/cache/bin/c++
-    #   sudo rm -f /opt/cache/bin/gcc
-    #   sudo rm -f /opt/cache/bin/g++
-    #   pushd /opt/rocm/llvm/bin
-    #   if [[ -d original ]]; then
-    #     sudo mv original/clang .
-    #     sudo mv original/clang++ .
-    #   fi
-    #   sudo rm -rf original
-    #   popd
-    # fi
+    if [[ "$BUILD_ENVIRONMENT" == *rocm* ]]; then
+      # remove sccache wrappers post-build; runtime compilation of MIOpen kernels does not yet fully support them
+      sudo rm -f /opt/cache/bin/cc
+      sudo rm -f /opt/cache/bin/c++
+      sudo rm -f /opt/cache/bin/gcc
+      sudo rm -f /opt/cache/bin/g++
+      pushd /opt/rocm/llvm/bin
+      if [[ -d original ]]; then
+        sudo mv original/clang .
+        sudo mv original/clang++ .
+      fi
+      sudo rm -rf original
+      popd
+    fi
 
-    # CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
-    # CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
-    # CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
-    # mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
+    CUSTOM_TEST_ARTIFACT_BUILD_DIR=${CUSTOM_TEST_ARTIFACT_BUILD_DIR:-"build/custom_test_artifacts"}
+    CUSTOM_TEST_USE_ROCM=$([[ "$BUILD_ENVIRONMENT" == *rocm* ]] && echo "ON" || echo "OFF")
+    CUSTOM_TEST_MODULE_PATH="${PWD}/cmake/public"
+    mkdir -pv "${CUSTOM_TEST_ARTIFACT_BUILD_DIR}"
 
-    # # Build custom operator tests.
-    # CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
-    # CUSTOM_OP_TEST="$PWD/test/custom_operator"
-    # python --version
-    # SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
+    # Build custom operator tests.
+    CUSTOM_OP_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/custom-op-build"
+    CUSTOM_OP_TEST="$PWD/test/custom_operator"
+    python --version
+    SITE_PACKAGES="$(python -c 'import site; print(";".join([x for x in site.getsitepackages()] + [x + "/torch" for x in site.getsitepackages()]))')"
 
-    # mkdir -p "$CUSTOM_OP_BUILD"
-    # pushd "$CUSTOM_OP_BUILD"
-    # cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
-    #       -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
-    # make VERBOSE=1
-    # popd
-    # assert_git_not_dirty
+    mkdir -p "$CUSTOM_OP_BUILD"
+    pushd "$CUSTOM_OP_BUILD"
+    cmake "$CUSTOM_OP_TEST" -DCMAKE_PREFIX_PATH="$SITE_PACKAGES" -DPython_EXECUTABLE="$(which python)" \
+          -DCMAKE_MODULE_PATH="$CUSTOM_TEST_MODULE_PATH" -DUSE_ROCM="$CUSTOM_TEST_USE_ROCM"
+    make VERBOSE=1
+    popd
+    assert_git_not_dirty
 
     # # Build jit hook tests
     # JIT_HOOK_BUILD="${CUSTOM_TEST_ARTIFACT_BUILD_DIR}/jit-hook-build"
