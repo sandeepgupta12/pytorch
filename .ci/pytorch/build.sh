@@ -371,7 +371,7 @@ else
     # make VERBOSE=1
     # popd
     # assert_git_not_dirty
-  else
+  #else
     # Test no-Python build
     # echo "Building libtorch"
 
