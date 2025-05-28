@@ -301,7 +301,7 @@ else
         python setup.py bdist_wheel
       fi
     fi
-    # pip_install_whl "$(echo dist/*.whl)"
+     pip_install_whl "$(echo dist/*.whl)"
 
     # # TODO: I'm not sure why, but somehow we lose verbose commands
     # set -x
