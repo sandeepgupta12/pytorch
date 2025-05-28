@@ -59,7 +59,7 @@ jobs:
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.9"
-      runs_on: linux.ppc64le
+      runs_on: ubuntu-24.04-ppc64le-p10
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
       timeout-minutes: 420
       build_name: manywheel-py3_9-cpu-ppc64le
@@ -85,12 +85,12 @@ jobs:
       DESIRED_PYTHON: "3.9"
       build_name: manywheel-py3_9-cpu-ppc64le
       build_environment: linux-ppc64le-binary-manywheel
-      runs_on: linux.ppc64le
+      runs_on: ubuntu-24.04-ppc64le-p10
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_9-cpu-ppc64le-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -111,9 +111,9 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   manywheel-py3_10-cpu-ppc64le-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -124,7 +124,7 @@ jobs:
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.10"
-      runs_on: linux.ppc64le
+      runs_on: ubuntu-24.04-ppc64le-p10
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
       timeout-minutes: 420
       build_name: manywheel-py3_10-cpu-ppc64le
@@ -136,7 +136,7 @@ jobs:
     if: ${{ github.repository_owner == 'pytorch' }}
     needs:
       - manywheel-py3_10-cpu-ppc64le-build
-      - get-label-type
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -150,12 +150,12 @@ jobs:
       DESIRED_PYTHON: "3.10"
       build_name: manywheel-py3_10-cpu-ppc64le
       build_environment: linux-ppc64le-binary-manywheel
-      runs_on: linux.ppc64le
+      runs_on: ubuntu-24.04-ppc64le-p10
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_10-cpu-ppc64le-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
