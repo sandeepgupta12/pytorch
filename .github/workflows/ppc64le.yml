@@ -13,7 +13,7 @@ concurrency:
 jobs:
   linux-ppc64le-docker-image-build:
     name: Build docker image for ppc64le
-    runs-on: ubuntu-24.04-ppc64le
+    runs-on: ubuntu-24.04-ppc64le-p10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
