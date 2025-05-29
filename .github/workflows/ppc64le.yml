@@ -15,11 +15,13 @@ jobs:
     name: Build docker image for ppc64le
     runs-on: ubuntu-24.04-ppc64le-p10
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout PyTorch
+        uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
+        with:
+          submodules: false
+          no-sudo: true
         
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      
 
       - name: Build Docker image for ppc64le
         run: |
