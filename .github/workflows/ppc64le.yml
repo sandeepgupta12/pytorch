@@ -21,11 +21,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
       - name: Build Docker image for ppc64le
         run: |
-          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          # docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          .ci/docker/manywheel/build.sh manylinuxppc64le-builder -t manylinuxppc64le-builder
     
       - name: Save Docker image to tarball
         run: |
