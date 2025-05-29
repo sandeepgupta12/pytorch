@@ -86,7 +86,7 @@ RUN pip-3.12 install typing_extensions
 # EPEL for cmake
 FROM base as patchelf
 # Install patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
+ADD ../common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 RUN cp $(which patchelf) /patchelf
 
