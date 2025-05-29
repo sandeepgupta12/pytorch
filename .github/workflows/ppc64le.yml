@@ -13,7 +13,7 @@ concurrency:
 jobs:
   linux-ppc64le-docker-image-build:
     name: Build docker image for ppc64le
-    runs-on: ubuntu-24.04-ppc64le-p10
+    runs-on: ubuntu-24.04-ppc64le
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -45,6 +45,6 @@ jobs:
     with:
       build-environment: linux-ppc64le-binary-manywheel
       docker-image-name: manylinuxppc64le-builder
-      runner: ubuntu-24.04-ppc64le-p10
+      runner: ubuntu-24.04-ppc64le
     secrets: inherit
     
