@@ -25,8 +25,8 @@ jobs:
 
       - name: Build Docker image for ppc64le
         run: |
-          # docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
-          .ci/docker/manywheel/build.sh manylinuxppc64le-builder:cpu-ppc64le -t manylinuxppc64le-builder
+          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          # .ci/docker/manywheel/build.sh manylinuxppc64le-builder:cpu-ppc64le -t manylinuxppc64le-builder
     
       - name: Save Docker image to tarball
         run: |
