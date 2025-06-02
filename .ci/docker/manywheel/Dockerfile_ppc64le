@@ -80,9 +80,15 @@ RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 
 # EPEL for cmake
 FROM base as patchelf
+
+# Instead of ADD ./common/install_cpython.sh ...
+RUN git clone --depth 1 https://github.com/pytorch/pytorch.git /tmp/pytorch && \
+    cp /tmp/pytorch/.ci/docker/common/install_cpython.sh /build_scripts/install_cpython.sh && \
+    rm -rf /tmp/pytorch
 # Install patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
+# ADD ./common/install_patchelf.sh install_patchelf.sh
+#RUN bash ./install_patchelf.sh && rm install_patchelf.sh
+RUN bash /build_scripts/install_cpython.sh
 RUN cp $(which patchelf) /patchelf
 
 FROM patchelf as python
