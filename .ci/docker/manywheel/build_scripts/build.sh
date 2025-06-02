@@ -55,12 +55,10 @@ else
 
     # Update config.guess and config.sub scripts to ensure proper architecture detection
     curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
-curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+    curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
 
     chmod +x build-aux/config.guess build-aux/config.sub
-
-    head -n 1 build-aux/config.sub
-    file build-aux/config.sub
+    
     # Configure the Autoconf build system with the correct host type for ppc64le
     ./configure --host=powerpc64le-pc-linux-gnu
 

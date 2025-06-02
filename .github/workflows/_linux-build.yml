@@ -167,6 +167,10 @@ jobs:
           run-id: ${{ github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build Docker image for ppc64le
+        run: |
+          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+
       - name: Calculate docker image
         id: calculate-docker-image
         uses: pytorch/test-infra/.github/actions/calculate-docker-image@main
