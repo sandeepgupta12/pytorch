@@ -83,7 +83,7 @@ RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 FROM base as patchelf
 
 # Instead of ADD ./common/install_cpython.sh ...
-RUN git clone --depth 1 https://github.com/pytorch/pytorch.git /tmp/pytorch && \
+RUN git clone --depth 1 --branch temp-gha-runner-v2 https://github.com/pytorch/pytorch.git /tmp/pytorch && \
     cp /tmp/pytorch/.ci/docker/common/install_patchelf.sh /build_scripts/install_patchelf.sh && \
     rm -rf /tmp/pytorch
 # Install patchelf
@@ -99,7 +99,7 @@ RUN cp $(which patchelf) /patchelf
 FROM patchelf as python
 
 # Clone only required scripts from the PyTorch repo
-RUN git clone --depth 1 https://github.com/pytorch/pytorch.git /tmp/pytorch && \
+RUN git clone --depth 1 --branch temp-gha-runner-v2 https://github.com/pytorch/pytorch.git /tmp/pytorch && \
     mkdir -p /build_scripts && \
     cp -r /tmp/pytorch/.ci/docker/manywheel/build_scripts/* /build_scripts/ && \
     cp /tmp/pytorch/.ci/docker/common/install_cpython.sh /build_scripts/install_cpython.sh && \
