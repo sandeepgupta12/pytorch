@@ -44,5 +44,5 @@ jobs:
     with:
       build-environment: linux-ppc64le-binary-manywheel
       docker-image-name: pytorch/manylinuxppc64le-builder
-      runner: ubuntu-24.04-ppc64le-p10
+      runner: ubuntu-24.04-ppc64le
     secrets: inherit
