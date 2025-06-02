@@ -54,8 +54,9 @@ else
     cd $AUTOCONF_ROOT
 
     # Update config.guess and config.sub scripts to ensure proper architecture detection
-    curl -o build-aux/config.guess http://git.savannah.gnu.org/cgit/config.git/plain/config.guess
-    curl -o build-aux/config.sub http://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+    curl -sLo build-aux/config.guess https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD
+    curl -sLo build-aux/config.sub https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD
+
     chmod +x build-aux/config.guess build-aux/config.sub
 
     # Configure the Autoconf build system with the correct host type for ppc64le
