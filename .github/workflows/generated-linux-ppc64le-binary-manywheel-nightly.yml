@@ -54,6 +54,7 @@ jobs:
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
       use_split_build: False
       DESIRED_PYTHON: "3.9"
       runs_on: ubuntu-24.04-ppc64le-p10
@@ -76,6 +77,7 @@ jobs:
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
       use_split_build: False
       DESIRED_PYTHON: "3.9"
       build_name: manywheel-py3_9-cpu-ppc64le
@@ -98,6 +100,7 @@ jobs:
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
       DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
       use_split_build: False
       DESIRED_PYTHON: "3.9"
       build_name: manywheel-py3_9-cpu-ppc64le
