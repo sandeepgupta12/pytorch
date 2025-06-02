@@ -2,6 +2,11 @@
 # Script used only in CD pipeline
 set -uex -o pipefail
 
+echo "CPYTHON_VERSIONS=$CPYTHON_VERSIONS"
+echo "PYTHON_DOWNLOAD_URL=$PYTHON_DOWNLOAD_URL"
+echo "PYTHON_DOWNLOAD_GITHUB_BRANCH=$PYTHON_DOWNLOAD_GITHUB_BRANCH"
+echo "GET_PIP_URL=$GET_PIP_URL"
+
 PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 PYTHON_DOWNLOAD_GITHUB_BRANCH=https://github.com/python/cpython/archive/refs/heads  # @lint-ignore
 GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
@@ -83,7 +88,7 @@ function build_cpython {
         PY_VER_SHORT="3.13"
         PYT_VER_SHORT="3.13t"
         check_var $PYTHON_DOWNLOAD_GITHUB_BRANCH
-        wget $PYTHON_DOWNLOAD_GITHUB_BRANCH/$PY_VER_SHORT.tar.gz -O Python-$py_ver.tgz
+        wget $PYTHON_DOWNLOAD_GITHUB_BRANCH/$PY_VER_SHORT.tar.gz -O Python-$py_ver.tgz || { echo "Download failed"; exit 77; }
         do_cpython_build $py_ver cpython-$PYT_VER_SHORT
     elif [ "$py_ver" = "3.13.0" ]; then
         PY_VER_SHORT="3.13"

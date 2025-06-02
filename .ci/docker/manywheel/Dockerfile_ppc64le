@@ -88,7 +88,9 @@ RUN git clone --depth 1 https://github.com/pytorch/pytorch.git /tmp/pytorch && \
 # Install patchelf
 # ADD ./common/install_patchelf.sh install_patchelf.sh
 #RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-RUN bash -x /build_scripts/install_cpython.sh
+ENV CPYTHON_VERSIONS="3.10.1"
+RUN echo "CPYTHON_VERSIONS=$CPYTHON_VERSIONS" && bash -x /build_scripts/install_cpython.sh
+#RUN bash -x /build_scripts/install_cpython.sh
 RUN cp $(which patchelf) /patchelf
 
 FROM patchelf as python
