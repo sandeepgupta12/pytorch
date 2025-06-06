@@ -209,6 +209,9 @@ jobs:
         with:
           docker-image: ${{ inputs.DOCKER_IMAGE }}
 
+      - name: Build Docker image for ppc64le
+        run: |
+          docker build -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
       - name: Build PyTorch binary
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' }}
         run: |
