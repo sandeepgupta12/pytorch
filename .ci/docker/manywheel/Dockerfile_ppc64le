@@ -81,16 +81,25 @@ RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 # EPEL for cmake
 FROM base as patchelf
 # Install patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
+RUN git clone --depth 1 --branch temp-gha-runner-v2 https://github.com/sandeepgupta12/pytorch.git /tmp/pytorch && \
+    cp /tmp/pytorch/.ci/docker/common/install_patchelf.sh /build_scripts/install_patchelf.sh 
+# ADD ./common/install_patchelf.sh install_patchelf.sh
+# RUN bash ./install_patchelf.sh && rm install_patchelf.sh
+# RUN cp $(which patchelf) /patchelf
+RUN bash /build_scripts/install_patchelf.sh && rm -r /build_scripts
 RUN cp $(which patchelf) /patchelf
 
 FROM patchelf as python
 # build python
-COPY manywheel/build_scripts /build_scripts
-ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
+RUN mkdir -p /build_scripts && \
+    cp -r /tmp/pytorch/.ci/docker/manywheel/build_scripts/* /build_scripts/ && \
+    cp /tmp/pytorch/.ci/docker/common/install_cpython.sh /build_scripts/install_cpython.sh && \
+    rm -rf /tmp/pytorch
+# COPY manywheel/build_scripts /build_scripts
+# ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 ENV SSL_CERT_FILE=
-RUN bash build_scripts/build.sh && rm -r build_scripts
+RUN bash /build_scripts/build.sh && rm -r /build_scripts
+#RUN bash build_scripts/build.sh && rm -r build_scripts
 #RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
 
 FROM base as final
