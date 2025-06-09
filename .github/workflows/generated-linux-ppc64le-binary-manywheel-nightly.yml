@@ -10,7 +10,7 @@ on:
     # NOTE: Meta Employees can trigger new nightlies using: https://fburl.com/trigger_pytorch_nightly_build
     branches:
       - nightly
-      - temp-gha-runner-v2
+      - temp-ppc64le-wheel-branch-v8
     tags:
       # NOTE: Binary build pipelines should only get triggered on release candidate builds
       # Release candidate tags look like: v1.11.0-rc1
@@ -37,6 +37,7 @@ concurrency:
 
 jobs:
   get-label-type:
+    
     name: get-label-type
     uses: pytorch/pytorch/.github/workflows/_runner-determinator.yml@main
     with:
@@ -44,8 +45,12 @@ jobs:
       issue_owner: ${{ github.event.pull_request.user.login || github.event.issue.user.login }}
       curr_branch: ${{ github.head_ref || github.ref_name }}
       curr_ref_type: ${{ github.ref_type }}
+  
+
   manywheel-py3_9-cpu-ppc64le-build:
+    
     uses: ./.github/workflows/_binary-build-linux.yml
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -53,8 +58,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.9"
       runs_on: ubuntu-24.04-ppc64le
@@ -66,8 +70,10 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_9-cpu-ppc64le-test:  # Testing
+    
     needs:
       - manywheel-py3_9-cpu-ppc64le-build
+      
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -76,8 +82,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.9"
       build_name: manywheel-py3_9-cpu-ppc64le
@@ -99,8 +104,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.9"
       build_name: manywheel-py3_9-cpu-ppc64le
@@ -119,8 +123,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.10"
       runs_on: ubuntu-24.04-ppc64le
@@ -132,7 +135,6 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_10-cpu-ppc64le-test:  # Testing
-    
     needs:
       - manywheel-py3_10-cpu-ppc64le-build
       
@@ -144,8 +146,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.10"
       build_name: manywheel-py3_10-cpu-ppc64le
@@ -167,8 +168,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.10"
       build_name: manywheel-py3_10-cpu-ppc64le
@@ -187,8 +187,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.11"
       runs_on: ubuntu-24.04-ppc64le
@@ -212,8 +211,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.11"
       build_name: manywheel-py3_11-cpu-ppc64le
@@ -235,8 +233,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.11"
       build_name: manywheel-py3_11-cpu-ppc64le
@@ -255,8 +252,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.12"
       runs_on: ubuntu-24.04-ppc64le
@@ -280,8 +276,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.12"
       build_name: manywheel-py3_12-cpu-ppc64le
@@ -303,8 +298,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.12"
       build_name: manywheel-py3_12-cpu-ppc64le
@@ -315,7 +309,7 @@ jobs:
   manywheel-py3_13-cpu-ppc64le-build:
     
     uses: ./.github/workflows/_binary-build-linux.yml
-   
+    
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -323,8 +317,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.13"
       runs_on: ubuntu-24.04-ppc64le
@@ -348,8 +341,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.13"
       build_name: manywheel-py3_13-cpu-ppc64le
@@ -371,8 +363,7 @@ jobs:
       #       favor of GPU_ARCH_VERSION
       DESIRED_CUDA: cpu
       GPU_ARCH_TYPE: cpu-ppc64le
-      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder:cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.13"
       build_name: manywheel-py3_13-cpu-ppc64le
