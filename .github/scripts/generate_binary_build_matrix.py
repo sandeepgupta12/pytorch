@@ -38,6 +38,8 @@ CPU_AARCH64_ARCH = ["cpu-aarch64"]
 
 CPU_S390X_ARCH = ["cpu-s390x"]
 
+CPU_PPC64LE_ARCH = ["cpu-ppc64le"]
+
 CUDA_AARCH64_ARCHES = ["12.9-aarch64"]
 
 
@@ -162,6 +164,8 @@ def arch_type(arch_version: str) -> str:
         return "cpu-aarch64"
     elif arch_version in CPU_S390X_ARCH:
         return "cpu-s390x"
+    elif arch_version in CPU_PPC64LE_ARCH:
+        return "cpu-ppc64le"
     elif arch_version in CUDA_AARCH64_ARCHES:
         return "cuda-aarch64"
     else:  # arch_version should always be "cpu" in this case
@@ -181,6 +185,7 @@ WHEEL_CONTAINER_IMAGES = {
     "cpu": "manylinux2_28-builder:cpu",
     "cpu-aarch64": "manylinux2_28_aarch64-builder:cpu-aarch64",
     "cpu-s390x": "pytorch/manylinuxs390x-builder:cpu-s390x",
+    "cpu-ppc64le": "pytorch/manylinuxppc64le-builder:cpu-ppc64le",
 }
 
 RELEASE = "release"
@@ -200,6 +205,7 @@ def translate_desired_cuda(gpu_arch_type: str, gpu_arch_version: str) -> str:
         "cpu": "cpu",
         "cpu-aarch64": "cpu",
         "cpu-s390x": "cpu",
+        "cpu-ppc64le": "cpu",
         "cuda": f"cu{gpu_arch_version.replace('.', '')}",
         "cuda-aarch64": f"cu{gpu_arch_version.replace('-aarch64', '').replace('.', '')}",
         "rocm": f"rocm{gpu_arch_version}",
@@ -297,6 +303,10 @@ def generate_wheels_matrix(
             # Only want the one arch as the CPU type is different and
             # uses different build/test scripts
             arches = ["cpu-s390x"]
+        elif os == "linux-ppc64le":
+            # Only want the one arch as the CPU type is different and
+            # uses different build/test scripts
+            arches = ["cpu-ppc64le"]
 
     ret: list[dict[str, str]] = []
     for python_version in python_versions:
@@ -307,12 +317,13 @@ def generate_wheels_matrix(
                 if arch_version == "cpu"
                 or arch_version == "cpu-aarch64"
                 or arch_version == "cpu-s390x"
+                or arch_version == "cpu-ppc64le"
                 or arch_version == "xpu"
                 else arch_version
             )
 
             # TODO: Enable python 3.13t on cpu-s390x
-            if gpu_arch_type == "cpu-s390x" and python_version == "3.13t":
+            if (gpu_arch_type == "cpu-s390x" or gpu_arch_type == "cpu-ppc64le") and python_version == "3.13t":
                 continue
 
             if use_split_build and (
