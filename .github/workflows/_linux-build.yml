@@ -176,6 +176,10 @@ jobs:
           job-id: ${{ steps.get-job-id.outputs.job-id }}
           job-name: ${{ steps.get-job-id.outputs.job-name }}
 
+      - name: Build Docker image for ppc64le
+        run: |
+          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          
       - name: Calculate docker image
         id: calculate-docker-image
         uses: pytorch/test-infra/.github/actions/calculate-docker-image@main
