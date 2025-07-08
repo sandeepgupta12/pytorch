@@ -53,6 +53,8 @@ else
     tar -xzf $AUTOCONF_ROOT.tar.gz
     cd $AUTOCONF_ROOT
 
+    # Ensure build-aux directory exists
+    mkdir -p build-aux
     # Update config.guess and config.sub scripts to ensure proper architecture detection
     curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
     curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
