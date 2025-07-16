@@ -1,0 +1,49 @@
+name: Build ppc64le manywheel docker images for ppc64le
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+  WITH_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/tags/v')) }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}-${{ github.event_name == 'workflow_dispatch' }}
+  cancel-in-progress: true
+
+jobs:
+  build-docker-cpu-ppc64le:
+    
+    environment: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/tags/v')) && 'docker-build') || '' }}
+    runs-on: ubuntu-24.04-ppc64le-4xlarge
+    steps:
+      - name: Checkout PyTorch
+        uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
+        with:
+          submodules: false
+          no-sudo: true
+
+      - name: Build Docker Image
+        run: |
+          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          #.ci/docker/manywheel/build.sh manylinuxs390x-builder:cpu-s390x -t manylinuxs390x-builder:cpu-s390x
+
+
+      - name: Cleanup docker
+        if: cancelled()
+        shell: bash
+        run: |
+          # If podman build command is interrupted,
+          # it can leave a couple of processes still running.
+          # Order them to stop for clean shutdown.
+          # It looks like sometimes some processes remain
+          # after first cleanup.
+          # Wait a bit and do cleanup again. It looks like it helps.
+          docker system prune --build -f || true
+          sleep 60
+          docker system prune --build -f || true
