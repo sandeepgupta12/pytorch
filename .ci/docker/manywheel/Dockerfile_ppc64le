@@ -94,21 +94,21 @@ RUN git clone --depth 1 --branch temp-gha-runner-v2 https://github.com/sandeepgu
 RUN bash /build_scripts/install_patchelf.sh && rm -r /build_scripts
 RUN cp $(which patchelf) /patchelf
 
-# FROM patchelf as python
+FROM patchelf as python
 
-# # Clone only required scripts from the PyTorch repo
-# RUN mkdir -p /build_scripts && \
-#     cp -r /tmp/pytorch/.ci/docker/manywheel/build_scripts/* /build_scripts/ && \
-#     cp /tmp/pytorch/.ci/docker/common/install_cpython.sh /build_scripts/install_cpython.sh && \
-#     rm -rf /tmp/pytorch
-# # build python
-# #COPY manywheel/build_scripts /build_scripts
-# #ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
-# ENV SSL_CERT_FILE=
-# # Run the build script
-# RUN bash /build_scripts/build.sh && rm -r /build_scripts
-# #RUN bash build_scripts/build.sh && rm -r build_scripts
-# #RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
+# Clone only required scripts from the PyTorch repo
+RUN mkdir -p /build_scripts && \
+    cp -r /tmp/pytorch/.ci/docker/manywheel/build_scripts/* /build_scripts/ && \
+    cp /tmp/pytorch/.ci/docker/common/install_cpython.sh /build_scripts/install_cpython.sh && \
+    rm -rf /tmp/pytorch
+# build python
+#COPY manywheel/build_scripts /build_scripts
+#ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
+ENV SSL_CERT_FILE=
+# Run the build script
+RUN bash /build_scripts/build.sh && rm -r /build_scripts
+#RUN bash build_scripts/build.sh && rm -r build_scripts
+#RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
 
 # FROM base as final
 # COPY --from=python             /opt/python                           /opt/python
