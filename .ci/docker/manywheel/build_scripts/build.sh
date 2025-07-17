@@ -40,111 +40,111 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
 
 # Install newest autoconf
 # If the architecture is not ppc64le, use the existing build_autoconf function
-if [ "$(uname -m)" != "ppc64le" ] ; then
-    build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
-else
-    # Download and extract Autoconf
-    curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
+# if [ "$(uname -m)" != "ppc64le" ] ; then
+#     build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+# else
+#     # Download and extract Autoconf
+#     curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
 
-    # Verify the integrity of the downloaded file using SHA-256 checksum
-    echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
+#     # Verify the integrity of the downloaded file using SHA-256 checksum
+#     echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
 
-    # Extract the downloaded tarball 
-    tar -xzf $AUTOCONF_ROOT.tar.gz
-    cd $AUTOCONF_ROOT
+#     # Extract the downloaded tarball 
+#     tar -xzf $AUTOCONF_ROOT.tar.gz
+#     cd $AUTOCONF_ROOT
 
-    # Ensure build-aux directory exists
-    mkdir -p build-aux
-    # Update config.guess and config.sub scripts to ensure proper architecture detection
-    curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
-    curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+#     # Ensure build-aux directory exists
+#     mkdir -p build-aux
+#     # Update config.guess and config.sub scripts to ensure proper architecture detection
+#     curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+#     curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
 
-    chmod +x build-aux/config.guess build-aux/config.sub
+#     chmod +x build-aux/config.guess build-aux/config.sub
 
-    # Configure the Autoconf build system with the correct host type for ppc64le
-    ./configure --host=powerpc64le-pc-linux-gnu
+#     # Configure the Autoconf build system with the correct host type for ppc64le
+#     ./configure --host=powerpc64le-pc-linux-gnu
 
-    # Build and install
-    make -j$(nproc)
-    make install
+#     # Build and install
+#     make -j$(nproc)
+#     make install
 
-    # Clean up
-    cd ..
-    rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
-fi
-autoconf --version
+#     # Clean up
+#     cd ..
+#     rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
+# fi
+# autoconf --version
 
-# Compile the latest Python releases.
-# (In order to have a proper SSL module, Python is compiled
-# against a recent openssl [see env vars above], which is linked
-# statically. We delete openssl afterwards.)
-build_openssl $OPENSSL_ROOT $OPENSSL_HASH
-/build_scripts/install_cpython.sh
+# # Compile the latest Python releases.
+# # (In order to have a proper SSL module, Python is compiled
+# # against a recent openssl [see env vars above], which is linked
+# # statically. We delete openssl afterwards.)
+# build_openssl $OPENSSL_ROOT $OPENSSL_HASH
+# /build_scripts/install_cpython.sh
 
-PY39_BIN=/opt/python/cp39-cp39/bin
+# PY39_BIN=/opt/python/cp39-cp39/bin
 
-# Our openssl doesn't know how to find the system CA trust store
-#   (https://github.com/pypa/manylinux/issues/53)
-# And it's not clear how up-to-date that is anyway
-# So let's just use the same one pip and everyone uses
-$PY39_BIN/pip install certifi
-ln -s $($PY39_BIN/python -c 'import certifi; print(certifi.where())') \
-      /opt/_internal/certs.pem
-# If you modify this line you also have to modify the versions in the
-# Dockerfiles:
-export SSL_CERT_FILE=/opt/_internal/certs.pem
+# # Our openssl doesn't know how to find the system CA trust store
+# #   (https://github.com/pypa/manylinux/issues/53)
+# # And it's not clear how up-to-date that is anyway
+# # So let's just use the same one pip and everyone uses
+# $PY39_BIN/pip install certifi
+# ln -s $($PY39_BIN/python -c 'import certifi; print(certifi.where())') \
+#       /opt/_internal/certs.pem
+# # If you modify this line you also have to modify the versions in the
+# # Dockerfiles:
+# export SSL_CERT_FILE=/opt/_internal/certs.pem
 
-# Install newest curl
-build_curl $CURL_ROOT $CURL_HASH
-rm -rf /usr/local/include/curl /usr/local/lib/libcurl* /usr/local/lib/pkgconfig/libcurl.pc
-hash -r
-curl --version
-curl-config --features
+# # Install newest curl
+# build_curl $CURL_ROOT $CURL_HASH
+# rm -rf /usr/local/include/curl /usr/local/lib/libcurl* /usr/local/lib/pkgconfig/libcurl.pc
+# hash -r
+# curl --version
+# curl-config --features
 
-# Install patchelf (latest with unreleased bug fixes)
-curl -sLOk https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz
-# check_sha256sum patchelf-0.9njs2.tar.gz $PATCHELF_HASH
-tar -xzf patchelf-0.10.tar.gz
-(cd patchelf-0.10 && ./configure && make && make install)
-rm -rf patchelf-0.10.tar.gz patchelf-0.10
+# # Install patchelf (latest with unreleased bug fixes)
+# curl -sLOk https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz
+# # check_sha256sum patchelf-0.9njs2.tar.gz $PATCHELF_HASH
+# tar -xzf patchelf-0.10.tar.gz
+# (cd patchelf-0.10 && ./configure && make && make install)
+# rm -rf patchelf-0.10.tar.gz patchelf-0.10
 
-# Install latest pypi release of auditwheel
-$PY39_BIN/pip install auditwheel
-ln -s $PY39_BIN/auditwheel /usr/local/bin/auditwheel
+# # Install latest pypi release of auditwheel
+# $PY39_BIN/pip install auditwheel
+# ln -s $PY39_BIN/auditwheel /usr/local/bin/auditwheel
 
-# Clean up development headers and other unnecessary stuff for
-# final image
-yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
-    avahi freetype bitstream-vera-fonts \
-    ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
-yum -y install ${MANYLINUX1_DEPS}
-yum -y clean all > /dev/null 2>&1
-yum list installed
+# # Clean up development headers and other unnecessary stuff for
+# # final image
+# yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
+#     avahi freetype bitstream-vera-fonts \
+#     ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
+# yum -y install ${MANYLINUX1_DEPS}
+# yum -y clean all > /dev/null 2>&1
+# yum list installed
 
-# we don't need libpython*.a, and they're many megabytes
-find /opt/_internal -name '*.a' -print0 | xargs -0 rm -f
-# Strip what we can -- and ignore errors, because this just attempts to strip
-# *everything*, including non-ELF files:
-find /opt/_internal -type f -print0 \
-    | xargs -0 -n1 strip --strip-unneeded 2>/dev/null || true
-# We do not need the Python test suites, or indeed the precompiled .pyc and
-# .pyo files. Partially cribbed from:
-#    https://github.com/docker-library/python/blob/master/3.4/slim/Dockerfile  # @lint-ignore
-find /opt/_internal \
-     \( -type d -a -name test -o -name tests \) \
-  -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
-  -print0 | xargs -0 rm -f
+# # we don't need libpython*.a, and they're many megabytes
+# find /opt/_internal -name '*.a' -print0 | xargs -0 rm -f
+# # Strip what we can -- and ignore errors, because this just attempts to strip
+# # *everything*, including non-ELF files:
+# find /opt/_internal -type f -print0 \
+#     | xargs -0 -n1 strip --strip-unneeded 2>/dev/null || true
+# # We do not need the Python test suites, or indeed the precompiled .pyc and
+# # .pyo files. Partially cribbed from:
+# #    https://github.com/docker-library/python/blob/master/3.4/slim/Dockerfile  # @lint-ignore
+# find /opt/_internal \
+#      \( -type d -a -name test -o -name tests \) \
+#   -o \( -type f -a -name '*.pyc' -o -name '*.pyo' \) \
+#   -print0 | xargs -0 rm -f
 
-for PYTHON in /opt/python/*/bin/python; do
-    # Smoke test to make sure that our Pythons work, and do indeed detect as
-    # being manylinux compatible:
-    $PYTHON $MY_DIR/manylinux1-check.py
-    # Make sure that SSL cert checking works
-    $PYTHON $MY_DIR/ssl-check.py
-done
+# for PYTHON in /opt/python/*/bin/python; do
+#     # Smoke test to make sure that our Pythons work, and do indeed detect as
+#     # being manylinux compatible:
+#     $PYTHON $MY_DIR/manylinux1-check.py
+#     # Make sure that SSL cert checking works
+#     $PYTHON $MY_DIR/ssl-check.py
+# done
 
-# Fix libc headers to remain compatible with C99 compilers.
-find /usr/include/ -type f -exec sed -i 's/\bextern _*inline_*\b/extern __inline __attribute__ ((__gnu_inline__))/g' {} +
+# # Fix libc headers to remain compatible with C99 compilers.
+# find /usr/include/ -type f -exec sed -i 's/\bextern _*inline_*\b/extern __inline __attribute__ ((__gnu_inline__))/g' {} +
 
-# Now we can delete our built SSL
-rm -rf /usr/local/ssl
+# # Now we can delete our built SSL
+# rm -rf /usr/local/ssl
