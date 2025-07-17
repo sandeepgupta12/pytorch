@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-24.04-ppc64le
     steps:
       - name: Checkout PyTorch
-        uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
+        uses: actions/checkout@v4
         with:
           submodules: false
           no-sudo: true
