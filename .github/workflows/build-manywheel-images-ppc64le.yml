@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          docker build --no-cache -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
           #.ci/docker/manywheel/build.sh manylinuxs390x-builder:cpu-s390x -t manylinuxs390x-builder:cpu-s390x
 
 
