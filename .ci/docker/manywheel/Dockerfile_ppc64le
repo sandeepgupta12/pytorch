@@ -110,11 +110,11 @@ RUN bash /build_scripts/build.sh && rm -r /build_scripts
 #RUN bash build_scripts/build.sh && rm -r build_scripts
 #RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
 
-FROM base as final
-COPY --from=python             /opt/python                           /opt/python
-COPY --from=python             /opt/_internal                        /opt/_internal
-COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel  /usr/local/bin/auditwheel
-COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
+# FROM base as final
+# COPY --from=python             /opt/python                           /opt/python
+# COPY --from=python             /opt/_internal                        /opt/_internal
+# COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel  /usr/local/bin/auditwheel
+# COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
 
 # RUN alternatives --set python /usr/bin/python3.12
 # RUN alternatives --set python3 /usr/bin/python3.12
