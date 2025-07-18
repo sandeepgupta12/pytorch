@@ -59,12 +59,16 @@ else
     curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
     curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
 
+    chmod +x /tmp/config.guess /tmp/config.sub
+    mv /tmp/config.guess build-aux/config.guess
+    mv /tmp/config.sub build-aux/config.sub
+
     # Debug: Confirm both files were downloaded
     ls -lh build-aux/config.*
 
     # Show config.guess output to verify architecture
     ./build-aux/config.guess || echo "Failed to detect architecture"
-    
+
     chmod +x build-aux/config.guess build-aux/config.sub
 
     # Configure the Autoconf build system with the correct host type for ppc64le
