@@ -43,42 +43,31 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
 if [ "$(uname -m)" != "ppc64le" ] ; then
     build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 else
-    # Download and extract Autoconf
     curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
 
-    # Verify the integrity of the downloaded file using SHA-256 checksum
     echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
 
-    # Extract the downloaded tarball 
     tar -xzf $AUTOCONF_ROOT.tar.gz
     cd $AUTOCONF_ROOT
 
-    # Ensure build-aux directory exists
     mkdir -p build-aux
-    # Update config.guess and config.sub scripts to ensure proper architecture detection
-    curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
-    curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+
+    curl -fLo /tmp/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+    curl -fLo /tmp/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
 
     chmod +x /tmp/config.guess /tmp/config.sub
+
     mv /tmp/config.guess build-aux/config.guess
     mv /tmp/config.sub build-aux/config.sub
 
-    # Debug: Confirm both files were downloaded
     ls -lh build-aux/config.*
 
-    # Show config.guess output to verify architecture
     ./build-aux/config.guess || echo "Failed to detect architecture"
 
-    chmod +x build-aux/config.guess build-aux/config.sub
-
-    # Configure the Autoconf build system with the correct host type for ppc64le
     ./configure --host=powerpc64le-pc-linux-gnu
-
-    # Build and install
     make -j$(nproc)
     make install
 
-    # Clean up
     cd ..
     rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
 fi
