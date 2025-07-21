@@ -53,18 +53,18 @@ else
     tar -xzf $AUTOCONF_ROOT.tar.gz
     cd $AUTOCONF_ROOT
 
-    # Update config.guess and config.sub scripts to ensure proper architecture detection
-    curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
-    curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+    # # Update config.guess and config.sub scripts to ensure proper architecture detection
+    # curl -sLo build-aux/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+    # curl -sLo build-aux/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
 
-    chmod +x build-aux/config.guess build-aux/config.sub
+    # chmod +x build-aux/config.guess build-aux/config.sub
     
-    # Configure the Autoconf build system with the correct host type for ppc64le
-    ./configure --host=powerpc64le-pc-linux-gnu
+    # # Configure the Autoconf build system with the correct host type for ppc64le
+    # ./configure --host=powerpc64le-pc-linux-gnu
 
-    # Build and install
-    make -j$(nproc)
-    make install
+    # # Build and install
+    # make -j$(nproc)
+    # make install
 
     # Clean up
     cd ..
