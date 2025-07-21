@@ -44,5 +44,5 @@ jobs:
     with:
       build-environment: linux-ppc64le-binary-manywheel
       docker-image-name: manylinuxppc64le-builder
-      runner: ubuntu-24.04-ppc64le
+      runner: ubuntu-24.04-ppc64le-2xlarge
     secrets: inherit
