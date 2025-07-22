@@ -106,7 +106,7 @@ RUN mkdir -p /build_scripts && \
 #ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 ENV SSL_CERT_FILE=
 # Run the build script
-RUN bash /build_scripts/build.sh && rm -r /build_scripts
+#RUN bash /build_scripts/build.sh && rm -r /build_scripts
 #RUN bash build_scripts/build.sh && rm -r build_scripts
 #RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
 
