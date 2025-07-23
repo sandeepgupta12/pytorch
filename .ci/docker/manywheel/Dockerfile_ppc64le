@@ -110,29 +110,29 @@ RUN bash /build_scripts/build.sh && rm -r /build_scripts
 #RUN bash build_scripts/build.sh && rm -r build_scripts
 #RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
 
-# FROM base as final
-# COPY --from=python             /opt/python                           /opt/python
-# COPY --from=python             /opt/_internal                        /opt/_internal
-# COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel  /usr/local/bin/auditwheel
-# COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
+FROM base as final
+COPY --from=python             /opt/python                           /opt/python
+COPY --from=python             /opt/_internal                        /opt/_internal
+COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel  /usr/local/bin/auditwheel
+COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
 
-# RUN alternatives --set python /usr/bin/python3.12
-# RUN alternatives --set python3 /usr/bin/python3.12
+RUN alternatives --set python /usr/bin/python3.12
+RUN alternatives --set python3 /usr/bin/python3.12
 
-# RUN pip-3.12 install typing_extensions
+RUN pip-3.12 install typing_extensions
 
-# # Install required Python packages
-# #RUN pip install --upgrade pip
-# #RUN pip install typing_extensions pyyaml setuptools
+# Install required Python packages
+#RUN pip install --upgrade pip
+#RUN pip install typing_extensions pyyaml setuptools
  
-# # Install test dependencies
-# RUN dnf install -y \
-#       protobuf-devel \
-#       protobuf-c-devel \
-#       protobuf-lite-devel \
-#       wget \
-#       patch
+# Install test dependencies
+RUN dnf install -y \
+      protobuf-devel \
+      protobuf-c-devel \
+      protobuf-lite-devel \
+      wget \
+      patch
 
-# # Set default entrypoint
-# ENTRYPOINT []
-# CMD ["/bin/bash"]
+# Set default entrypoint
+ENTRYPOINT []
+CMD ["/bin/bash"]
