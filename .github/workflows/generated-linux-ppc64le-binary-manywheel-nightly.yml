@@ -61,7 +61,7 @@ jobs:
       DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.9"
-      runs_on: uubuntu-24.04-ppc64le-4xlarge
+      runs_on: ubuntu-24.04-ppc64le-4xlarge
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
       timeout-minutes: 420
       build_name: manywheel-py3_9-cpu-ppc64le
