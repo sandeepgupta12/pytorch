@@ -99,7 +99,7 @@ on:
           commit with no cpp changes from this commit
         required: false
         type: boolean
-        default: false
+        default: true
 
     secrets:
       HUGGING_FACE_HUB_TOKEN:
@@ -158,6 +158,13 @@ jobs:
           role-session-name: gha-linux-build
           aws-region: us-east-1
 
+      - name: Get workflow job id
+        id: get-job-id
+        uses: ./.github/actions/get-workflow-job-id
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check if can use old whl build
         id: use-old-whl
         uses: ./.github/actions/reuse-old-whl
@@ -166,11 +173,13 @@ jobs:
           build-environment: ${{ inputs.build-environment }}
           run-id: ${{ github.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          job-id: ${{ steps.get-job-id.outputs.job-id }}
+          job-name: ${{ steps.get-job-id.outputs.job-name }}
 
       - name: Build Docker image for ppc64le
         run: |
-          docker build .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
-
+          docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          
       - name: Calculate docker image
         id: calculate-docker-image
         uses: pytorch/test-infra/.github/actions/calculate-docker-image@main
@@ -185,7 +194,7 @@ jobs:
           ECR_DOCKER_IMAGE: ${{ steps.calculate-docker-image.outputs.docker-image }}
         shell: bash
         run: |
-          tag=${ECR_DOCKER_IMAGE##*/}
+          tag=${ECR_DOCKER_IMAGE##*:}
           echo "docker pull ghcr.io/pytorch/ci-image:${tag/:/-}"
 
       - name: Pull docker image
@@ -197,13 +206,6 @@ jobs:
       - name: Parse ref
         id: parse-ref
         run: .github/scripts/parse_ref.py
-
-      - name: Get workflow job id
-        id: get-job-id
-        uses: ./.github/actions/get-workflow-job-id
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Apply the filter logic to the build step too if the test-config label is already there
       - name: Select all requested test configurations (if the test matrix is available)
@@ -283,7 +285,6 @@ jobs:
             # since some steps are skipped on s390x, if they are necessary, run them here
             env | grep '^GITHUB' >> "/tmp/github_env_${GITHUB_RUN_ID}"
             env | grep '^CI' >> "/tmp/github_env_${GITHUB_RUN_ID}"
-
           elif [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
             JENKINS_USER=""
             USED_IMAGE="${DOCKER_IMAGE_PPC64LE}"
@@ -293,7 +294,6 @@ jobs:
             DOCKER_SHELL_CMD="sleep 12h"
             env | grep '^GITHUB' >> "/tmp/github_env_${GITHUB_RUN_ID}"
             env | grep '^CI' >> "/tmp/github_env_${GITHUB_RUN_ID}"
-
           else
             JENKINS_USER="--user jenkins"
             USED_IMAGE="${DOCKER_IMAGE}"
@@ -318,6 +318,7 @@ jobs:
           else
             MEMORY_FLAGS=""
           fi
+
 
           # detached container should get cleaned up by teardown_ec2_linux
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
@@ -418,7 +419,7 @@ jobs:
           build-time: ${{ steps.build.outputs.build_time }}
 
       - name: Upload utilization stats
-        if: ${{ always() && steps.build.outcome != 'skipped' && !inputs.disable-monitor && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'}}
+        if: ${{ always() && steps.build.outcome != 'skipped' && !inputs.disable-monitor && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' }}
         continue-on-error: true
         uses: ./.github/actions/upload-utilization-stats
         with:
@@ -434,7 +435,7 @@ jobs:
         if: always() && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
 
       - name: Cleanup docker
-        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
+        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment == 'linux-ppc64le-binary-manywheel'
         shell: bash
         run: |
           # on s390x stop the container for clean worker stop
