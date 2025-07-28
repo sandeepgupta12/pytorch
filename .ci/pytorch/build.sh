@@ -1,7 +1,10 @@
 #!/bin/bash
 
 set -ex -o pipefail
-
+which python
+export PATH="/opt/python/cp312-cp312/bin:$PATH"
+export PYTHON_EXECUTABLE="/opt/python/cp312-cp312/bin/python3.12"
+which python
 # Required environment variable: $BUILD_ENVIRONMENT
 # (This is set by default in the Docker images we build, so you don't
 # need to set it yourself.
@@ -264,7 +267,7 @@ else
       if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
         python3 tools/packaging/split_wheel.py bdist_wheel
       else
-        WERROR=1 python setup.py bdist_wheel
+        WERROR=1 $PYTHON_EXECUTABLE setup.py bdist_wheel
       fi
     else
       python setup.py clean
@@ -275,7 +278,7 @@ else
         echo "USE_SPLIT_BUILD cannot be used with xla or rocm"
         exit 1
       else
-        python setup.py bdist_wheel
+        $PYTHON_EXECUTABLE setup.py bdist_wheel
       fi
     fi
     pip_install_whl "$(echo dist/*.whl)"
