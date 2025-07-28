@@ -112,7 +112,7 @@ RUN bash /build_scripts/build.sh && rm -r /build_scripts
 RUN /opt/python/cp312-cp312/bin/python3.12 -m ensurepip && \
     /opt/python/cp312-cp312/bin/python3.12 -m pip install --upgrade pip setuptools wheel
 
-    
+
 FROM base as final
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
@@ -139,3 +139,6 @@ RUN dnf install -y \
 # Set default entrypoint
 ENTRYPOINT []
 CMD ["/bin/bash"]
+
+# cmake-3.28.0 from pip for onnxruntime
+RUN python3 -mpip install cmake==3.28.0
