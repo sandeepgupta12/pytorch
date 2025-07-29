@@ -51,7 +51,6 @@ RUN yum -y install epel-release && \
       python3.12-setuptools \
       python3.12-pip \
       python3-virtualenv \
-      python3.12-pyyaml \
       python3.12-numpy \
       python3.12-wheel \
       python3.12-cryptography \
@@ -121,14 +120,14 @@ COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/
 RUN alternatives --set python /usr/bin/python3.12
 RUN alternatives --set python3 /usr/bin/python3.12
 
-RUN /opt/python/cp312-cp312/bin/python3.12 -m ensurepip && \
-    /opt/python/cp312-cp312/bin/python3.12 -m pip install --upgrade pip setuptools wheel
-    
+# RUN /opt/python/cp312-cp312/bin/python3.12 -m ensurepip && \
+#     /opt/python/cp312-cp312/bin/python3.12 -m pip install --upgrade pip setuptools wheel
+
 RUN pip-3.12 install typing_extensions
 
 # Install required Python packages
 #RUN pip install --upgrade pip
-RUN pip-3.12 install typing_extensions pyyaml setuptools
+# RUN pip-3.12 install typing_extensions pyyaml setuptools
  
 # Install test dependencies
 RUN dnf install -y \
@@ -143,4 +142,4 @@ ENTRYPOINT []
 CMD ["/bin/bash"]
 
 # cmake-3.28.0 from pip for onnxruntime
-RUN python3 -mpip install cmake==3.28.0
+#RUN python3 -mpip install cmake==3.28.0
