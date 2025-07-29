@@ -123,7 +123,13 @@ RUN alternatives --set python3 /usr/bin/python3.12
 RUN /opt/python/cp312-cp312/bin/python3.12 -m ensurepip && \
     /opt/python/cp312-cp312/bin/python3.12 -m pip install --upgrade pip setuptools wheel
 
-RUN pip-3.12 install typing_extensions
+# Use pip-3.12 to install clean versions of needed packages (avoid yum-installed PyYAML)
+RUN pip-3.12 install --no-cache-dir \
+    typing_extensions \
+    pyyaml==6.0.2 \
+    requests==2.27.1
+
+#RUN pip-3.12 install typing_extensions
 
 # Install required Python packages
 #RUN pip install --upgrade pip

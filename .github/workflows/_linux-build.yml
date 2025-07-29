@@ -206,14 +206,14 @@ jobs:
         run: .github/scripts/parse_ref.py
 
       # Apply the filter logic to the build step too if the test-config label is already there
-      - name: Select all requested test configurations (if the test matrix is available)
-        id: filter
-        uses: ./.github/actions/filter-test-configs
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          test-matrix: ${{ inputs.test-matrix }}
-          selected-test-configs: ${{ inputs.selected-test-configs }}
-          job-name: ${{ steps.get-job-id.outputs.job-name }}
+      # - name: Select all requested test configurations (if the test matrix is available)
+      #   id: filter
+      #   uses: ./.github/actions/filter-test-configs
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     test-matrix: ${{ inputs.test-matrix }}
+      #     selected-test-configs: ${{ inputs.selected-test-configs }}
+      #     job-name: ${{ steps.get-job-id.outputs.job-name }}
 
       - name: Start monitoring script
         id: monitor-script
@@ -346,10 +346,11 @@ jobs:
           if [[ ${BUILD_ENVIRONMENT} == *"s390x"* ]]; then
             docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements.txt"
           fi
-          if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
-            docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements.txt"
-            docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements-build.txt"
-          fi
+          # if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
+            
+          #   docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements.txt"
+          #   docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements-build.txt"
+          # fi
 
           docker exec -t "${container_name}" sh -c '.ci/pytorch/build.sh'
 
