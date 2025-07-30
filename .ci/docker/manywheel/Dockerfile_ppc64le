@@ -121,6 +121,5 @@ RUN dnf install -y \
   
 
 #RUN env GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True pip3 install grpcio
-
 # cmake-3.28.0 from pip for onnxruntime
 RUN python3 -mpip install cmake==3.28.0
