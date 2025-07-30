@@ -9,7 +9,7 @@
 #include <ATen/native/mkldnn/Matmul.h>
 #include <ATen/native/mkldnn/Linear.h>
 #include <ATen/native/Resize.h>
-#if !defined(__s390x__) && !defined(__powerpc__)
+#if !defined(__s390x__) && !defined(__powerpc__) && !defined(__powerpc64__) && !defined(__PPC__) && !defined(__ppc__)
 #include <cpuinfo.h>
 #endif
 
@@ -296,7 +296,7 @@ _scaled_mm_out_cpu(const Tensor& mat1, const Tensor& mat2,
           std::optional<c10::ScalarType> out_dtype,
           bool use_fast_accum,
           Tensor& out) {
-#if AT_MKLDNN_ENABLED() && !defined(__powerpc__)
+#if AT_MKLDNN_ENABLED() && !defined(__powerpc__) && !defined(__powerpc64__) && !defined(__PPC__) && !defined(__ppc__)
   if (at::globalContext().userEnabledMkldnn()) {
     bool mixed_dtype = mat1.scalar_type() != mat2.scalar_type();
     if ((!mixed_dtype && cpuinfo_has_x86_amx_int8()) ||

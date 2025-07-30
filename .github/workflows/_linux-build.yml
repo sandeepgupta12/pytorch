@@ -244,6 +244,10 @@ jobs:
           cache_dir: .pytest_cache
           job_identifier: ${{ github.workflow }}_${{ inputs.build-environment }}
           s3_bucket: ${{ inputs.s3-bucket }}
+      - name: Check GCC predefined macros for PowerPC
+        run: |
+          echo "Checking GCC predefined macros:"
+          echo | gcc -dM -E - | grep -i power || echo "No power-related macros found"
 
       - name: Build
         if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && steps.use-old-whl.outputs.reuse != 'true'
