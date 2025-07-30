@@ -1,4 +1,3 @@
-# Use the manylinux_2_28 base image for ppc64le
 FROM quay.io/pypa/manylinux_2_28_ppc64le as base
 
 # Language variables
@@ -6,72 +5,71 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 ENV LANGUAGE=C.UTF-8
 
+# there is a bugfix in gcc >= 14 for precompiled headers and s390x vectorization interaction.
+# with earlier gcc versions test/inductor/test_cpu_cpp_wrapper.py will fail.
 ARG DEVTOOLSET_VERSION=14
+# Installed needed OS packages. This is to support all
+# the binary builds (torch, vision, audio, text, data)
+RUN yum -y install epel-release
+RUN yum -y update
+RUN yum install -y \
+  sudo \
+  autoconf \
+  automake \
+  bison \
+  bzip2 \
+  curl \
+  diffutils \
+  file \
+  git \
+  make \
+  patch \
+  perl \
+  unzip \
+  util-linux \
+  wget \
+  which \
+  xz \
+  yasm \
+  less \
+  zstd \
+  libgomp \
+  gcc-toolset-${DEVTOOLSET_VERSION}-gcc \
+  gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
+  gcc-toolset-${DEVTOOLSET_VERSION}-binutils \
+  gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
+  cmake \
+  rust \
+  cargo \
+  llvm-devel \
+  libzstd-devel \
+  python3.12-devel \
+  python3.12-test \
+  python3.12-setuptools \
+  python3.12-pip \
+  python3-virtualenv \
+  python3.12-pyyaml \
+  python3.12-numpy \
+  python3.12-wheel \
+  python3.12-cryptography \
+  blas-devel \
+  openblas-devel \
+  lapack-devel \
+  atlas-devel \
+  libjpeg-devel \
+  libxslt-devel \
+  libxml2-devel \
+  openssl-devel \
+  valgrind \
+  ninja-build
 
-# Create symbolic links for Python 3.12
-#RUN ln -sf /opt/python/cp312-cp312/bin/python3.12 /usr/bin/python3 && \
-#    ln -sf /opt/python/cp312-cp312/bin/python3.12 /usr/bin/python
-
-# Install required system dependencies
-RUN yum -y install epel-release && \
-    yum -y update && \
-    yum install -y \
-      sudo \
-      autoconf \
-      automake \
-      bison \
-      bzip2 \
-      curl \
-      diffutils \
-      file \
-      git \
-      make \
-      patch \
-      perl \
-      unzip \
-      util-linux \
-      wget \
-      which \
-      xz \
-      yasm \
-      less \
-      zstd \
-      libgomp \
-      gcc-toolset-${DEVTOOLSET_VERSION}-gcc \
-      gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
-      gcc-toolset-${DEVTOOLSET_VERSION}-binutils \
-      gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
-      cmake \
-      ninja-build \
-      rust \
-      cargo \
-      llvm-devel \
-      libzstd-devel \
-      python3.12-devel \
-      python3.12-setuptools \
-      python3.12-pip \
-      python3-virtualenv \
-      python3.12-numpy \
-      python3.12-wheel \
-      python3.12-cryptography \
-      blas-devel \
-      openblas-devel \
-      lapack-devel \
-      atlas-devel \
-      libjpeg-devel \
-      libxslt-devel \
-      libxml2-devel \
-      openssl-devel \
-      valgrind
-  
-
-# Ensure the correct Python version is used
-#ENV PATH=/opt/python/cp312-cp312/bin:$PATH
-# Add gcc-toolset to the path
 ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
 
-# Configure git to avoid safe directory issues
+# git236+ would refuse to run git commands in repos owned by other users
+# Which causes version check to fail, as pytorch repo is bind-mounted into the image
+# Override this behaviour by treating every folder as safe
+# For more details see https://github.com/pytorch/pytorch/issues/78659#issuecomment-1144107327
 RUN git config --global --add safe.directory "*"
 
 # installed python doesn't have development parts. Rebuild it from scratch
@@ -79,37 +77,26 @@ RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 
 # EPEL for cmake
 FROM base as patchelf
-
-# Instead of ADD ./common/install_cpython.sh ...
-RUN git clone --depth 1 --branch temp-gha-runner-v2 https://github.com/sandeepgupta12/pytorch.git /tmp/pytorch && \
+RUN git clone --depth 1 --branch temp-gha-runner-v3 https://github.com/sandeepgupta12/pytorch.git /tmp/pytorch && \
     cp /tmp/pytorch/.ci/docker/common/install_patchelf.sh /build_scripts/install_patchelf.sh 
 # Install patchelf
-# ADD ./common/install_patchelf.sh install_patchelf.sh
+#ADD ./common/install_patchelf.sh install_patchelf.sh
 #RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-#ENV CPYTHON_VERSIONS="3.10.1"
-#RUN echo "CPYTHON_VERSIONS=$CPYTHON_VERSIONS" && bash -x /build_scripts/install_cpython.sh
-#ENV SSL_CERT_FILE=""
-#RUN curl -fL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
 RUN bash /build_scripts/install_patchelf.sh && rm -r /build_scripts
 RUN cp $(which patchelf) /patchelf
 
 FROM patchelf as python
-
+# build python
 # Clone only required scripts from the PyTorch repo
 RUN mkdir -p /build_scripts && \
     cp -r /tmp/pytorch/.ci/docker/manywheel/build_scripts/* /build_scripts/ && \
     cp /tmp/pytorch/.ci/docker/common/install_cpython.sh /build_scripts/install_cpython.sh && \
     rm -rf /tmp/pytorch
-# build python
 #COPY manywheel/build_scripts /build_scripts
 #ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 ENV SSL_CERT_FILE=
-# # Run the build script
-RUN bash /build_scripts/build.sh && rm -r /build_scripts
 #RUN bash build_scripts/build.sh && rm -r build_scripts
-#RUN bash build_scripts/build.sh || (echo "Checksum verification failed!" && exit 1)
-
-
+RUN bash /build_scripts/build.sh && rm -r /build_scripts
 
 FROM base as final
 COPY --from=python             /opt/python                           /opt/python
@@ -120,32 +107,20 @@ COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/
 RUN alternatives --set python /usr/bin/python3.12
 RUN alternatives --set python3 /usr/bin/python3.12
 
-RUN /opt/python/cp312-cp312/bin/python3.12 -m ensurepip && \
-    /opt/python/cp312-cp312/bin/python3.12 -m pip install --upgrade pip setuptools wheel
+RUN pip-3.12 install typing_extensions
 
-# Use pip-3.12 to install clean versions of needed packages (avoid yum-installed PyYAML)
-RUN pip-3.12 install --no-cache-dir \
-    typing_extensions \
-    pyyaml==6.0.2 \
-    requests==2.27.1
-
-#RUN pip-3.12 install typing_extensions
-
-# Install required Python packages
-#RUN pip install --upgrade pip
-# RUN pip-3.12 install typing_extensions pyyaml setuptools
- 
-# Install test dependencies
-RUN dnf install -y \
-      protobuf-devel \
-      protobuf-c-devel \
-      protobuf-lite-devel \
-      wget \
-      patch
-
-# Set default entrypoint
 ENTRYPOINT []
 CMD ["/bin/bash"]
 
+# install test dependencies:
+# - grpcio requires system openssl, bundled crypto fails to build
+RUN dnf install -y \
+  hdf5-devel \
+  python3-h5py \
+  git
+  
+
+#RUN env GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True pip3 install grpcio
+
 # cmake-3.28.0 from pip for onnxruntime
-RUN python3 -m pip install cmake==3.28.0
+RUN python3 -mpip install cmake==3.28.0

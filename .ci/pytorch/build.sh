@@ -1,10 +1,10 @@
 #!/bin/bash
 
 set -ex -o pipefail
-which python
-export PATH="/opt/python/cp312-cp312/bin:$PATH"
-export PYTHON_EXECUTABLE="/opt/python/cp312-cp312/bin/python3.12"
-which python
+# which python
+# export PATH="/opt/python/cp312-cp312/bin:$PATH"
+# export PYTHON_EXECUTABLE="/opt/python/cp312-cp312/bin/python3.12"
+# which python
 # Required environment variable: $BUILD_ENVIRONMENT
 # (This is set by default in the Docker images we build, so you don't
 # need to set it yourself.
@@ -258,7 +258,8 @@ else
     # set only when building other architectures
     # or building non-XLA tests.
     if [[ "$BUILD_ENVIRONMENT" != *rocm*  &&
-          "$BUILD_ENVIRONMENT" != *xla* ]]; then
+          "$BUILD_ENVIRONMENT" != *xla* && 
+          "$BUILD_ENVIRONMENT" != *ppc64le* ]]; then
       # Install numpy-2.0.2 for builds which are backward compatible with 1.X
       python -mpip install numpy==2.0.2
 
@@ -267,7 +268,7 @@ else
       if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
         python3 tools/packaging/split_wheel.py bdist_wheel
       else
-        WERROR=1 $PYTHON_EXECUTABLE setup.py bdist_wheel
+        WERROR=1 python setup.py bdist_wheel
       fi
     else
       python setup.py clean
@@ -278,7 +279,7 @@ else
         echo "USE_SPLIT_BUILD cannot be used with xla or rocm"
         exit 1
       else
-        $PYTHON_EXECUTABLE setup.py bdist_wheel
+        python setup.py bdist_wheel
       fi
     fi
     pip_install_whl "$(echo dist/*.whl)"
