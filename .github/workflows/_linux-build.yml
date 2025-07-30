@@ -349,7 +349,6 @@ jobs:
           if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
             
             docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements.txt"
-            docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements-build.txt"
           fi
 
           
