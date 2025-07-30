@@ -148,4 +148,4 @@ ENTRYPOINT []
 CMD ["/bin/bash"]
 
 # cmake-3.28.0 from pip for onnxruntime
-#RUN python3 -mpip install cmake==3.28.0
+RUN python3 -mpip install cmake==3.28.0
