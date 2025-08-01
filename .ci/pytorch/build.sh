@@ -97,6 +97,11 @@ if [[ "$BUILD_ENVIRONMENT" == *aarch64* ]]; then
   export USE_MKLDNN_ACL=1
   export ACL_ROOT_DIR=/ComputeLibrary
 fi
+if [[ "$BUILD_ENVIRONMENT" == *ppc64le* ]]; then
+  export USE_MKLDNN=0
+  export USE_MKLDNN_ACL=0
+  
+fi
 
 if [[ "$BUILD_ENVIRONMENT" == *libtorch* ]]; then
   POSSIBLE_JAVA_HOMES=()
