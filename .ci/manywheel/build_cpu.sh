@@ -53,22 +53,6 @@ DEPS_SONAME=(
 
 rm -rf /usr/local/cuda*
 
-if [[ "$(uname -m)" == "ppc64le" ]]; then
-    echo "Disabling ld.gold for ppc64le"
-     # Remove gold from CFLAGS, CXXFLAGS, LDFLAGS
-    export CFLAGS="$(echo "${CFLAGS}" | sed 's/-fuse-ld=gold//g')"
-    export CXXFLAGS="$(echo "${CXXFLAGS}" | sed 's/-fuse-ld=gold//g')"
-    export LDFLAGS="$(echo "${LDFLAGS}" | sed 's/-fuse-ld=gold//g')"
-
-    # Pass to CMake
-    CMAKE_ARGS+=(
-        "-DCMAKE_EXE_LINKER_FLAGS='${LDFLAGS}'"
-        "-DCMAKE_SHARED_LINKER_FLAGS='${LDFLAGS}'"
-    )
-    # Clean previous build cache
-    rm -rf build/ CMakeCache.txt CMakeFiles/
-fi
-
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
     BUILD_SCRIPT=build_common.sh
