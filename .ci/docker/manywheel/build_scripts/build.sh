@@ -40,7 +40,7 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
 
 # Install newest autoconf
 # If the architecture is not ppc64le, use the existing build_autoconf function
-#if [ "$(uname -m)" != "ppc64le" ] ; then
+if [ "$(uname -m)" != "ppc64le" ] ; then
     build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 # else
 #     curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
@@ -70,7 +70,7 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
 
 #     cd ..
 #     rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
-#fi
+fi
 autoconf --version
 
 # Compile the latest Python releases.
