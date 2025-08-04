@@ -9,7 +9,7 @@
 #include <ATen/native/mkldnn/Matmul.h>
 #include <ATen/native/mkldnn/Linear.h>
 #include <ATen/native/Resize.h>
-#if !defined(__s390x__) && !defined(__powerpc__) && !defined(__powerpc64__) && !defined(__PPC__) && !defined(__ppc__)
+#if !defined(__s390x__) && !defined(__powerpc__)
 #include <cpuinfo.h>
 #endif
 
