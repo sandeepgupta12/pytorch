@@ -240,10 +240,20 @@ jobs:
         with:
           docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
 
-      - name: Build Docker image for ppc64le
-        run: |
-          docker build --network=host -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
+      # - name: Build Docker image for ppc64le
+      #   run: |
+      #     docker build --network=host -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
 
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ppc64le-builder-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          gunzip -c /tmp/ppc64le-builder.tar.gz | docker load
+          
       - name: Build PyTorch binary
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' }}
         env:

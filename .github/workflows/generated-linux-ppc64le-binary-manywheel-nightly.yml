@@ -45,11 +45,40 @@ jobs:
       curr_branch: ${{ github.head_ref || github.ref_name }}
       curr_ref_type: ${{ github.ref_type }}
   
+  build-docker-image:
+    name: Build Docker image
+    runs-on: ubuntu-24.04-ppc64le-4xlarge
+    outputs:
+      image-tag: ${{ steps.set-tag.outputs.image-tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Docker image tag
+        id: set-tag
+        run: echo "image-tag=pytorch/manylinuxppc64le-builder:cpu-ppc64le-main" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker image
+        run: |
+          docker build --network=host \
+            -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le \
+            -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
+
+      - name: Save Docker image as tarball (for runner reuse)
+        run: |
+          docker save pytorch/manylinuxppc64le-builder:cpu-ppc64le-main | gzip > /tmp/ppc64le-builder.tar.gz
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ppc64le-builder-image
+          path: /tmp/ppc64le-builder.tar.gz
 
   manywheel-py3_9-cpu-ppc64le-build:
     
     uses: ./.github/workflows/_binary-build-linux.yml
-    
+    needs:
+      - build-docker-image
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
