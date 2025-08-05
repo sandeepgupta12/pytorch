@@ -223,6 +223,9 @@ jobs:
         uses: pytorch/test-infra/.github/actions/pull-docker-image@main
         with:
           docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
+      - name: Build Docker image for ppc64le
+        run: |
+          docker build --network=host -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
 
       - name: Test Pytorch binary
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' }}
