@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          path: pytorch
 
       - name: Set Docker image tag
         id: set-tag
@@ -61,7 +63,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build --network=host \
-            -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le \
+            -f pytorch/.ci/docker/manywheel/Dockerfile_ppc64le \
             -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
 
       - name: Save Docker image as tarball (for runner reuse)
