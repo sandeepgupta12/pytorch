@@ -311,7 +311,7 @@ if [[ "$(uname)" == 'Linux' &&  "$PACKAGE_TYPE" == 'manywheel' ]]; then
   # gcc 11 - CUDA 11.8, xpu, rocm
   # gcc 13 - CUDA 12.6, 12.8 and cpu
   # Please see issue for reference: https://github.com/pytorch/pytorch/issues/152426
-  if [[ "$(uname -m)" == "s390x" && "$(uname -m)" != "ppc64le" ]]; then
+  if [[ "$(uname -m)" == "s390x" || "$(uname -m)" == "ppc64le" ]]; then
     cxx_abi="19"
   elif [[ "$DESIRED_CUDA" != 'xpu' && "$DESIRED_CUDA" != 'rocm'* ]]; then
     cxx_abi="18"
