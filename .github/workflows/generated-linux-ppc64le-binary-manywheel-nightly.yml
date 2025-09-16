@@ -47,7 +47,7 @@ jobs:
   
   build-docker-image:
     name: Build Docker image
-    runs-on: ubuntu-24.04-ppc64le-4xlarge
+    runs-on: ubuntu-24.04-ppc64le
     outputs:
       image-tag: ${{ steps.set-tag.outputs.image-tag }}
     steps:
@@ -92,7 +92,7 @@ jobs:
       DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.13"
-      runs_on: ubuntu-24.04-ppc64le-4xlarge
+      runs_on: ubuntu-24.04-ppc64le
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
       timeout-minutes: 420
       build_name: manywheel-py3_13-cpu-ppc64le
@@ -119,7 +119,7 @@ jobs:
       DESIRED_PYTHON: "3.13"
       build_name: manywheel-py3_13-cpu-ppc64le
       build_environment: linux-ppc64le-binary-manywheel
-      runs_on: ubuntu-24.04-ppc64le-4xlarge
+      runs_on: ubuntu-24.04-ppc64le
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -161,7 +161,7 @@ jobs:
       DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le-main
       use_split_build: False
       DESIRED_PYTHON: "3.14"
-      runs_on: ubuntu-24.04-ppc64le-4xlarge
+      runs_on: ubuntu-24.04-ppc64le
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
       timeout-minutes: 420
       build_name: manywheel-py3_14-cpu-ppc64le
@@ -188,7 +188,7 @@ jobs:
       DESIRED_PYTHON: "3.14"
       build_name: manywheel-py3_14-cpu-ppc64le
       build_environment: linux-ppc64le-binary-manywheel
-      runs_on: ubuntu-24.04-ppc64le-4xlarge
+      runs_on: ubuntu-24.04-ppc64le
       ALPINE_IMAGE: "docker.io/ppc64le/alpine"
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
