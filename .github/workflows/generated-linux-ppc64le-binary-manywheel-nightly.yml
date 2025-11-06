@@ -149,7 +149,6 @@ jobs:
     uses: ./.github/workflows/_binary-build-linux.yml
     needs:
       - build-docker-image
-      - manywheel-py3_13-cpu-ppc64le-upload
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
