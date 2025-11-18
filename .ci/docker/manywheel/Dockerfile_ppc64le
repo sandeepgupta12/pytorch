@@ -82,6 +82,7 @@ RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 # EPEL for cmake
 FROM base as patchelf
 RUN git clone --depth 1 --branch temp-gha-runner-v3 https://github.com/sandeepgupta12/pytorch.git /tmp/pytorch && \
+    mkdir -p /build_scripts && \
     cp /tmp/pytorch/.ci/docker/common/install_patchelf.sh /build_scripts/install_patchelf.sh 
 # Install patchelf
 #ADD ./common/install_patchelf.sh install_patchelf.sh
