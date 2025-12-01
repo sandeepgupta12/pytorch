@@ -157,11 +157,7 @@ jobs:
 
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
-<<<<<<< HEAD
-        if: ${{ inputs.aws-role-to-assume != '' && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' }}
-=======
         if: ${{ inputs.aws-role-to-assume != '' && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' }}
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         with:
           role-to-assume: ${{ inputs.aws-role-to-assume }}
           role-session-name: gha-linux-build
@@ -313,10 +309,6 @@ jobs:
             DOCKER_SHELL_CMD=
           fi
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
           # Compute memory limits, but skip setting them for ppc64le
           if [[ ${BUILD_ENVIRONMENT} != *"ppc64le"* ]]; then
             
@@ -329,34 +321,6 @@ jobs:
           else
             MEMORY_FLAGS=""
           fi
-<<<<<<< HEAD
-=======
-
-          if [[ ${BUILD_ENVIRONMENT} == *"riscv64"* ]]; then
-            # EC2 specific setup for RISC-V emulation
-            # Ensure binfmt_misc is available
-            echo "Mounting binfmt_misc filesystem"
-            sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null || true
-
-            echo "QEMU registration: multiarch/qemu-user-static"
-            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
-
-            # Final verification
-            echo "Checking binfmt_misc status:"
-            ls -la /proc/sys/fs/binfmt_misc/ 2>/dev/null || echo "Cannot access binfmt_misc directory"
-
-            if [ -f /proc/sys/fs/binfmt_misc/qemu-riscv64 ]; then
-              echo "qemu-riscv64 registration successful"
-            else
-              echo "qemu-riscv64 registration failed - proceeding without emulation"
-              echo "This may cause RISC-V builds to fail"
-            fi
-
-            RISCV_DOCKER_ARGS="--privileged"
-          else
-            RISCV_DOCKER_ARGS=
-          fi
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
 
           # detached container should get cleaned up by teardown_ec2_linux
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
@@ -379,10 +343,7 @@ jobs:
             -e HUGGING_FACE_HUB_TOKEN \
             -e SCRIBE_GRAPHQL_ACCESS_TOKEN \
             -e BUILD_ADDITIONAL_PACKAGES \
-<<<<<<< HEAD
             
-=======
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
             --env-file="/tmp/github_env_${GITHUB_RUN_ID}" \
             --security-opt seccomp=unconfined \
             --cap-add=SYS_PTRACE \
@@ -456,11 +417,7 @@ jobs:
 
       - name: Store PyTorch Build Artifacts for s390x
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-<<<<<<< HEAD
-        if: inputs.build-generates-artifacts && (steps.build.outcome != 'skipped' || steps.use-old-whl.outputs.reuse == 'true') && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
-=======
         if: inputs.build-generates-artifacts && (steps.build.outcome != 'skipped' || steps.use-old-whl.outputs.reuse == 'true') && ( inputs.build-environment == 'linux-s390x-binary-manywheel' || inputs.build-environment == 'linux-ppc64le-binary-manywheel')
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         with:
           name: ${{ inputs.build-environment }}
           retention-days: 14
@@ -510,11 +467,7 @@ jobs:
         if: always() && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
 
       - name: Cleanup docker
-<<<<<<< HEAD
-        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
-=======
         if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment == 'linux-ppc64le-binary-manywheel'
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         shell: bash
         run: |
           # on s390x stop the container for clean worker stop
