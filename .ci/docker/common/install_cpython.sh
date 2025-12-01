@@ -66,6 +66,7 @@ function do_cpython_build {
         ln -s pip3 ${prefix}/bin/pip
     fi
     # install setuptools since python 3.12 is required to use distutils
+    # packaging is needed to create symlink since wheel no longer provides needed information
     ${prefix}/bin/pip install packaging==25.0 wheel==0.45.1 setuptools==80.9.0
     local abi_tag=$(${prefix}/bin/python -c "from packaging.tags import interpreter_name, interpreter_version; import sysconfig ; from sysconfig import get_config_var; print('{0}{1}-{0}{1}{2}'.format(interpreter_name(), interpreter_version(), 't' if sysconfig.get_config_var('Py_GIL_DISABLED') else ''))")
     ln -sf ${prefix} /opt/python/${abi_tag}
@@ -81,10 +82,6 @@ function build_cpython {
     if [[ "${py_ver}" == *"t" ]]; then
         py_suffix=${py_ver::-1}
         py_folder=$py_suffix
-    fi
-    # Only b3 is available now
-    if [ "$py_suffix" == "3.14.0" ]; then
-        py_suffix="3.14.0b3"
     fi
     wget -q $PYTHON_DOWNLOAD_URL/$py_folder/Python-$py_suffix.tgz -O Python-$py_ver.tgz
     do_cpython_build $py_ver Python-$py_suffix

@@ -20,11 +20,12 @@ import itertools
 import operator
 import time
 from collections import Counter, defaultdict
-from collections.abc import Generator, Sequence
-from typing import Any, Callable, Optional, TYPE_CHECKING, Union
+from collections.abc import Callable, Generator, Sequence
+from typing import Any, Optional, TYPE_CHECKING, Union
 
 import torch
 import torch.utils._pytree as pytree
+from torch._dispatch.python import enable_python_dispatcher
 from torch._dynamo.external_utils import (
     call_accumulate_grad,
     call_backward,
@@ -146,7 +147,7 @@ class NaNChecker:
             # so Compiled Autograd will always lift the param and
             # this should always be true
             assert (
-                param_node.target == operator.getitem
+                param_node.target is operator.getitem
                 and param_node.args[0] is inputs_node  # type: ignore[possibly-undefined]
                 and isinstance(param_node.args[1], int)
             )
@@ -165,7 +166,7 @@ class NaNChecker:
             if grad is not None:
                 assert not torch.isnan(grad).any(), (
                     f"Compiled autograd running under anomaly mode with inputs[{idx}] already "
-                    "having NaN gradient. This is not supported. {TURN_OFF_MSG}"
+                    f"having NaN gradient. This is not supported. {TURN_OFF_MSG}"
                 )
 
             self.params_to_check[f"inputs[{idx}]"] = inputs[idx]
@@ -313,13 +314,11 @@ class AutogradCompilerInstance:
         accumulate_grad: bool,
         check_nans: bool,
     ) -> tuple[str, list[torch.Tensor], list[IntLikeType], list[FloatLikeType]]:
-        global in_compiled_autograd_initial_trace
         counters["compiled_autograd"]["captures"] += 1
         self.id = next(COMPILE_COUNTER)
         self.aot_id_counter: dict[int, int] = defaultdict(int)
         self.compile_context = make_compile_context(self.id)
         self.compile_context.__enter__()
-        in_compiled_autograd_initial_trace = True
         self.nan_checker = NaNChecker(accumulate_grad) if check_nans else None
         self.start_time_ns = time.time_ns()
         get_chromium_event_logger().log_event_start(
@@ -345,6 +344,10 @@ class AutogradCompilerInstance:
 
         self.stack.enter_context(preserve_node_meta())
         inputs_origins, sizes_origins, scalars_origins = origins
+
+        # Turn on PythonDispatcher during initial trace to make it identifiable
+        # that tracing is happening, which is needed to prevent hashing symints
+        self.stack.enter_context(enable_python_dispatcher())
 
         # tensor inputs to fake tensors
         x = inputs[0]  # mypy will complain about unbound x
@@ -570,7 +573,7 @@ class AutogradCompilerInstance:
                     result.name = make_unique(node.name)
                     value_remap[node] = result
                 elif node.op == "call_function":
-                    if node.target == torch.ops.aten.view.default:
+                    if node.target is torch.ops.aten.view.default:
                         # this aot bwd graph is being lazily compiled
                         # we must manually apply the view_to_reshape post grad pass
                         # since it was already applied to the aot fwd, and baked into the gradients
@@ -752,7 +755,6 @@ class AutogradCompilerInstance:
         self, fn: Callable[..., Any], args: Any, output_metadata: Sequence[Any]
     ) -> Sequence[torch.Tensor]:
         """Proxies a call to fn(*args) into the graph"""
-        flat_args, _ = pytree.tree_flatten(args)
         proxy_args = pytree.tree_map(lambda e: self.to_proxy(e), args)
         proxy_out = self.fx_tracer.create_proxy(
             "call_function", fn, args=proxy_args, kwargs={}
@@ -966,7 +968,8 @@ class AutogradCompilerInstance:
 
         # Dynamo guards will error instead of creating aliasing guards unless we unpack them in the graph
         unpack_nodes: OrderedSet[torch.fx.Node] = OrderedSet()
-        for i, node in enumerate(self.fx_tracer.graph.find_nodes(op="placeholder")):
+        i: int | None = None
+        for i, node in enumerate(self.fx_tracer.graph.find_nodes(op="placeholder")):  # noqa: B007
             unpack_nodes.update(node.users.keys())
         assert i == len(_graph_placeholders) - 1
 
@@ -992,8 +995,8 @@ class AutogradCompilerInstance:
         sizes_node = next(it)
         assert sizes_node.name == "sizes"
 
-        for getitem_node in sizes_node.users.keys():
-            assert getitem_node.target == operator.getitem
+        for getitem_node in sizes_node.users:
+            assert getitem_node.target is operator.getitem
             if getitem_node.users:
                 used_sizes.append(getitem_node)
             else:
@@ -1020,8 +1023,6 @@ class AutogradCompilerInstance:
         return GraphModule(self.fx_tracer.root, self.fx_tracer.graph, id)
 
     def end_capture(self, outputs: Any) -> tuple[Callable[..., Any], Any]:
-        global in_compiled_autograd_initial_trace
-
         self.fx_tracer.create_proxy(
             "call_function",
             FakeCompiledAutogradEngine._exec_final_callbacks_stub,
@@ -1145,7 +1146,6 @@ class AutogradCompilerInstance:
             log_pt2_compile_event=True,
         )
         self.compile_context.__exit__(None, None, None)
-        in_compiled_autograd_initial_trace = False
         return runtime_wrapper, self.compiler_fn(graph)
 
     @staticmethod
@@ -1158,7 +1158,7 @@ class AutogradCompilerInstance:
     def is_placeholder(node: torch.fx.Node) -> bool:
         if node.op == "placeholder" or (
             node.op == "call_function"
-            and node.target == operator.getitem
+            and node.target is operator.getitem
             and node.args[0].op == "placeholder"  # type: ignore[union-attr, arg-type]
         ):
             return True
@@ -1175,7 +1175,7 @@ class AutogradCompilerInstance:
         ):
             param_node, grad_node = node.args[0], node.args[1]
             getitem_node = None
-            if grad_node.target == operator.getitem:
+            if grad_node.target is operator.getitem:
                 getitem_node = grad_node
                 grad_node = getitem_node.args[0]
 
@@ -1240,7 +1240,7 @@ class AutogradCompilerInstance:
             to_append = []
             hook_block = [node]  # contain the hook and hook args getitem
             for n in input_nodes:
-                if n.op == "call_function" and n.target == operator.getitem:
+                if n.op == "call_function" and n.target is operator.getitem:
                     to_append.append(n.args[0])
                     to_remove.append(n)
                     hook_block.append(n)
@@ -1278,7 +1278,7 @@ class AutogradCompilerInstance:
 
             # users are all getitem ops and they are used by same registered node
             assert all(
-                user.op == "call_function" and user.target == operator.getitem
+                user.op == "call_function" and user.target is operator.getitem
                 for user in users
             )
             registered_node = next(iter(users[0].users.keys()))
@@ -1313,7 +1313,7 @@ class AutogradCompilerInstance:
             # find the corresponding acc_grad node
             acc_grad_node = None
             for n in list(param_node.users.keys()):
-                if n.op == "call_function" and n.target == call_accumulate_grad:
+                if n.op == "call_function" and n.target is call_accumulate_grad:
                     acc_grad_node = n
                     break
 
@@ -1356,19 +1356,19 @@ class AutogradCompilerInstance:
                     for user in list(input_node.users.keys())
                     if not (
                         user.op == "call_function"
-                        and user.target == call_hook
+                        and user.target is call_hook
                         and node.kwargs.get("hook_type", None) == "post_hook"
                     )
                 )
 
             arg = max(input_nodes_and_users)  # last input users
-            if arg.op == "call_function" and arg.target == call_accumulate_grad:
+            if arg.op == "call_function" and arg.target is call_accumulate_grad:
                 param_node = arg.args[0]
                 post_acc_grad_hook_node = None
                 for n in list(param_node.users.keys()):
                     if (
                         n.op == "call_function"
-                        and n.target == call_hook
+                        and n.target is call_hook
                         and n.kwargs.get("hook_type", None) == "post_acc_grad_hook"
                     ):
                         post_acc_grad_hook_node = n
@@ -1458,9 +1458,6 @@ compiled_autograd_enabled = False
 # global flag to check if compiled autograd is enabled but Dynamo stance is "force_eager"
 compiled_autograd_enabled_force_eager = False
 
-# global flag to check if we are capturing for compiled autograd
-in_compiled_autograd_initial_trace = False
-
 # global flag to check if we are processing graphs produced from a compiled autograd graph
 in_compiled_autograd_region = False
 
@@ -1515,7 +1512,8 @@ def _enable(
         else:
             # we need to import this, because user might not have imported it if they directly use this context manager
             # we need to lazily import it, because of circular dependencies
-            import torch._inductor.cudagraph_trees
+            if torch.cuda.is_available():
+                from torch._inductor import cudagraph_trees  # noqa: F401
 
             (
                 prior_compiler,
@@ -1569,13 +1567,12 @@ def _disable() -> Generator[None, None, None]:
 
 # return to starting state of a new process
 def reset() -> None:
-    global compiled_autograd_enabled, in_compiled_autograd_initial_trace
+    global compiled_autograd_enabled
     compiled_autograd_enabled = False
     assert not in_compiled_autograd_region
     torch._C._dynamo.compiled_autograd.set_autograd_compiler(None, False)
     torch._C._dynamo.compiled_autograd.set_verbose_logger(None)
     torch._C._dynamo.compiled_autograd.clear_cache()
-    in_compiled_autograd_initial_trace = False
     global COMPILE_COUNTER
     COMPILE_COUNTER = itertools.count()
 

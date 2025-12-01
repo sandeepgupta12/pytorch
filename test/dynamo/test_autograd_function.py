@@ -2,16 +2,21 @@
 # flake8: noqa: B950
 import copy
 import math
+import unittest
 from dataclasses import dataclass
 
 import torch
 import torch._dynamo.test_case
 import torch._dynamo.testing
 import torch._dynamo.utils
-from torch.testing._internal.triton_utils import HAS_CUDA, requires_cuda
+from torch.testing._internal.triton_utils import HAS_GPU, requires_gpu
 
 
-if HAS_CUDA:
+device_type = (
+    acc.type if (acc := torch.accelerator.current_accelerator(True)) else "cpu"
+)
+
+if HAS_GPU:
     import triton
 
     from torch.testing._internal.triton_utils import add_kernel
@@ -504,13 +509,13 @@ class AutogradFunctionTests(torch._dynamo.test_case.TestCase):
 
         class MyMM(torch.autograd.Function):
             @staticmethod
-            @torch.amp.custom_fwd(device_type="cuda")
+            @torch.amp.custom_fwd(device_type=device_type)
             def forward(ctx, a, b):
                 ctx.save_for_backward(a, b)
                 return a.mm(b)
 
             @staticmethod
-            @torch.amp.custom_bwd(device_type="cuda")
+            @torch.amp.custom_bwd(device_type=device_type)
             def backward(ctx, grad):
                 a, b = ctx.saved_tensors
                 return grad.mm(b.t()), a.t().mm(grad)
@@ -1473,7 +1478,7 @@ class GraphModule(torch.nn.Module):
         self.assertEqual(cnt.frame_count, 1)
         self.assertEqual(cnt.op_count, 1)
 
-    @requires_cuda
+    @requires_gpu
     def test_triton_kernel_basic(self):
         class Add(torch.autograd.Function):
             @staticmethod
@@ -1497,14 +1502,14 @@ class GraphModule(torch.nn.Module):
             z = Add.apply(x, y)
             return z
 
-        x = torch.randn(10, device="cuda", requires_grad=True)
-        y = torch.randn(10, device="cuda", requires_grad=True)
+        x = torch.randn(10, device=device_type, requires_grad=True)
+        y = torch.randn(10, device=device_type, requires_grad=True)
         z = f(x, y)
         loss = z.sum()
         loss.backward()
         self.assertEqual(x + y, z)
 
-    @requires_cuda
+    @requires_gpu
     def test_triton_kernel_multiple_out(self):
         class Add(torch.autograd.Function):
             @staticmethod
@@ -1532,12 +1537,49 @@ class GraphModule(torch.nn.Module):
             z = Add.apply(x, y)
             return z
 
-        x = torch.randn(10, device="cuda", requires_grad=True)
-        y = torch.randn(10, device="cuda", requires_grad=True)
+        x = torch.randn(10, device=device_type, requires_grad=True)
+        y = torch.randn(10, device=device_type, requires_grad=True)
         z, _ = f(x, y)
         loss = z.sum()
         loss.backward()
         self.assertEqual(x + y, z)
+
+    @unittest.expectedFailure
+    def test_nonlocal_list_mutation_in_autograd_function(self):
+        """Test that nonlocal list mutation in autograd.Function forward is handled correctly."""
+
+        class SimpleAutogradFunc(torch.autograd.Function):
+            @staticmethod
+            def forward(ctx, x, z):
+                # Simple computation
+                o = torch.matmul(x, x) @ x
+                out = x.sin()
+                # Mutate the nonlocal list
+                z.append(out)
+                return torch.cos(torch.sin(o)), torch.sin(x)
+
+            @staticmethod
+            def backward(ctx, grad_output1, grad_output2):
+                # Simple backward
+                return grad_output1 + grad_output2, None
+
+        def fn(x):
+            z = []
+
+            outs = SimpleAutogradFunc.apply(x, z)
+            out1 = outs[0]
+            # Check that the extra output pytree handling is done properly
+            out2 = outs[-1]
+
+            return out1 + out2, z[0]
+
+        x = torch.randn(4, 4, requires_grad=True)
+        ref = fn(x)
+
+        opt_fn = torch.compile(fn, backend="aot_eager", fullgraph=True)
+        res = opt_fn(x)
+        self.assertEqual(ref[0], res[0])
+        self.assertEqual(ref[1], res[1])
 
 
 if __name__ == "__main__":

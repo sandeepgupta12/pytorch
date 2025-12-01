@@ -13,7 +13,17 @@
 namespace c10::CachingAllocator {
 
 // "large" allocations may be packed in 20 MiB blocks
-const size_t kLargeBuffer = 20971520;
+constexpr size_t kLargeBuffer = 20971520;
+// "small" allocations are packed in 2 MiB blocks
+constexpr size_t kSmallBuffer = 2097152;
+// all sizes are rounded to at least 512 bytes
+constexpr size_t kMinBlockSize = 512;
+// largest "small" allocation is 1 MiB
+constexpr size_t kSmallSize = 1048576;
+// allocations between 1 and 10 MiB may use kLargeBuffer
+constexpr size_t kMinLargeAlloc = 10485760;
+// round up large allocations to 2 MiB
+constexpr size_t kRoundLarge = 2097152;
 
 // A utility class for tokenizing allocator configuration strings into discrete
 // parts. For example, the config string:
@@ -76,7 +86,7 @@ class ConfigTokenizer {
     } else if (token == "False") {
       return false;
     } else {
-      TORCH_CHECK(
+      TORCH_CHECK_VALUE(
           false,
           "Expected 'True' or 'False' at index ",
           i,
@@ -220,11 +230,24 @@ class C10_API AcceleratorAllocatorConfig {
     return instance().last_allocator_settings_;
   }
 
+  // Use `Construct On First Use Idiom` to avoid `Static Initialization Order`
+  // issue.
+  static std::unordered_set<std::string>& getMutableKeys() {
+    static std::unordered_set<std::string> keys{
+        "max_split_size_mb",
+        "max_non_split_rounding_mb",
+        "garbage_collection_threshold",
+        "roundup_power2_divisions",
+        "expandable_segments",
+        "pinned_use_background_threads"};
+    return keys;
+  }
+
   // Returns the set of valid keys for the allocator configuration.
   // This set is used to validate the presence and correctness of keys in
   // device-specific configuration parsers.
   static const std::unordered_set<std::string>& getKeys() {
-    return keys_;
+    return getMutableKeys();
   }
 
   // Registers a device-specific configuration parser hook and its key. This
@@ -238,9 +261,10 @@ class C10_API AcceleratorAllocatorConfig {
       std::function<void(const std::string&)>&& hook,
       const std::unordered_set<std::string>& keys) {
     device_config_parser_hook_ = std::move(hook);
+    auto& mutable_keys = getMutableKeys();
     for (auto& key : keys) {
-      TORCH_CHECK(
-          keys_.insert(key).second,
+      TORCH_CHECK_VALUE(
+          mutable_keys.insert(key).second,
           "Duplicated key '",
           key,
           "' found in device-specific configuration parser hook registration");
@@ -326,17 +350,6 @@ class C10_API AcceleratorAllocatorConfig {
   // their own environment configuration extensions.
   inline static std::function<void(const std::string&)>
       device_config_parser_hook_{nullptr};
-
-  // A set of valid configuration keys, including both common and
-  // device-specific options. This set is used to validate the presence and
-  // correctness of keys during parsing.
-  inline static std::unordered_set<std::string> keys_{
-      "max_split_size_mb",
-      "max_non_split_rounding_mb",
-      "garbage_collection_threshold",
-      "roundup_power2_divisions",
-      "expandable_segments",
-      "pinned_use_background_threads"};
 };
 
 C10_API inline void setAllocatorSettings(const std::string& env) {
