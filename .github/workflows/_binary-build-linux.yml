@@ -170,11 +170,7 @@ jobs:
           rm -rf "${GITHUB_WORKSPACE}"
           mkdir "${GITHUB_WORKSPACE}"
 
-<<<<<<< HEAD
-          if [[ ${{ inputs.build_environment }} == 'linux-aarch64-binary-manywheel' ]] || [[ ${{ inputs.build_environment }} == 'linux-s390x-binary-manywheel' ]] || [[ ${{ inputs.build_environment }} == 'linux-ppc64le-binary-manywheel' ]]; then
-=======
           if [[ ${{ inputs.build_environment }} == 'linux-aarch64-binary-manywheel' ]] || [[ ${{ inputs.build_environment }} == 'linux-s390x-binary-manywheel' ]] || [[ ${{ inputs.build_environment }} == 'linux-ppc64le-binary-manywheel' ]] ; then
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
             rm -rf "${RUNNER_TEMP}/artifacts"
             mkdir "${RUNNER_TEMP}/artifacts"
           fi
@@ -216,11 +212,7 @@ jobs:
 
       - name: Calculate docker image
         id: calculate-docker-image
-<<<<<<< HEAD
-        if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' && inputs.build_environment != 'linux-s390x-binary-manywheel' && inputs.build_environment != 'linux-ppc64le-binary-manywheel'  }}
-=======
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' && inputs.build_environment != 'linux-s390x-binary-manywheel' && inputs.build_environment != 'linux-ppc64le-binary-manywheel' }}
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         uses: pytorch/test-infra/.github/actions/calculate-docker-image@main
         with:
           # If doing this in main or release branch, use docker.io. Otherwise
@@ -238,27 +230,9 @@ jobs:
         uses: pytorch/test-infra/.github/actions/pull-docker-image@main
         with:
           docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
-<<<<<<< HEAD
       - name: Build Docker image for ppc64le
         run: |
           docker build --network=host -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
-=======
-
-      # - name: Build Docker image for ppc64le
-      #   run: |
-      #     docker build --network=host -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
-
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ppc64le-builder-image
-          path: /tmp
-
-      - name: Load Docker image
-        run: |
-          gunzip -c /tmp/ppc64le-builder.tar.gz | docker load
-          
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
       - name: Build PyTorch binary
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' }}
         env:
@@ -317,11 +291,7 @@ jobs:
           ALPINE_IMAGE: ${{ inputs.ALPINE_IMAGE }}
 
       - name: Cleanup docker
-<<<<<<< HEAD
-        if: always() && inputs.build_environment == 'linux-s390x-binary-manywheel' && inputs.build_environment != 'linux-ppc64le-binary-manywheel'
-=======
         if: always() && inputs.build_environment == 'linux-s390x-binary-manywheel' && inputs.build_environment == 'linux-ppc64le-binary-manywheel'
->>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         shell: bash
         run: |
           # on s390x stop the container for clean worker stop
