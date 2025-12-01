@@ -64,13 +64,6 @@ on:
         required: true
         type: string
         description: Hardware to run this job on. Valid values are linux.4xlarge, linux.4xlarge.nvidia.gpu, linux.arm64.2xlarge, and linux.rocm.gpu
-      use_split_build:
-        description: |
-          [Experimental] Build a libtorch only wheel and build pytorch such that
-          are built from the libtorch wheel.
-        required: false
-        type: boolean
-        default: false
     secrets:
       github-token:
         required: true
@@ -104,7 +97,6 @@ jobs:
       PR_NUMBER: ${{ github.event.pull_request.number }}
       PYTORCH_FINAL_PACKAGE_DIR: /artifacts
       SHA1: ${{ github.event.pull_request.head.sha || github.sha }}
-      USE_SPLIT_BUILD: ${{ inputs.use_split_build }}
     steps:
       - name: Make the env permanent during this workflow (but not the secrets)
         shell: bash
@@ -129,7 +121,6 @@ jobs:
             echo "PR_NUMBER=${{ env.PR_NUMBER }}"
             echo "PYTORCH_FINAL_PACKAGE_DIR=${{ env.PYTORCH_FINAL_PACKAGE_DIR }}"
             echo "SHA1=${{ env.SHA1 }}"
-            echo "USE_SPLIT_BUILD=${{ env.USE_SPLIT_BUILD }}"
           } >> "${GITHUB_ENV} }}"
 
       - name: "[FB EMPLOYEES] Enable SSH (Click me for login details)"
@@ -209,7 +200,11 @@ jobs:
 
       - name: Calculate docker image
         id: calculate-docker-image
+<<<<<<< HEAD
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' && inputs.build_environment != 'linux-s390x-binary-manywheel' && inputs.build_environment != 'linux-ppc64le-binary-manywheel' }}
+=======
+        if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' && inputs.build_environment != 'linux-s390x-binary-manywheel' && inputs.build_environment != 'linux-ppc64le-binary-manywheel' && inputs.build_environment != 'linux-ppc64le-binary-manywheel' }}
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         uses: pytorch/test-infra/.github/actions/calculate-docker-image@main
         with:
           docker-registry: ${{ startsWith(github.event.ref, 'refs/tags/ciflow/') && '308535385114.dkr.ecr.us-east-1.amazonaws.com' || 'docker.io' }}
@@ -223,7 +218,20 @@ jobs:
         uses: pytorch/test-infra/.github/actions/pull-docker-image@main
         with:
           docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
+      # - name: Build Docker image for ppc64le
+      #   run: |
+      #     docker build --network=host -f ./pytorch/.ci/docker/manywheel/Dockerfile_ppc64le -t pytorch/manylinuxppc64le-builder:cpu-ppc64le-main .
 
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ppc64le-builder-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          gunzip -c /tmp/ppc64le-builder.tar.gz | docker load
+          
       - name: Test Pytorch binary
         if: ${{ steps.filter.outputs.is-test-matrix-empty == 'False' }}
         uses: ./pytorch/.github/actions/test-pytorch-binary

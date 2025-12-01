@@ -11,7 +11,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+<<<<<<< HEAD
 
+=======
+#   linux-ppc64le-docker-image-build:
+#     name: Build docker image for ppc64le
+#     runs-on: ubuntu-24.04-ppc64le-p10
+#     steps:
+#       - name: Checkout PyTorch
+#         uses: pytorch/pytorch/.github/actions/checkout-pytorch@main
+#         with:
+#           submodules: false
+#           no-sudo: true
+        
+      
+
+#       - name: Build Docker image for ppc64le
+#         run: |
+#           sudo docker build -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+#           # .ci/docker/manywheel/build.sh manylinuxppc64le-builder:cpu-ppc64le -t manylinuxppc64le-builder
+    
+#       - name: Save Docker image to tarball
+#         run: |
+#           docker save manylinuxppc64le-builder -o manylinuxppc64le-builder.tar
+
+#       - name: Upload image artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: manylinuxppc64le-builder-image
+#           path: manylinuxppc64le-builder.tar
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
   linux-manylinux-2_28-py3-cpu-ppc64le-build:
     
     name: linux-manylinux-2_28-py3-cpu-ppc64le-build
@@ -19,5 +48,9 @@ jobs:
     with:
       build-environment: linux-ppc64le-binary-manywheel
       docker-image-name: manylinuxppc64le-builder
+<<<<<<< HEAD
       runner: ubuntu-24.04-ppc64le-2xlarge
+=======
+      runner: ubuntu-24.04-ppc64le
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
     secrets: inherit

@@ -17,6 +17,7 @@
 #include <ATen/cpu/vec/vec256/vsx/vec256_complex_double_vsx.h>
 #include <ATen/cpu/vec/vec256/vsx/vec256_complex_float_vsx.h>
 
+
 #include <ATen/cpu/vec/vec256/vsx/vec256_bfloat16_vsx.h>
 
 namespace at {

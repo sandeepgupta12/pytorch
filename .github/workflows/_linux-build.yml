@@ -37,7 +37,7 @@ on:
       runner:
         required: false
         type: string
-        default: "linux.2xlarge"
+        default: "linux.c7i.2xlarge"
         description: |
           Label of the runner this job should run on.
       test-matrix:
@@ -96,6 +96,13 @@ on:
         required: false
         type: string
         default: ""
+      build-external-packages:
+        description: |
+          If set, the build external packages and saves their wheels as artifacts
+          use command separated list of packages to build ex: 'vllm,transformers'.
+        required: false
+        type: string
+        default: ""
 
     secrets:
       HUGGING_FACE_HUB_TOKEN:
@@ -121,7 +128,7 @@ jobs:
     # Don't run on forked repos
     
     runs-on: ${{ inputs.runner_prefix}}${{ inputs.runner }}
-    timeout-minutes: 240
+    timeout-minutes: 480
     outputs:
       docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
       test-matrix: ${{ steps.filter.outputs.test-matrix }}
@@ -150,7 +157,11 @@ jobs:
 
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe6722 # v4.1.0
+<<<<<<< HEAD
         if: ${{ inputs.aws-role-to-assume != '' && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' }}
+=======
+        if: ${{ inputs.aws-role-to-assume != '' && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel' }}
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         with:
           role-to-assume: ${{ inputs.aws-role-to-assume }}
           role-session-name: gha-linux-build
@@ -174,6 +185,10 @@ jobs:
           job-id: ${{ steps.get-job-id.outputs.job-id }}
           job-name: ${{ steps.get-job-id.outputs.job-name }}
 
+      - name: Build Docker image for ppc64le
+        run: |
+          docker build --network=host -f .ci/docker/manywheel/Dockerfile_ppc64le -t manylinuxppc64le-builder .
+          
       - name: Calculate docker image
         id: calculate-docker-image
         uses: pytorch/test-infra/.github/actions/calculate-docker-image@main
@@ -204,14 +219,14 @@ jobs:
         run: .github/scripts/parse_ref.py
 
       # Apply the filter logic to the build step too if the test-config label is already there
-      - name: Select all requested test configurations (if the test matrix is available)
-        id: filter
-        uses: ./.github/actions/filter-test-configs
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          test-matrix: ${{ inputs.test-matrix }}
-          selected-test-configs: ${{ inputs.selected-test-configs }}
-          job-name: ${{ steps.get-job-id.outputs.job-name }}
+      # - name: Select all requested test configurations (if the test matrix is available)
+      #   id: filter
+      #   uses: ./.github/actions/filter-test-configs
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     test-matrix: ${{ inputs.test-matrix }}
+      #     selected-test-configs: ${{ inputs.selected-test-configs }}
+      #     job-name: ${{ steps.get-job-id.outputs.job-name }}
 
       - name: Start monitoring script
         id: monitor-script
@@ -242,6 +257,10 @@ jobs:
           cache_dir: .pytest_cache
           job_identifier: ${{ github.workflow }}_${{ inputs.build-environment }}
           s3_bucket: ${{ inputs.s3-bucket }}
+      - name: Check GCC predefined macros for PowerPC
+        run: |
+          echo "Checking GCC predefined macros:"
+          echo | gcc -dM -E - | grep -i power || echo "No power-related macros found"
 
       - name: Build
         if: (steps.filter.outputs.is-test-matrix-empty == 'False' || inputs.test-matrix == '') && steps.use-old-whl.outputs.reuse != 'true'
@@ -265,6 +284,7 @@ jobs:
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HUGGING_FACE_HUB_TOKEN }}
           SCRIBE_GRAPHQL_ACCESS_TOKEN: ${{ secrets.SCRIBE_GRAPHQL_ACCESS_TOKEN }}
           BUILD_ADDITIONAL_PACKAGES: ${{ inputs.build-additional-packages }}
+          RUNNER: ${{ inputs.runner }}
         run: |
           START_TIME=$(date +%s)
           if [[ ${BUILD_ENVIRONMENT} == *"s390x"* ]]; then
@@ -293,6 +313,10 @@ jobs:
             DOCKER_SHELL_CMD=
           fi
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
           # Compute memory limits, but skip setting them for ppc64le
           if [[ ${BUILD_ENVIRONMENT} != *"ppc64le"* ]]; then
             
@@ -305,11 +329,40 @@ jobs:
           else
             MEMORY_FLAGS=""
           fi
+<<<<<<< HEAD
+=======
+
+          if [[ ${BUILD_ENVIRONMENT} == *"riscv64"* ]]; then
+            # EC2 specific setup for RISC-V emulation
+            # Ensure binfmt_misc is available
+            echo "Mounting binfmt_misc filesystem"
+            sudo mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null || true
+
+            echo "QEMU registration: multiarch/qemu-user-static"
+            docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+
+            # Final verification
+            echo "Checking binfmt_misc status:"
+            ls -la /proc/sys/fs/binfmt_misc/ 2>/dev/null || echo "Cannot access binfmt_misc directory"
+
+            if [ -f /proc/sys/fs/binfmt_misc/qemu-riscv64 ]; then
+              echo "qemu-riscv64 registration successful"
+            else
+              echo "qemu-riscv64 registration failed - proceeding without emulation"
+              echo "This may cause RISC-V builds to fail"
+            fi
+
+            RISCV_DOCKER_ARGS="--privileged"
+          else
+            RISCV_DOCKER_ARGS=
+          fi
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
 
           # detached container should get cleaned up by teardown_ec2_linux
           # Used for JENKINS_USER and DOCKER_SHELL_CMD, which can be empty
           # shellcheck disable=SC2086
           container_name=$(docker run \
+            ${RISCV_DOCKER_ARGS} \
             -e BUILD_ENVIRONMENT \
             -e MAX_JOBS="$(nproc --ignore=2)" \
             -e PR_NUMBER \
@@ -325,9 +378,11 @@ jobs:
             -e OUR_GITHUB_JOB_ID \
             -e HUGGING_FACE_HUB_TOKEN \
             -e SCRIBE_GRAPHQL_ACCESS_TOKEN \
-            -e USE_SPLIT_BUILD \
             -e BUILD_ADDITIONAL_PACKAGES \
+<<<<<<< HEAD
             
+=======
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
             --env-file="/tmp/github_env_${GITHUB_RUN_ID}" \
             --security-opt seccomp=unconfined \
             --cap-add=SYS_PTRACE \
@@ -344,11 +399,36 @@ jobs:
           if [[ ${BUILD_ENVIRONMENT} == *"s390x"* || ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
             docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements.txt"
           fi
+          if [[ ${BUILD_ENVIRONMENT} == *"ppc64le"* ]]; then
+            
+            docker exec -t "${container_name}" sh -c "python3 -m pip install -r requirements.txt"
+          fi
 
+          
           docker exec -t "${container_name}" sh -c '.ci/pytorch/build.sh'
 
           END_TIME=$(date +%s)
           echo "build_time=$((END_TIME - START_TIME))" >> "$GITHUB_OUTPUT"
+
+      - name: Build external packages
+        id: build-external-packages
+        if: inputs.build-external-packages != '' &&  steps.build.outcome != 'skipped'
+        uses: ./.github/actions/build-external-packages
+        with:
+          build-targets: ${{ inputs.build-external-packages }}
+          docker-image: ${{ steps.calculate-docker-image.outputs.docker-image }}
+          cuda-arch-list: ${{ inputs.cuda-arch-list }}
+          output-dir: external
+
+      - name: Move external packages to dist
+        if: steps.build-external-packages.outputs.output_dir != '' && steps.build-external-packages.outcome != 'skipped'
+        shell: bash
+        run: |
+          src="${{ steps.build-external-packages.outputs.output_dir }}"
+          if [ -d "$src" ]; then
+            mkdir -p "dist/$(dirname "$src")"
+            mv "$src" "dist/$(dirname "$src")/"
+          fi
 
       - name: Stop monitoring script
         if: ${{ always() && steps.monitor-script.outputs.monitor-script-pid }}
@@ -376,7 +456,11 @@ jobs:
 
       - name: Store PyTorch Build Artifacts for s390x
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+<<<<<<< HEAD
         if: inputs.build-generates-artifacts && (steps.build.outcome != 'skipped' || steps.use-old-whl.outputs.reuse == 'true') && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
+=======
+        if: inputs.build-generates-artifacts && (steps.build.outcome != 'skipped' || steps.use-old-whl.outputs.reuse == 'true') && ( inputs.build-environment == 'linux-s390x-binary-manywheel' || inputs.build-environment == 'linux-ppc64le-binary-manywheel')
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         with:
           name: ${{ inputs.build-environment }}
           retention-days: 14
@@ -426,7 +510,11 @@ jobs:
         if: always() && inputs.build-environment != 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
 
       - name: Cleanup docker
+<<<<<<< HEAD
         if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment != 'linux-ppc64le-binary-manywheel'
+=======
+        if: always() && inputs.build-environment == 'linux-s390x-binary-manywheel' && inputs.build-environment == 'linux-ppc64le-binary-manywheel'
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         shell: bash
         run: |
           # on s390x stop the container for clean worker stop

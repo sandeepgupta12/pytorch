@@ -65,7 +65,15 @@ RUN yum install -y \
 
 ENV PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
+<<<<<<< HEAD
 
+=======
+ENV CC=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin/gcc
+ENV CXX=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin/g++
+ENV LD=/opt/rh/gcc-toolset-${DEVTOOLSET_VERSION}/root/usr/bin/ld
+ENV CFLAGS=""
+ENV CXXFLAGS=""
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
 # git236+ would refuse to run git commands in repos owned by other users
 # Which causes version check to fail, as pytorch repo is bind-mounted into the image
 # Override this behaviour by treating every folder as safe
@@ -77,7 +85,12 @@ RUN /bin/rm -rf /opt/_internal /opt/python /usr/local/*/*
 
 # EPEL for cmake
 FROM base as patchelf
+<<<<<<< HEAD
 RUN git clone --depth 1 --branch temp-gha-runner-v4 https://github.com/sandeepgupta12/pytorch.git /tmp/pytorch && \
+=======
+RUN git clone --depth 1 --branch temp-gha-runner-v3 https://github.com/sandeepgupta12/pytorch.git /tmp/pytorch && \
+    mkdir -p /build_scripts && \
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
     cp /tmp/pytorch/.ci/docker/common/install_patchelf.sh /build_scripts/install_patchelf.sh 
 # Install patchelf
 #ADD ./common/install_patchelf.sh install_patchelf.sh
@@ -118,6 +131,14 @@ RUN dnf install -y \
   hdf5-devel \
   python3-h5py \
   git
+<<<<<<< HEAD
 
 # cmake-3.28.0 from pip for onnxruntime
 RUN python3 -mpip install cmake==3.28.0
+=======
+  
+
+#RUN env GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=True pip3 install grpcio
+# cmake-3.28.0 from pip for onnxruntime
+RUN python3 -mpip install cmake==3.28.0
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20

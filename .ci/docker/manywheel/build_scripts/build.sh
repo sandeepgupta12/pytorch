@@ -39,10 +39,46 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     ${PYTHON_COMPILE_DEPS}
 
 # Install newest autoconf
+<<<<<<< HEAD
 if [ "$(uname -m)" != "ppc64le" ] ; then
     build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
     autoconf --version
 fi
+=======
+# If the architecture is not ppc64le, use the existing build_autoconf function
+if [ "$(uname -m)" != "ppc64le" ] ; then
+    build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+# else
+#     curl -sLO http://ftp.gnu.org/gnu/autoconf/$AUTOCONF_ROOT.tar.gz
+
+#     echo "$AUTOCONF_HASH  $AUTOCONF_ROOT.tar.gz" | sha256sum -c -
+
+#     tar -xzf $AUTOCONF_ROOT.tar.gz
+#     cd $AUTOCONF_ROOT
+
+#     mkdir -p build-aux
+
+#     curl -fLo /tmp/config.guess https://git.savannah.gnu.org/cgit/config.git/plain/config.guess
+#     curl -fLo /tmp/config.sub https://git.savannah.gnu.org/cgit/config.git/plain/config.sub
+
+#     chmod +x /tmp/config.guess /tmp/config.sub
+
+#     mv /tmp/config.guess build-aux/config.guess
+#     mv /tmp/config.sub build-aux/config.sub
+
+#     ls -lh build-aux/config.*
+
+#     ./build-aux/config.guess || echo "Failed to detect architecture"
+
+#     ./configure --host=powerpc64le-pc-linux-gnu
+#     make -j$(nproc)
+#     make install
+
+#     cd ..
+#     rm -rf $AUTOCONF_ROOT $AUTOCONF_ROOT.tar.gz
+fi
+autoconf --version
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
 
 # Compile the latest Python releases.
 # (In order to have a proper SSL module, Python is compiled

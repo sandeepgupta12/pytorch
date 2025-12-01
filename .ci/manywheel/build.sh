@@ -5,17 +5,17 @@ set -ex
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 case "${GPU_ARCH_TYPE:-BLANK}" in
-    BLANK)
-        # Legacy behavior for CircleCI
-        bash "${SCRIPTPATH}/build_cuda.sh"
-        ;;
-    cuda)
+    cuda | cuda-aarch64)
         bash "${SCRIPTPATH}/build_cuda.sh"
         ;;
     rocm)
         bash "${SCRIPTPATH}/build_rocm.sh"
         ;;
+<<<<<<< HEAD
     cpu | cpu-cxx11-abi | cpu-s390x | cpu-ppc64le)
+=======
+    cpu | cpu-cxx11-abi | cpu-aarch64 | cpu-s390x | cpu-ppc64le)
+>>>>>>> 2048c7e20c1af26aef41fe8de2d7dcaf386f2c20
         bash "${SCRIPTPATH}/build_cpu.sh"
         ;;
     xpu)
