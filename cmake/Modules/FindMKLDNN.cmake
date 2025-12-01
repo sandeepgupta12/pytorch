@@ -91,6 +91,7 @@ IF(NOT MKLDNN_FOUND)
       MESSAGE("-- Will build oneDNN UKERNEL")
       SET(DNNL_EXPERIMENTAL_UKERNEL ON CACHE BOOL "" FORCE)
     ENDIF()
+    
   ENDIF(EXISTS "${MKLDNN_ROOT}/include/oneapi/dnnl/dnnl_ukernel.hpp")
 
   FIND_PACKAGE(BLAS)
