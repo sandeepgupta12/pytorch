@@ -47,7 +47,7 @@ else
 fi
 
 if [[ "$PACKAGE_TYPE" != libtorch ]]; then
-  if [[ "\$BUILD_ENVIRONMENT" != *s390x* ]]; then
+  if [[ "\$BUILD_ENVIRONMENT" != *s390x* && "\$BUILD_ENVIRONMENT" != *ppc64le*]]; then
     pip install "\$pkg" --index-url "https://download.pytorch.org/whl/\${CHANNEL}/${DESIRED_CUDA}"
 
     # numpy tests:
@@ -75,7 +75,7 @@ fi
 # Test the package
 /pytorch/.ci/pytorch/check_binary.sh
 
-if [[ "\$GPU_ARCH_TYPE" != *s390x* && "\$GPU_ARCH_TYPE" != *xpu* && "\$GPU_ARCH_TYPE" != *rocm*  && "$PACKAGE_TYPE" != libtorch ]]; then
+if [[ "\$GPU_ARCH_TYPE" != *s390x* && "\$GPU_ARCH_TYPE" != *ppc64le* &&"\$GPU_ARCH_TYPE" != *xpu* && "\$GPU_ARCH_TYPE" != *rocm*  && "$PACKAGE_TYPE" != libtorch ]]; then
 
   torch_pkg_size="$(ls -1 /final_pkgs/torch-* | sort |tail -1 |xargs wc -c |cut -d ' ' -f1)"
   # todo: implement check for large binaries
