@@ -47,7 +47,7 @@ else
 fi
 
 if [[ "$PACKAGE_TYPE" != libtorch ]]; then
-  if [[ "\$BUILD_ENVIRONMENT" != *s390x* && "\$BUILD_ENVIRONMENT" != *ppc64le*]]; then
+  if [[ "\$BUILD_ENVIRONMENT" != *s390x* && "\$BUILD_ENVIRONMENT" != *ppc64le* ]]; then
     pip install "\$pkg" --index-url "https://download.pytorch.org/whl/\${CHANNEL}/${DESIRED_CUDA}"
 
     # numpy tests:
