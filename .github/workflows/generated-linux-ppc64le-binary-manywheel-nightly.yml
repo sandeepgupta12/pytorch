@@ -47,7 +47,7 @@ jobs:
   
   build-docker-image:
     name: Build Docker image
-    runs-on: ubuntu-24.04-ppc64le-4xlarge
+    runs-on: ubuntu-24.04-ppc64le
     outputs:
       image-tag: ${{ steps.set-tag.outputs.image-tag }}
     steps:
