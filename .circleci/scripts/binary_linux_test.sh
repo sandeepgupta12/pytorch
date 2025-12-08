@@ -61,7 +61,7 @@ if [[ "$PACKAGE_TYPE" != libtorch ]]; then
     fi
 
   else
-    pip install "\$pkg"
+    pip install "\$pkg" --no-deps
     retry pip install -q numpy protobuf typing-extensions
   fi
 fi
