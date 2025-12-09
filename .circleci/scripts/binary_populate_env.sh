@@ -112,10 +112,10 @@ if [[ "$PACKAGE_TYPE" =~ .*wheel.* && -n "$PYTORCH_BUILD_VERSION" && "$PYTORCH_B
 fi
 
 USE_GLOO_WITH_OPENSSL="ON"
-# if [[ "$GPU_ARCH_TYPE" =~ .*cpu-ppc64le.* ]]; then
-#   USE_GLOO_WITH_OPENSSL="OFF"
-#   USE_GOLD_LINKER="OFF"
-# fi
+if [[ "$GPU_ARCH_TYPE" =~ .*cpu-ppc64le.* ]]; then
+  USE_GLOO_WITH_OPENSSL="OFF"
+  USE_GOLD_LINKER="OFF"
+fi
 
 cat >"$envfile" <<EOL
 # =================== The following code will be executed inside Docker container ===================
