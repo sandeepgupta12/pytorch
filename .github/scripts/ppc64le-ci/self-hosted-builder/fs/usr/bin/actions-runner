@@ -40,7 +40,7 @@ registration_token=$(jq --raw-output .token "$token_file")
 ./config.sh \
         --unattended \
         --ephemeral \
-        --url "https://github.com/${ORG}" \
+        --url "https://github.com/${ORG}/pytorch" \
         --token "${registration_token}" \
         --name "${NAME}" \
         --no-default-labels \
