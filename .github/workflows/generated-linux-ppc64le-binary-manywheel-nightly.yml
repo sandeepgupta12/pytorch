@@ -45,7 +45,7 @@ jobs:
       curr_branch: ${{ github.head_ref || github.ref_name }}
       curr_ref_type: ${{ github.ref_type }}
   manywheel-py3_9-cpu-ppc64le-build:
-    #if: ${{ github.repository_owner == 'pytorch' }}
+   
     uses: ./.github/workflows/_binary-build-linux.yml
     needs: get-label-type
     with:
@@ -67,7 +67,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_9-cpu-ppc64le-test:  # Testing
-    #if: ${{ github.repository_owner == 'pytorch' }}
+   
     needs:
       - manywheel-py3_9-cpu-ppc64le-build
       - get-label-type
@@ -89,7 +89,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_9-cpu-ppc64le-upload:  # Uploading
-    #if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -110,7 +110,7 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   manywheel-py3_10-cpu-ppc64le-build:
-    #if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
     needs: get-label-type
     with:
@@ -132,7 +132,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_10-cpu-ppc64le-test:  # Testing
-    #if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - manywheel-py3_10-cpu-ppc64le-build
       - get-label-type
@@ -154,7 +154,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_10-cpu-ppc64le-upload:  # Uploading
-    #if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -175,7 +175,7 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   manywheel-py3_11-cpu-ppc64le-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
     needs: get-label-type
     with:
@@ -197,7 +197,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_11-cpu-ppc64le-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - manywheel-py3_11-cpu-ppc64le-build
       - get-label-type
@@ -219,7 +219,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_11-cpu-ppc64le-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -240,7 +240,7 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   manywheel-py3_12-cpu-ppc64le-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
     needs: get-label-type
     with:
@@ -262,7 +262,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_12-cpu-ppc64le-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - manywheel-py3_12-cpu-ppc64le-build
       - get-label-type
@@ -284,7 +284,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_12-cpu-ppc64le-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
@@ -305,7 +305,7 @@ jobs:
     uses: ./.github/workflows/_binary-upload.yml
 
   manywheel-py3_13-cpu-ppc64le-build:
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     uses: ./.github/workflows/_binary-build-linux.yml
     needs: get-label-type
     with:
@@ -327,7 +327,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_13-cpu-ppc64le-test:  # Testing
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     needs:
       - manywheel-py3_13-cpu-ppc64le-build
       - get-label-type
@@ -349,7 +349,7 @@ jobs:
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   manywheel-py3_13-cpu-ppc64le-upload:  # Uploading
-    if: ${{ github.repository_owner == 'pytorch' }}
+    
     permissions:
       id-token: write
       contents: read
