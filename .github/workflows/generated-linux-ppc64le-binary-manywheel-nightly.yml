@@ -47,7 +47,7 @@ jobs:
   manywheel-py3_9-cpu-ppc64le-build:
    
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    ##needs: get-label-type
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -70,7 +70,7 @@ jobs:
    
     needs:
       - manywheel-py3_9-cpu-ppc64le-build
-      - get-label-type
+      #- get-label-type
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -112,7 +112,7 @@ jobs:
   manywheel-py3_10-cpu-ppc64le-build:
     
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    #needs: get-label-type
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -135,7 +135,7 @@ jobs:
     
     needs:
       - manywheel-py3_10-cpu-ppc64le-build
-      - get-label-type
+      ##- get-label-type
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -177,7 +177,7 @@ jobs:
   manywheel-py3_11-cpu-ppc64le-build:
     
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    #needs: get-label-type
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -200,7 +200,7 @@ jobs:
     
     needs:
       - manywheel-py3_11-cpu-ppc64le-build
-      - get-label-type
+      #- get-label-type
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -242,7 +242,7 @@ jobs:
   manywheel-py3_12-cpu-ppc64le-build:
     
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    #needs: get-label-type
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -265,7 +265,7 @@ jobs:
     
     needs:
       - manywheel-py3_12-cpu-ppc64le-build
-      - get-label-type
+      #- get-label-type
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
@@ -307,7 +307,7 @@ jobs:
   manywheel-py3_13-cpu-ppc64le-build:
     
     uses: ./.github/workflows/_binary-build-linux.yml
-    needs: get-label-type
+    #needs: get-label-type
     with:
       PYTORCH_ROOT: /pytorch
       PACKAGE_TYPE: manywheel
@@ -330,7 +330,7 @@ jobs:
     
     needs:
       - manywheel-py3_13-cpu-ppc64le-build
-      - get-label-type
+      #- get-label-type
     uses: ./.github/workflows/_binary-test-linux.yml
     with:
       PYTORCH_ROOT: /pytorch
