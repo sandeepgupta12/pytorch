@@ -191,7 +191,7 @@ fi
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
   build_and_run_example_cpp check-torch-mkl
-elif [[ "$(uname -m)" != "arm64" && "$(uname -m)" != "s390x" ]]; then
+elif [[ "$(uname -m)" != "arm64" && "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le" ]]; then
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     if [[ "$(uname -m)" == "aarch64" ]]; then
       echo "Checking that MKLDNN is available on aarch64"
@@ -215,7 +215,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that XNNPACK is available"
   build_and_run_example_cpp check-torch-xnnpack
 else
-  if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]] && [[ "$(uname -m)" != "s390x"  ]]; then
+  if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]] && [[ "$(uname -m)" != "s390x" && "$(uname -m)" != "ppc64le" ]]; then
     echo "Checking that XNNPACK is available"
     pushd /tmp
     python -c 'import torch.backends.xnnpack; exit(0 if torch.backends.xnnpack.enabled else 1)'
