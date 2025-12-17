@@ -249,7 +249,7 @@ WHEEL_CONTAINER_IMAGES = {
     "cpu": "manylinux2_28-builder:cpu",
     "cpu-aarch64": "manylinux2_28_aarch64-builder:cpu-aarch64",
     "cpu-s390x": "pytorch/manylinuxs390x-builder:cpu-s390x",
-    "cpu-ppc64le": "pytorch/manylinuxppc64le-builder:cpu-ppc64le-cpu-ppc64le",
+    "cpu-ppc64le": "pytorch/manylinuxppc64le-builder:cpu-ppc64le",
 }
 
 RELEASE = "release"
@@ -388,6 +388,7 @@ def generate_wheels_matrix(
                 if arch_version == "cpu"
                 or arch_version == "cpu-aarch64"
                 or arch_version == "cpu-s390x"
+                or arch_version == "cpu-ppc64le"
                 or arch_version == "xpu"
                 else arch_version
             )
@@ -397,6 +398,7 @@ def generate_wheels_matrix(
                 "linux",
                 "linux-aarch64",
                 "linux-s390x",
+                "linux-ppc64le",
                 "macos-arm64",
                 "windows",
             ] and (python_version == "3.14" or python_version == "3.14t"):
