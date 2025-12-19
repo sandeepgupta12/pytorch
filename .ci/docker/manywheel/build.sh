@@ -49,10 +49,10 @@ case ${image} in
         DOCKER_GPU_BUILD_ARG=""
         MANY_LINUX_VERSION="s390x"
         ;;
-    cpu-ppc64le)
+    manylinuxsppc64le-builder:cpu-ppc64le)
         TARGET=final
-        DOCKER_TAG=ppc64le
-        GPU_IMAGE=redhat/ubi9
+        #DOCKER_TAG=ppc64le
+        GPU_IMAGE=s390x/almalinux:8
         DOCKER_GPU_BUILD_ARG=""
         MANY_LINUX_VERSION="ppc64le"
         ;;
