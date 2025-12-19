@@ -22,7 +22,7 @@ $ cd ~
 $ git clone https://github.com/pytorch/pytorch
 $ cd pytorch
 $ git submodule update --init --recursive
-$ GPU_ARCH_TYPE=cpu-ppc64le "$(pwd)/.ci/docker/manywheel/build.sh" manylinuxppc64le-builder
+$ GPU_ARCH_TYPE=cpu-ppc64le "$(pwd)/.ci/docker/manywheel/build.sh" manylinuxsppc64le-builder:cpu-ppc64le
 $ docker image tag localhost/pytorch/manylinuxppc64le-builder docker.io/pytorch/manylinuxppc64le-builder:cpu-ppc64le
 $ docker image save -o ~/manywheel-ppc64le.tar docker.io/pytorch/manylinuxppc64le-builder:cpu-ppc64le
 ```
