@@ -37,7 +37,7 @@ if [[ -z "$DOCKER_IMAGE" ]]; then
   fi
 fi
 
-USE_GOLD_LINKER="ON"
+USE_GOLD_LINKER="OFF"
 # GOLD linker can not be used if CUPTI is statically linked into PyTorch, see https://github.com/pytorch/pytorch/issues/57744
 # if [[ ${DESIRED_CUDA} == "cpu" ]]; then
 #   USE_GOLD_LINKER="ON"
