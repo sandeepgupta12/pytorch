@@ -47,70 +47,70 @@ jobs:
       issue_owner: ${{ github.event.pull_request.user.login || github.event.issue.user.login }}
       curr_branch: ${{ github.head_ref || github.ref_name }}
       curr_ref_type: ${{ github.ref_type }}
-  # manywheel-py3_10-cpu-ppc64le-build:
-  #   ##if: ${{ github.repository_owner == 'pytorch' }}
-  #   uses: ./.github/workflows/_binary-build-linux.yml
-  #   ##needs: get-label-type
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.10"
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #     timeout-minutes: 420
-  #     build_name: manywheel-py3_10-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_10-cpu-ppc64le-build:
+    ##if: ${{ github.repository_owner == 'pytorch' }}
+    uses: ./.github/workflows/_binary-build-linux.yml
+    ##needs: get-label-type
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.10"
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+      timeout-minutes: 420
+      build_name: manywheel-py3_10-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # manywheel-py3_10-cpu-ppc64le-test:  # Testing
-  #   ##if: ${{ github.repository_owner == 'pytorch' }}
-  #   needs:
-  #     - manywheel-py3_10-cpu-ppc64le-build
-  #     ##- get-label-type
-  #   uses: ./.github/workflows/_binary-test-linux.yml
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.10"
-  #     build_name: manywheel-py3_10-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  # manywheel-py3_10-cpu-ppc64le-upload:  # Uploading
-  #   ##if: ${{ github.repository_owner == 'pytorch' }}
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   needs: manywheel-py3_10-cpu-ppc64le-test
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.10"
-  #     build_name: manywheel-py3_10-cpu-ppc64le
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  #   uses: ./.github/workflows/_binary-upload.yml
+  manywheel-py3_10-cpu-ppc64le-test:  # Testing
+    ##if: ${{ github.repository_owner == 'pytorch' }}
+    needs:
+      - manywheel-py3_10-cpu-ppc64le-build
+      ##- get-label-type
+    uses: ./.github/workflows/_binary-test-linux.yml
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.10"
+      build_name: manywheel-py3_10-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_10-cpu-ppc64le-upload:  # Uploading
+    ##if: ${{ github.repository_owner == 'pytorch' }}
+    permissions:
+      id-token: write
+      contents: read
+    needs: manywheel-py3_10-cpu-ppc64le-test
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.10"
+      build_name: manywheel-py3_10-cpu-ppc64le
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_binary-upload.yml
 
   manywheel-py3_11-cpu-ppc64le-build:
     #if: ${{ github.repository_owner == 'pytorch' }}
@@ -177,327 +177,327 @@ jobs:
       github-token: ${{ secrets.GITHUB_TOKEN }}
     uses: ./.github/workflows/_binary-upload.yml
 
-  # manywheel-py3_12-cpu-ppc64le-build:
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   uses: ./.github/workflows/_binary-build-linux.yml
-  #   #needs: get-label-type
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.12"
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #     timeout-minutes: 420
-  #     build_name: manywheel-py3_12-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_12-cpu-ppc64le-build:
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    uses: ./.github/workflows/_binary-build-linux.yml
+    #needs: get-label-type
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.12"
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+      timeout-minutes: 420
+      build_name: manywheel-py3_12-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # manywheel-py3_12-cpu-ppc64le-test:  # Testing
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   needs:
-  #     - manywheel-py3_12-cpu-ppc64le-build
-  #     #- get-label-type
-  #   uses: ./.github/workflows/_binary-test-linux.yml
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.12"
-  #     build_name: manywheel-py3_12-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  # manywheel-py3_12-cpu-ppc64le-upload:  # Uploading
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   needs: manywheel-py3_12-cpu-ppc64le-test
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.12"
-  #     build_name: manywheel-py3_12-cpu-ppc64le
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  #   uses: ./.github/workflows/_binary-upload.yml
+  manywheel-py3_12-cpu-ppc64le-test:  # Testing
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    needs:
+      - manywheel-py3_12-cpu-ppc64le-build
+      #- get-label-type
+    uses: ./.github/workflows/_binary-test-linux.yml
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.12"
+      build_name: manywheel-py3_12-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_12-cpu-ppc64le-upload:  # Uploading
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    permissions:
+      id-token: write
+      contents: read
+    needs: manywheel-py3_12-cpu-ppc64le-test
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.12"
+      build_name: manywheel-py3_12-cpu-ppc64le
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_binary-upload.yml
 
-  # manywheel-py3_13-cpu-ppc64le-build:
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   uses: ./.github/workflows/_binary-build-linux.yml
-  #   #needs: get-label-type
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.13"
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #     timeout-minutes: 420
-  #     build_name: manywheel-py3_13-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_13-cpu-ppc64le-build:
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    uses: ./.github/workflows/_binary-build-linux.yml
+    #needs: get-label-type
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.13"
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+      timeout-minutes: 420
+      build_name: manywheel-py3_13-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # manywheel-py3_13-cpu-ppc64le-test:  # Testing
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   needs:
-  #     - manywheel-py3_13-cpu-ppc64le-build
-  #     #- get-label-type
-  #   uses: ./.github/workflows/_binary-test-linux.yml
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.13"
-  #     build_name: manywheel-py3_13-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  # manywheel-py3_13-cpu-ppc64le-upload:  # Uploading
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   needs: manywheel-py3_13-cpu-ppc64le-test
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.13"
-  #     build_name: manywheel-py3_13-cpu-ppc64le
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  #   uses: ./.github/workflows/_binary-upload.yml
+  manywheel-py3_13-cpu-ppc64le-test:  # Testing
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    needs:
+      - manywheel-py3_13-cpu-ppc64le-build
+      #- get-label-type
+    uses: ./.github/workflows/_binary-test-linux.yml
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.13"
+      build_name: manywheel-py3_13-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_13-cpu-ppc64le-upload:  # Uploading
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    permissions:
+      id-token: write
+      contents: read
+    needs: manywheel-py3_13-cpu-ppc64le-test
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.13"
+      build_name: manywheel-py3_13-cpu-ppc64le
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_binary-upload.yml
 
-  # manywheel-py3_13t-cpu-ppc64le-build:
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   uses: ./.github/workflows/_binary-build-linux.yml
-  #   #needs: get-label-type
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.13t"
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #     timeout-minutes: 420
-  #     build_name: manywheel-py3_13t-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_13t-cpu-ppc64le-build:
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    uses: ./.github/workflows/_binary-build-linux.yml
+    #needs: get-label-type
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.13t"
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+      timeout-minutes: 420
+      build_name: manywheel-py3_13t-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # manywheel-py3_13t-cpu-ppc64le-test:  # Testing
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   needs:
-  #     - manywheel-py3_13t-cpu-ppc64le-build
-  #     #- get-label-type
-  #   uses: ./.github/workflows/_binary-test-linux.yml
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.13t"
-  #     build_name: manywheel-py3_13t-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  # manywheel-py3_13t-cpu-ppc64le-upload:  # Uploading
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   needs: manywheel-py3_13t-cpu-ppc64le-test
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.13t"
-  #     build_name: manywheel-py3_13t-cpu-ppc64le
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  #   uses: ./.github/workflows/_binary-upload.yml
+  manywheel-py3_13t-cpu-ppc64le-test:  # Testing
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    needs:
+      - manywheel-py3_13t-cpu-ppc64le-build
+      #- get-label-type
+    uses: ./.github/workflows/_binary-test-linux.yml
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.13t"
+      build_name: manywheel-py3_13t-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_13t-cpu-ppc64le-upload:  # Uploading
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    permissions:
+      id-token: write
+      contents: read
+    needs: manywheel-py3_13t-cpu-ppc64le-test
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.13t"
+      build_name: manywheel-py3_13t-cpu-ppc64le
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_binary-upload.yml
 
-  # manywheel-py3_14-cpu-ppc64le-build:
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   uses: ./.github/workflows/_binary-build-linux.yml
-  #   #needs: get-label-type
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.14"
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #     timeout-minutes: 420
-  #     build_name: manywheel-py3_14-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_14-cpu-ppc64le-build:
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    uses: ./.github/workflows/_binary-build-linux.yml
+    #needs: get-label-type
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.14"
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+      timeout-minutes: 420
+      build_name: manywheel-py3_14-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # manywheel-py3_14-cpu-ppc64le-test:  # Testing
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   needs:
-  #     - manywheel-py3_14-cpu-ppc64le-build
-  #     #- get-label-type
-  #   uses: ./.github/workflows/_binary-test-linux.yml
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.14"
-  #     build_name: manywheel-py3_14-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  # manywheel-py3_14-cpu-ppc64le-upload:  # Uploading
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   needs: manywheel-py3_14-cpu-ppc64le-test
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.14"
-  #     build_name: manywheel-py3_14-cpu-ppc64le
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  #   uses: ./.github/workflows/_binary-upload.yml
+  manywheel-py3_14-cpu-ppc64le-test:  # Testing
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    needs:
+      - manywheel-py3_14-cpu-ppc64le-build
+      #- get-label-type
+    uses: ./.github/workflows/_binary-test-linux.yml
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.14"
+      build_name: manywheel-py3_14-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_14-cpu-ppc64le-upload:  # Uploading
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    permissions:
+      id-token: write
+      contents: read
+    needs: manywheel-py3_14-cpu-ppc64le-test
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.14"
+      build_name: manywheel-py3_14-cpu-ppc64le
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_binary-upload.yml
 
-  # manywheel-py3_14t-cpu-ppc64le-build:
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   uses: ./.github/workflows/_binary-build-linux.yml
-  #   #needs: get-label-type
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.14t"
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #     timeout-minutes: 420
-  #     build_name: manywheel-py3_14t-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_14t-cpu-ppc64le-build:
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    uses: ./.github/workflows/_binary-build-linux.yml
+    #needs: get-label-type
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.14t"
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+      timeout-minutes: 420
+      build_name: manywheel-py3_14t-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # manywheel-py3_14t-cpu-ppc64le-test:  # Testing
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   needs:
-  #     - manywheel-py3_14t-cpu-ppc64le-build
-  #     #- get-label-type
-  #   uses: ./.github/workflows/_binary-test-linux.yml
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.14t"
-  #     build_name: manywheel-py3_14t-cpu-ppc64le
-  #     build_environment: linux-ppc64le-binary-manywheel
-  #     runs_on: linux.ppc64le
-  #     ALPINE_IMAGE: "docker.io/ppc64le/alpine"
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  # manywheel-py3_14t-cpu-ppc64le-upload:  # Uploading
-  #   #if: ${{ github.repository_owner == 'pytorch' }}
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   needs: manywheel-py3_14t-cpu-ppc64le-test
-  #   with:
-  #     PYTORCH_ROOT: /pytorch
-  #     PACKAGE_TYPE: manywheel
-  #     # TODO: This is a legacy variable that we eventually want to get rid of in
-  #     #       favor of GPU_ARCH_VERSION
-  #     DESIRED_CUDA: cpu
-  #     GPU_ARCH_TYPE: cpu-ppc64le
-  #     DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
-  #     DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
-  #     DESIRED_PYTHON: "3.14t"
-  #     build_name: manywheel-py3_14t-cpu-ppc64le
-  #   secrets:
-  #     github-token: ${{ secrets.GITHUB_TOKEN }}
-  #   uses: ./.github/workflows/_binary-upload.yml
+  manywheel-py3_14t-cpu-ppc64le-test:  # Testing
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    needs:
+      - manywheel-py3_14t-cpu-ppc64le-build
+      #- get-label-type
+    uses: ./.github/workflows/_binary-test-linux.yml
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.14t"
+      build_name: manywheel-py3_14t-cpu-ppc64le
+      build_environment: linux-ppc64le-binary-manywheel
+      runs_on: linux.ppc64le
+      ALPINE_IMAGE: "docker.io/ppc64le/alpine"
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  manywheel-py3_14t-cpu-ppc64le-upload:  # Uploading
+    #if: ${{ github.repository_owner == 'pytorch' }}
+    permissions:
+      id-token: write
+      contents: read
+    needs: manywheel-py3_14t-cpu-ppc64le-test
+    with:
+      PYTORCH_ROOT: /pytorch
+      PACKAGE_TYPE: manywheel
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu-ppc64le
+      DOCKER_IMAGE: pytorch/manylinuxppc64le-builder
+      DOCKER_IMAGE_TAG_PREFIX: cpu-ppc64le
+      DESIRED_PYTHON: "3.14t"
+      build_name: manywheel-py3_14t-cpu-ppc64le
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/_binary-upload.yml
