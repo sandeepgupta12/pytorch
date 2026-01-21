@@ -9,11 +9,14 @@ Restart=always
 # Cleanup stale containers
 ExecStartPre=-/usr/bin/docker rm --force actions-runner.%i
 ExecStartPre=/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.env /etc/actions-runner/%i/installid.env /etc/actions-runner/%i/key_private.pem /etc/actions-runner/%i/ghtoken.env
-ExecStartPre=/usr/local/bin/gh_cat_token.sh /etc/actions-runner/%i/ghtoken.env /etc/actions-runner/%i/ghtoken.socket
+# Wait until the token file is present and non-empty before starting the container.
+# This prevents the container from starting and immediately failing to find the
+# access token on the mount when the generator is still writing it.
+ExecStartPre=/bin/sh -c 'for i in 1 2 3 4 5 6 7 8 9 10; do [ -s /etc/actions-runner/%i/ghtoken.env ] && exit 0 || sleep 0.2; done; exit 1'
 
 ExecStart=/usr/bin/docker run \
               --env-file=/etc/actions-runner/%i/env \
-              --volume /etc/actions-runner/%i/ghtoken.socket:/run/runner_secret \
+              --volume /etc/actions-runner/%i/ghtoken.env:/run/runner_secret:ro \
               --init \
               --interactive \
               --name=actions-runner.%i \
@@ -25,7 +28,7 @@ ExecStop=/bin/sh -c "docker exec actions-runner.%i kill -INT -- -1"
 ExecStop=/bin/sh -c "docker wait actions-runner.%i"
 ExecStop=/bin/sh -c "docker rm actions-runner.%i"
 
-ExecStop=/usr/bin/env rm -f /etc/actions-runner/%i/ghtoken.env /etc/actions-runner/%i/ghtoken.socket
+ExecStop=/usr/bin/env rm -f /etc/actions-runner/%i/ghtoken.env
 
 [Install]
 WantedBy=multi-user.target
