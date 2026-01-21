@@ -10,5 +10,7 @@ ACCESS_TOKEN="$(APP_ID="$(<"${APP_ID}")" INSTALL_ID="$(<"${INSTALL_ID}")" APP_PR
 # Write atomically: write to a temp file, set restrictive perms, then move into place.
 TMP_DST="${DST_FILE}.tmp"
 printf '%s' "${ACCESS_TOKEN}" > "${TMP_DST}"
-chmod 600 "${TMP_DST}" || true
+# Make token readable by the container process. Use 644 so non-root
+# processes inside the container can read it. Token is stored in tmpfs.
+chmod 644 "${TMP_DST}" || true
 mv -f "${TMP_DST}" "${DST_FILE}"
