@@ -9,20 +9,23 @@ Restart=always
 # Cleanup stale containers
 ExecStartPre=-/usr/bin/docker rm --force actions-runner.%i
 
-# Ensure runner directory exists and is a tmpfs (token stays in memory only).
-# If already mounted, mount command is skipped.
+# Ensure runner directory exists. We mount a tmpfs only for runtime files
+# under a subdirectory so we don't hide persistent setup files (key, appid, env).
 ExecStartPre=/bin/mkdir -p /etc/actions-runner/%i
-ExecStartPre=/bin/sh -c 'mountpoint -q /etc/actions-runner/%i || mount -t tmpfs -o mode=0700 tmpfs /etc/actions-runner/%i'
 ExecStartPre=/bin/chmod 700 /etc/actions-runner/%i
 
-# Generate the ephemeral access token (written atomically into the tmpfs).
-ExecStartPre=/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.env /etc/actions-runner/%i/installid.env /etc/actions-runner/%i/key_private.pem /etc/actions-runner/%i/ghtoken.env
+# Create an in-memory runtime directory for ephemeral files (token).
+ExecStartPre=/bin/mkdir -p /etc/actions-runner/%i/run
+ExecStartPre=/bin/sh -c 'mountpoint -q /etc/actions-runner/%i/run || mount -t tmpfs -o mode=0700 tmpfs /etc/actions-runner/%i/run'
+
+# Generate the ephemeral access token into the tmpfs run dir (atomic write).
+ExecStartPre=/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.env /etc/actions-runner/%i/installid.env /etc/actions-runner/%i/key_private.pem /etc/actions-runner/%i/run/ghtoken.env
 # Wait until the token file exists and is non-empty before starting the container
-ExecStartPre=/bin/sh -c 'for i in 1 2 3 4 5 6 7 8 9 10; do [ -s /etc/actions-runner/%i/ghtoken.env ] && exit 0 || sleep 0.2; done; exit 1'
+ExecStartPre=/bin/sh -c 'for i in 1 2 3 4 5 6 7 8 9 10; do [ -s /etc/actions-runner/%i/run/ghtoken.env ] && exit 0 || sleep 0.2; done; exit 1'
 
 ExecStart=/usr/bin/docker run \
               --env-file=/etc/actions-runner/%i/env \
-              --volume /etc/actions-runner/%i/ghtoken.env:/run/runner_secret:ro \
+              --volume /etc/actions-runner/%i/run/ghtoken.env:/run/runner_secret:ro \
               --init \
               --interactive \
               --name=actions-runner.%i \
@@ -34,9 +37,9 @@ ExecStop=/bin/sh -c "docker exec actions-runner.%i kill -INT -- -1"
 ExecStop=/bin/sh -c "docker wait actions-runner.%i"
 ExecStop=/bin/sh -c "docker rm actions-runner.%i"
 
-# Cleanup token and unmount tmpfs
-ExecStop=/usr/bin/env rm -f /etc/actions-runner/%i/ghtoken.env
-ExecStopPost=/bin/sh -c 'umount /etc/actions-runner/%i || true; rm -rf /etc/actions-runner/%i || true'
+# Cleanup token and unmount tmpfs run dir
+ExecStop=/usr/bin/env rm -f /etc/actions-runner/%i/run/ghtoken.env
+ExecStopPost=/bin/sh -c 'umount /etc/actions-runner/%i/run || true; rm -rf /etc/actions-runner/%i/run || true'
 
 [Install]
 WantedBy=multi-user.target
