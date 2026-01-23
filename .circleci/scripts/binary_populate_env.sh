@@ -39,9 +39,9 @@ fi
 
 USE_GOLD_LINKER="OFF"
 # GOLD linker can not be used if CUPTI is statically linked into PyTorch, see https://github.com/pytorch/pytorch/issues/57744
-# if [[ ${DESIRED_CUDA} == "cpu" ]]; then
-#   USE_GOLD_LINKER="ON"
-# fi
+if [[ ${DESIRED_CUDA} == "cpu" ]]; then
+  USE_GOLD_LINKER="ON"
+fi
 
 
 # Default to nightly, since that's where this normally uploads to
