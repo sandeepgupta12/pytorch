@@ -29,8 +29,8 @@ curl \
         -o "$token_file"
  
 unset ACCESS_TOKEN
-
-umount /run/runner_secret
+rm -f "$token_file"
+#umount /run/runner_secret
 rm -f /run/runner_secret
 
 # register runner as ephemeral runner
