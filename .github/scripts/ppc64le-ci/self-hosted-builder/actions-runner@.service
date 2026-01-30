@@ -18,7 +18,7 @@ ExecStart=/bin/sh -c '\
   set +a && \
   exec /usr/bin/docker run \
     --env-file=/etc/actions-runner/%i/env \
-    -e GITHUB_RUNNER_SECRET="$GITHUB_TOKEN" \
+    -e GITHUB_RUNNER_SECRET="$GITHUB_RUNNER_SECRET" \
     --init \
     --interactive \
     --name=actions-runner.%i \
