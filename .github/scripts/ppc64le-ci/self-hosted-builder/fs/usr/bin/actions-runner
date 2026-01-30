@@ -18,8 +18,8 @@ if [ ! -f /run/runner_secret ]; then
 fi
 
 
-ACCESS_TOKEN="$(cat /run/runner_secret)"
-
+#ACCESS_TOKEN="$(cat /run/runner_secret)"
+ACCESS_TOKEN="$GITHUB_RUNNER_SECRET"
 # Generate registration token
 curl \
         -X POST \
@@ -29,6 +29,7 @@ curl \
         -o "$token_file"
  
 unset ACCESS_TOKEN
+unset GITHUB_RUNNER_SECRET
 
 # register runner as ephemeral runner
 # it does one job, stops and unregisters
