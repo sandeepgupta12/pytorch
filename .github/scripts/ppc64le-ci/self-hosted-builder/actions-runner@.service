@@ -12,9 +12,8 @@ ExecStartPre=-/usr/local/bin/gh_token_generator.sh /etc/actions-runner/%i/appid.
 
 # Start runner container with token injected as ENV only
 ExecStart=/bin/sh -c '\
-  set -a && \
-  . /etc/actions-runner/%i/ghtoken.env && \
-  set +a && \
+  GITHUB_RUNNER_SECRET="$(cat /etc/actions-runner/%i/ghtoken.env)" && \
+  
   exec /usr/bin/docker run \
     --env-file=/etc/actions-runner/%i/env \
     -e GITHUB_RUNNER_SECRET="$GITHUB_RUNNER_SECRET" \
