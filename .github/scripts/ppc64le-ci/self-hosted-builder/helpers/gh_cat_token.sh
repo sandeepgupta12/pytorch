@@ -12,5 +12,8 @@ if [[ ! -r "${TOKEN_FILE}" ]]; then
 fi
 
 # Write the token to the output file
-cat "${TOKEN_FILE}" > "${OUTPUT_FILE}"
-echo "Token written to ${OUTPUT_FILE}"
+# cat "${TOKEN_FILE}" > "${OUTPUT_FILE}"
+# echo "Token written to ${OUTPUT_FILE}"
+
+mkfifo "${TOKEN_PIPE}"
+cat "${TOKEN_FILE}" > "${TOKEN_PIPE}" &
