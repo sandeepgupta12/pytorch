@@ -11,9 +11,6 @@ if [[ ! -r "${TOKEN_FILE}" ]]; then
     exit 1
 fi
 
-# Write the token to the output file
-# cat "${TOKEN_FILE}" > "${OUTPUT_FILE}"
-# echo "Token written to ${OUTPUT_FILE}"
-
+rm "${TOKEN_PIPE}" 2>/dev/null ||:
 mkfifo "${TOKEN_PIPE}"
 cat "${TOKEN_FILE}" > "${TOKEN_PIPE}" &
