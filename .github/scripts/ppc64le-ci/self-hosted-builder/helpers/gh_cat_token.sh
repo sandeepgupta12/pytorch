@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 TOKEN_FILE=$1
-OUTPUT_FILE=$2
+TOKEN_PIPE=$2
 
-echo "Starting gh_cat_token.sh with TOKEN_FILE=${TOKEN_FILE}, OUTPUT_FILE=${OUTPUT_FILE}"
+echo "Starting gh_cat_token.sh with TOKEN_FILE=${TOKEN_FILE}, TOKEN_PIPE=${TOKEN_PIPE}"
 
 # Validate inputs
 if [[ ! -r "${TOKEN_FILE}" ]]; then
