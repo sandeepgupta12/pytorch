@@ -540,7 +540,11 @@ at::Tensor _qconv_prepack_onednn(
     kSpatialDim += 1;
   }
 #ifdef ONEDNN_FP8_QCONV_SUPPORTED
+#if defined(__x86_64__) || defined(_M_X64)
   if (is_fp8 && !cpuinfo_has_x86_amx_fp16()) {
+#else
+  if (is_fp8) {
+#endif
 #else
   if (is_fp8) {
 #endif
