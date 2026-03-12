@@ -39,8 +39,10 @@ yum -y install bzip2 make git patch unzip bison yasm diffutils \
     ${PYTHON_COMPILE_DEPS}
 
 # Install newest autoconf
-build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
-autoconf --version
+if [ "$(uname -m)" != "ppc64le" ] ; then
+    build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
+    autoconf --version
+fi
 
 # Compile the latest Python releases.
 # (In order to have a proper SSL module, Python is compiled
